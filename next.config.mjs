@@ -1,4 +1,7 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+// next.config.mjs
+const config = {
+ 
+};
 
-export default nextConfig;
+export default config;

@@ -27,6 +27,7 @@ yarn-error.log*
 
 # local env files
 .env*.local
+craft-9429a-firebase-adminsdk-5jobn-30946753c4.json
 
 # vercel
 .vercel

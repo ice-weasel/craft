@@ -6,16 +6,21 @@ import 'firebase/auth';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from '../app/firebase'
 import '../app/firebase'
+import { useRouter } from "next/navigation";
+
+
 export default function Login() {
   const [isLoading, setisLoading] = useState(false);
   const [email,setEmail] = useState('');
   const [password,setPassword] = useState('');
 //getConfig() is depreciated
  
- 
+ const router = useRouter()
 
 const handleClick = async () => {
   setisLoading(true);
+
+  
 
   console.log("this is the email" , email)
   console.log("this is the password" ,password)
@@ -37,11 +42,8 @@ const handleClick = async () => {
 
 
     if (response.ok) {
-      
-      window.alert('Logins successfull')
-      console.log('that worked')
-      console.log('Received ID Token:', idToken); // Server-side
-      console.log('ID Token:', idToken); // Client-side
+      const { idToken } = await response.json()
+      router.replace(`/flowPage/${idToken}`)
 
     } else {
       console.error("Failed to log in");

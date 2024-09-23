@@ -1,6 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import { useState,useEffect } from "react";
+import "tailwindcss/tailwind.css";
 import firebase from "firebase/compat/app";
 import 'firebase/auth';
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -42,8 +43,8 @@ const handleClick = async () => {
 
 
     if (response.ok) {
-      const { idToken } = await response.json()
-      router.replace(`/flowPage/${idToken}`)
+      router.push('/dashBoard')
+    
 
     } else {
       console.error("Failed to log in");

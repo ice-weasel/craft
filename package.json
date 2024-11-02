@@ -12,6 +12,7 @@
     "@material-tailwind/html": "^2.3.2",
     "@material-tailwind/react": "^2.1.10",
     "@next/font": "^14.2.15",
+    "@xyflow/react": "^12.3.4",
     "cookie": "^0.6.0",
     "esrun": "^3.2.26",
     "firebase": "^10.13.1",

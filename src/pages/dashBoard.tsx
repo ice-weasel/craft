@@ -68,6 +68,19 @@ const Dashboard = ({ sessionCookie }: any) => {
             </div>
           </div>
         </nav>
+        <div className="flex flex-row justify-between">
+          <div className="w-1/2 rounded-lg">left</div>
+          <div className="w-1/2 rounded-lg">
+            <button className="z-10 flex justify-center">click me</button>
+            <Image
+              alt="abstract img"
+              src="/abstract-img.png"
+              width={880}
+              height={880}
+              className="rounded-xl z-0"
+            ></Image>
+          </div>
+        </div>
       </div>
       <div className="h-1/2">
         <Tabs />

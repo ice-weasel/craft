@@ -1,49 +1,51 @@
-// components/BasicTabs.tsx
-
 import { useState } from "react";
 
 const Tabs: React.FC = () => {
   const [activeTab, setActiveTab] = useState<number>(0);
 
   return (
-    <div className="w-screen p-3">
-      {/* Tab Headers */}
+    <div className="w-screen p-6 h-full">
       <div className="flex space-x-4 border-b border-gray-200 mb-4">
         <button
-          className={`px-4 py-2 transition ${
+          className={`px-4 py-2 text-xl transition ${
             activeTab === 0
-              ? "text-blue-500 border-b-2 border-blue-500"
+              ? "text-black border-b-2 border-black font-semibold"
               : "text-gray-500"
           }`}
           onClick={() => setActiveTab(0)}
         >
-          Tab 1
+          Recent
         </button>
         <button
-          className={`px-4 py-2 transition ${
+          className={`px-4 py-2 text-xl transition ${
             activeTab === 1
-              ? "text-blue-500 border-b-2 border-blue-500"
+              ? "text-black border-b-2 border-black font-semibold"
               : "text-gray-500"
           }`}
           onClick={() => setActiveTab(1)}
         >
-          Tab 2
+          For You
         </button>
         <button
-          className={`px-4 py-2 transition ${
+          className={`px-4 py-2 text-xl transition ${
             activeTab === 2
-              ? "text-blue-500 border-b-2 border-blue-500"
+              ? "text-black border-b-2 border-black font-semibold"
               : "text-gray-500"
           }`}
           onClick={() => setActiveTab(2)}
         >
-          Tab 3
+          All
         </button>
       </div>
 
-      {/* Tab Content */}
-      <div className="p-4 bg-gray-100 rounded-lg">
-        {activeTab === 0 && <div>Content for Tab 1</div>}
+      <div className="p-6 h-4/5 rounded-lg">
+        {activeTab === 0 && (
+          <div className="h-full flex flex-row justify-between space-x-5">
+            <div className="w-1/3 bg-emerald-100 rounded-lg p-5 ">box1</div>
+            <div className="w-1/3 bg-violet-100 rounded-lg p-5 ">box2</div>
+            <div className="w-1/3 bg-violet-100 rounded-lg p-5">box3</div>
+          </div>
+        )}
         {activeTab === 1 && <div>Content for Tab 2</div>}
         {activeTab === 2 && <div>Content for Tab 3</div>}
       </div>

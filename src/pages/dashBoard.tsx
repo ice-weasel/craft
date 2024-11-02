@@ -9,13 +9,14 @@ import CircularProgress from "@/components/circluarProgress";
 import Image from "next/image";
 import { Syne } from "next/font/google";
 import Tabs from "@/components/tabs/tabs-dashboard";
+import { GoArrowUpRight } from "react-icons/go";
 //Cookie verification
 export async function getServerSideProps(context: any) {
   const { req } = context;
   const sessionCookie = req.cookies["session"];
 
   if (!sessionCookie) {
-    // Redirect to login if no session cookie
+    // Redirect to login
     return {
       redirect: {
         destination: "/Login",
@@ -38,7 +39,7 @@ const Dashboard = ({ sessionCookie }: any) => {
     <div className="bg-white w-full text-black h-screen flex flex-col justify-between">
       <div className="h-1/2 ">
         <nav className=" bg-white h-1/6 items-center text-center">
-          <div className="w-screen flex flex-wrap items-center justify-between  mx-auto p-4">
+          <div className="w-screen flex flex-wrap items-center justify-between  mx-auto pl-10 pr-10 pt-4 pb-4">
             <div className=" flex flex-row p-2">
               <Image
                 alt="logo"
@@ -68,17 +69,22 @@ const Dashboard = ({ sessionCookie }: any) => {
             </div>
           </div>
         </nav>
-        <div className="flex flex-row justify-between">
+        <div className="flex flex-row justify-between p-10">
           <div className="w-1/2 rounded-lg">left</div>
-          <div className="w-1/2 rounded-lg">
-            <button className="z-10 flex justify-center">click me</button>
-            <Image
+          <div className="w-1/2 rounded-lg relative">
+            <img
               alt="abstract img"
               src="/abstract-img.png"
-              width={880}
-              height={880}
-              className="rounded-xl z-0"
-            ></Image>
+              className="rounded-xl z-0 object-cover "
+              width="1000"
+            ></img>
+            <button className="absolute bottom-8 left-8 w-2/5 p-2 pl-4 pr-4 h-1/6 text-black shadow-sm items-center rounded-full backdrop-blur-lg bg-white/30   hover:bg-white flex justify-between">
+              {" "}
+              <div className="text-xl">Create new workflows</div>
+              <div>
+                <GoArrowUpRight className="mt-1" size={22} />
+              </div>
+            </button>
           </div>
         </div>
       </div>

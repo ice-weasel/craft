@@ -16,8 +16,8 @@ export async function getServerSideProps(context: any) {
   
     // Pass session data to the page
     return { props: { sessionCookie } };
-  }
-  
+}
+
 const flowPage = ( { sessionCookie } : any) => {
 
     return(

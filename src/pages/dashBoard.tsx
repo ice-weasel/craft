@@ -44,10 +44,10 @@ const Dashboard = ({ sessionCookie }: any) => {
               <Image
                 alt="logo"
                 src="/craft-logo-new.png"
-                width="50"
-                height="50"
+                width="40"
+                height="40"
               ></Image>
-              <div className="mt-3 text-3xl">
+              <div className="mt-2 text-xl">
                 <h1 className={mont.className}>Craft</h1>
               </div>
             </div>
@@ -56,13 +56,13 @@ const Dashboard = ({ sessionCookie }: any) => {
                 <Image
                   alt="profile"
                   src="/profile-icon-new.png"
-                  width="50"
-                  height="50"
+                  width="40"
+                  height="40"
                 ></Image>
               </button>
               <a
                 href="#_"
-                className="flex items-center justify-center px-4 py-2 text-base font-medium leading-6 text-white whitespace-no-wrap bg-black border-4 border-transparent rounded-full shadow-sm hover:bg-transparent hover:text-black hover:border-black focus:outline-none"
+                className="flex items-center justify-center px-2 py-1 text-base font-medium leading-6 text-white whitespace-no-wrap bg-black border-2 border-transparent rounded-full shadow-sm hover:bg-transparent hover:text-black hover:border-black focus:outline-none"
               >
                 Menu
               </a>
@@ -72,8 +72,8 @@ const Dashboard = ({ sessionCookie }: any) => {
         <div className="flex flex-row justify-between p-10">
           <div className="w-1/2 rounded-lg flex flex-col justify-around ">
             <div className="space-y-8">
-              <div className="text-8xl font-semibold">Hey, Carolina!</div>
-              <div className="text-xl">
+              <div className="text-6xl font-semibold">Hey, Carolina!</div>
+              <div className="text-md">
                 Bring your ideas to life with adaptability that grows with you.
                 Whether it’s organizing simple steps <br />
                 or managing complex tasks, you have the tools to make it happen.
@@ -82,9 +82,9 @@ const Dashboard = ({ sessionCookie }: any) => {
                 <div className="font-semibold">Your workflow, Your rules!</div>
               </div>
             </div>
-            <button className="w-1/3  group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-xl bg-white border-4 border-black px-6 font-medium text-black duration-500">
-              <div className="translate-x-0 opacity-100 text-lg transition group-hover:-translate-x-[150%] group-hover:opacity-0">
-                Check out the toolkits!
+            <button className="w-44  group relative inline-flex h-10 items-center justify-center overflow-hidden rounded-xl bg-white border-2 border-black px-4 text-black duration-500">
+              <div className="translate-x-0 opacity-100 text-md transition group-hover:-translate-x-[150%] group-hover:opacity-0">
+                Check it out!
               </div>
               <div className="absolute translate-x-[150%] opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100">
                 <svg
@@ -112,11 +112,11 @@ const Dashboard = ({ sessionCookie }: any) => {
               className="rounded-xl z-0 object-cover "
               width="1000"
             ></img>
-            <button className="absolute bottom-8 left-8 w-2/5 p-2 pl-4 pr-4 h-1/6 text-black shadow-sm items-center rounded-full backdrop-blur-lg bg-white/30   hover:bg-white flex justify-between">
+            <button className="absolute bottom-8 left-8 w-2/5 p-2 pl-4 pr-4 h-1/6 text-black shadow-sm items-center rounded-full backdrop-blur-lg bg-white/30   hover:bg-transparent hover:shadow-md flex justify-between">
               {" "}
-              <div className="text-xl">Create new workflows</div>
+              <div className="text-md">Create new workflows</div>
               <div>
-                <GoArrowUpRight className="mt-1" size={22} />
+                <GoArrowUpRight className="mt-1" size={16} />
               </div>
             </button>
           </div>

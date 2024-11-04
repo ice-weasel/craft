@@ -3,3 +3,16 @@
 @tailwind utilities;
 @tailwind components;
 @tailwind utilities;
+
+.reactflow-wrapper {
+    width: 100%;
+    height: 100%;
+  }
+  
+  .react-flow__node {
+    cursor: grab;
+  }
+  
+  .react-flow__node.dragging {
+    cursor: grabbing;
+  }

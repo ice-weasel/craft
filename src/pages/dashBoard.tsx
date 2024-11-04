@@ -74,7 +74,7 @@ const Dashboard = ({ sessionCookie }: any) => {
             <div className="space-y-8">
               <div className="text-8xl font-semibold">Hey, Carolina!</div>
               <div className="text-xl">
-                Bring your ideas to life with adaptability that grows with you.
+                Bring your ideas to life with adaptability thatv grows with you.
                 Whether it’s organizing simple steps <br />
                 or managing complex tasks, you have the tools to make it happen.
                 Get started with a template <br />

@@ -36,10 +36,10 @@ const mont = Montserrat({
 
 const Dashboard = ({ sessionCookie }: any) => {
   return (
-    <div className="bg-white w-full text-black h-screen flex flex-col justify-between">
-      <div className="h-1/2 ">
+    <div className="bg-white w-full text-black h-screen flex md:flex-col flex-col justify-between">
+      <div className="md:h-1/2 ">
         <nav className=" bg-white h-1/6 items-center text-center">
-          <div className="w-screen flex flex-wrap items-center justify-between  mx-auto pl-10 pr-10 pt-4 pb-4">
+          <div className="w-screen flex flex-wrap items-center justify-between  mx-auto pl-6 pr-4 md:pl-10 md:pr-10 pt-4 pb-4">
             <div className=" flex flex-row p-2">
               <Image
                 alt="logo"
@@ -62,18 +62,20 @@ const Dashboard = ({ sessionCookie }: any) => {
               </button>
               <a
                 href="#_"
-                className="flex items-center justify-center px-2 py-1 text-base font-medium leading-6 text-white whitespace-no-wrap bg-black border-2 border-transparent rounded-full shadow-sm hover:bg-transparent hover:text-black hover:border-black focus:outline-none"
+                className="flex items-center justify-center px-2 py-1 md:text-base text-xs font-medium leading-6 text-white whitespace-no-wrap bg-black border-2 border-transparent rounded-full shadow-sm hover:bg-transparent hover:text-black hover:border-black focus:outline-none"
               >
                 Menu
               </a>
             </div>
           </div>
         </nav>
-        <div className="flex flex-row justify-between p-10">
-          <div className="w-1/2 rounded-lg flex flex-col justify-around ">
+        <div className="flex md:flex-row flex-col justify-between md:p-10 p-6">
+          <div className="md:w-1/2 rounded-lg flex flex-col space-y-5 md:space-y-0 justify-around ">
             <div className="space-y-8">
-              <div className="text-6xl font-semibold">Hey, Carolina!</div>
-              <div className="text-md">
+              <div className="md:text-6xl text-4xl font-semibold">
+                Hey, Carolina!
+              </div>
+              <div className="md:text-md text-sm">
                 Bring your ideas to life with adaptability that grows with you.
                 Whether it’s organizing simple steps <br />
                 or managing complex tasks, you have the tools to make it happen.
@@ -82,7 +84,7 @@ const Dashboard = ({ sessionCookie }: any) => {
                 <div className="font-semibold">Your workflow, Your rules!</div>
               </div>
             </div>
-            <button className="w-44  group relative inline-flex h-10 items-center justify-center overflow-hidden rounded-xl bg-white border-2 border-black px-4 text-black duration-500">
+            <button className="md:w-44  w-40 group relative inline-flex md:h-10 h-8 items-center justify-center overflow-hidden rounded-xl bg-white border-2 border-black px-4 text-black duration-500">
               <div className="translate-x-0 opacity-100 text-md transition group-hover:-translate-x-[150%] group-hover:opacity-0">
                 Check it out!
               </div>
@@ -105,16 +107,16 @@ const Dashboard = ({ sessionCookie }: any) => {
               </div>
             </button>
           </div>
-          <div className="w-1/2 rounded-lg relative">
+          <div className="md:w-1/2 rounded-lg relative md:mt-0 mt-5">
             <img
               alt="abstract img"
               src="/abstract-img.png"
               className="rounded-xl z-0 object-cover "
               width="1000"
             ></img>
-            <button className="absolute bottom-8 left-8 w-2/5 p-2 pl-4 pr-4 h-1/6 text-black shadow-sm items-center rounded-full backdrop-blur-lg bg-white/30   hover:bg-transparent hover:shadow-md flex justify-between">
+            <button className="absolute md:bottom-8 bottom-4 md:left-8 left-4  md:w-2/5 w-2/3   p-2 pl-4 pr-4 md:h-1/6 h-8 text-black shadow-sm items-center rounded-full backdrop-blur-lg bg-white/30   hover:bg-transparent hover:shadow-md flex justify-between">
               {" "}
-              <div className="text-md">Create new workflows</div>
+              <div className="md:text-md text-sm">Create new workflows</div>
               <div>
                 <GoArrowUpRight className="mt-1" size={16} />
               </div>
@@ -122,7 +124,7 @@ const Dashboard = ({ sessionCookie }: any) => {
           </div>
         </div>
       </div>
-      <div className="h-1/2">
+      <div className="md:h-1/2 md:pb-0 pb-4">
         <Tabs />
       </div>
     </div>

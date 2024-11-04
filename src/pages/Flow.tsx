@@ -30,7 +30,50 @@ export const toolNodes = [
   // ... other initial nodes
 ];
 
+type NavigationButtonProps = {
+  number: number;
+  isActive: boolean;
+  onClick: () => void;
+};
+
+type NextButtonProps = {
+  text: string;
+  onClick: () => void;
+};
+
+
+const NavigationButton: React.FC<NavigationButtonProps> = ({ number, isActive, onClick }) => (
+  <p
+    onClick={onClick}
+    className={`p-2 min-w-[40px] transition-colors ${
+      isActive 
+        ? "bg-blue-600 text-white border-blue-700" 
+        : "bg-white text-gray-700 hover:bg-gray-100"
+    } border rounded-md`}
+  >
+    {number}
+  </p>
+);
+
+const NextButton: React.FC<NextButtonProps> = ({ text, onClick }) => (
+  <button
+    onClick={onClick}
+    className="bg-blue-600 text-white p-2 border rounded-md hover:bg-blue-700 transition-colors"
+  >
+    {text}
+  </button>
+);
+
+
 const FlowWithPathExtractor = () => {
+
+  const [activeTab, setActiveTab] = useState(0);
+  const nextbutton = ["Enter prompt", "Select Tools", "Select LLMs"];
+
+  const handleNext = () => {
+    setActiveTab((prevTab) => (prevTab + 1) % nextbutton.length);
+  }
+
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
 
@@ -80,12 +123,12 @@ const FlowWithPathExtractor = () => {
   );
 
   return (
-    <div className="flex h-full">
-      <div className="w-64 bg-gray-100 p-4">
-        <Tools />
+    <div className="flex flex-row">
+      <div className="flex flex-col w-64 bg-gray-100 p-4">
+      <Tools/>
       </div>
 
-      <div className="flex-1" style={{ height: '100vh' }}>
+      <div className="flex-1 mt-12" style={{ height: '100vh' }}>
         <ReactFlowProvider>
           <div className="reactflow-wrapper w-full h-full" ref={reactFlowWrapper}>
             <ReactFlow

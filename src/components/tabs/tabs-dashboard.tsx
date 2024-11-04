@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Poppins } from "next/font/google";
 import { MdDelete } from "react-icons/md";
 import { MdEdit } from "react-icons/md";
+import { FaLock } from "react-icons/fa";
+import { FaLockOpen } from "react-icons/fa";
 
 const pops = Poppins({
   weight: "500",
@@ -61,6 +63,11 @@ const Tabs: React.FC = () => {
                 <div className="text-4xl font-semibold">
                   <h1 className={pops.className}>PPT RAG</h1>
                 </div>
+                <button className="mt-2 border-2 rounded-full p-2 border-black h-6 w-1/6 text-sm text-center items-center flex justify-center">
+                  <div>
+                    <FaLock />
+                  </div>
+                </button>
               </div>
               <div className="">
                 <button className="flex flex-row justify-between w-full bg-violet-300 p-3 rounded-full hover:bg-violet-200">
@@ -82,6 +89,11 @@ const Tabs: React.FC = () => {
                 <div className="text-4xl font-semibold">
                   <h1 className={pops.className}>Wikipedia Search</h1>
                 </div>
+                <button className="mt-2 border-2 rounded-full p-2 border-black h-6 w-1/6 text-sm text-center items-center flex justify-center">
+                  <div>
+                    <FaLock />
+                  </div>
+                </button>
               </div>
               <div className="">
                 <button className="flex flex-row justify-between w-full bg-violet-300 p-3 rounded-full hover:bg-violet-200">
@@ -105,6 +117,11 @@ const Tabs: React.FC = () => {
                 <div className="text-4xl font-semibold">
                   <h1 className={pops.className}>Image Search</h1>
                 </div>
+                <button className="mt-2 border-2 rounded-full p-2 border-black h-6 w-1/6 text-sm text-center items-center flex justify-center">
+                  <div>
+                    <FaLockOpen />
+                  </div>
+                </button>
               </div>
               <div className="">
                 <button className="flex flex-row justify-between w-full bg-violet-300 p-3 rounded-full hover:bg-violet-200">

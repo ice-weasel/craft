@@ -90,7 +90,7 @@ const FlowWithPathExtractor = () => {
   ];
 
   const [activeTab, setActiveTab] = useState(0);
-  const nextbutton = ["Enter prompt", "Select Tools", "Select LLMs"];
+  const nextbutton = ["Enter prompt", "Select Tools", "Select LLMs","Create Workflow"];
 
   const handleNext = () => {
     setActiveTab((prevTab) => (prevTab + 1) % nextbutton.length);
@@ -144,6 +144,76 @@ const FlowWithPathExtractor = () => {
     [reactFlowInstance, setNodes]
   );
 
+ const extractPaths = useCallback(() => {
+       const paths:any = [];
+       const visited = new Set();
+  
+      const findPaths = (nodeId:any, currentPath:any) => {
+         if (visited.has(nodeId)) return;
+         visited.add(nodeId);
+        
+         const node = nodes.find(n => n.id === nodeId);
+         currentPath.push({
+           id: nodeId,
+           label: node.data.label,
+           type: node.type
+         });
+  
+         if (node.type === 'output') {
+          paths.push([...currentPath]);
+        } else {
+           const connectedEdges = edges.filter(edge => edge.source === nodeId);
+           for (const edge of connectedEdges) {
+             findPaths(edge.target, [...currentPath]);
+           }
+         }
+         visited.delete(nodeId);
+       };
+  
+       // Find start nodes (type: 'input')
+       const startNodes = nodes.filter(node => node.type === 'input');
+       startNodes.forEach(startNode => {
+         findPaths(startNode.id, []);
+       });
+
+       return {
+            paths,
+             edges: edges.map(edge => ({
+               id: edge.id,
+               from: {
+                 id: edge.source,
+                 label: nodes.find(n => n.id === edge.source)?.data.label
+               },
+               to: {
+                 id: edge.target,
+               label: nodes.find(n => n.id === edge.target)?.data.label
+               }
+             }))
+           };
+         }, [nodes, edges]);
+
+
+         const exportPathsAsJson = () => {
+          if(activeTab===3)
+          {
+            const pathData = extractPaths();
+            const jsonString = JSON.stringify(pathData, null, 2);
+            
+            // Create and download JSON file
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'flow-paths.json';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+          };
+          }
+       
+  
+
  
 
 
@@ -173,7 +243,11 @@ const FlowWithPathExtractor = () => {
       </div>
 
       <div className="p-6 border-t border-gray-200">
-        <NextButton text={nextbutton[activeTab]} onClick={handleNext} />
+
+      <NextButton text={nextbutton[activeTab]} onClick={() => {
+    handleNext();
+    exportPathsAsJson();
+}} />
       </div>
     </div>
 

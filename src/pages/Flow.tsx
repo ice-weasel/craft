@@ -81,6 +81,7 @@ const NextButton: React.FC<NextButtonProps> = ({ text, onClick }) => (
 );
 
 
+
 const FlowWithPathExtractor = () => {
 
   const navigationItems = [
@@ -98,7 +99,7 @@ const FlowWithPathExtractor = () => {
 
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
-
+  const [selectedElements, setSelectedElements] = useState<{ nodes: Node[]; edges: Edge[] }>({ nodes: [], edges: [] });
   const [nodes, setNodes, onNodesChange] = useNodesState(toolNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge[]>([]);
 
@@ -106,6 +107,15 @@ const FlowWithPathExtractor = () => {
     (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
   );
+
+  const handleDelete = useCallback(() => {
+    const selectedNodeIds = selectedElements.nodes.map((node) => node.id);
+    const selectedEdgeIds = selectedElements.edges.map((edge) => edge.id);
+
+    setNodes((nds) => nds.filter((node) => !selectedNodeIds.includes(node.id)));
+    setEdges((eds) => eds.filter((edge) => !selectedEdgeIds.includes(edge.id)));
+    setSelectedElements({ nodes: [], edges: [] }); // Reset selection
+  }, [selectedElements, setNodes, setEdges]);
 
   const onInit = useCallback((instance: any) => {
     setReactFlowInstance(instance);
@@ -143,6 +153,8 @@ const FlowWithPathExtractor = () => {
     },
     [reactFlowInstance, setNodes]
   );
+
+ 
 
  const extractPaths = useCallback(() => {
        const paths:any = [];
@@ -212,7 +224,7 @@ const FlowWithPathExtractor = () => {
           };
           }
        
-  
+         
 
  
 
@@ -243,6 +255,21 @@ const FlowWithPathExtractor = () => {
       </div>
 
       <div className="p-6 border-t border-gray-200">
+      <button
+        onClick={handleDelete}
+        disabled={!selectedElements.nodes.length && !selectedElements.edges.length}
+        style={{
+          margin: '10px',
+          padding: '10px 20px',
+          backgroundColor: '#FF4D4F',
+          color: 'white',
+          border: 'none',
+          borderRadius: '5px',
+          cursor: 'pointer',
+        }}
+      >
+        Delete Selected
+      </button>
 
       <NextButton text={nextbutton[activeTab]} onClick={() => {
     handleNext();
@@ -263,6 +290,7 @@ const FlowWithPathExtractor = () => {
             onInit={onInit}
             onDrop={onDrop}
             onDragOver={onDragOver}
+            onSelectionChange={(elements) => setSelectedElements(elements)}
             fitView
           >
             <Controls className="bg-white shadow-lg border border-gray-200 rounded-lg" />

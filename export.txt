@@ -1,0 +1,75 @@
+/*Sidebar stuff */
+
+  // Function to extract paths from start to end
+  // const extractPaths = useCallback(() => {
+  //   const paths = [];
+  //   const visited = new Set();
+
+  //   const findPaths = (nodeId, currentPath) => {
+  //     if (visited.has(nodeId)) return;
+  //     visited.add(nodeId);
+      
+  //     const node = nodes.find(n => n.id === nodeId);
+  //     currentPath.push({
+  //       id: nodeId,
+  //       label: node.data.label,
+  //       type: node.type
+  //     });
+
+  //     if (node.type === 'output') {
+  //       paths.push([...currentPath]);
+  //     } else {
+  //       const connectedEdges = edges.filter(edge => edge.source === nodeId);
+  //       for (const edge of connectedEdges) {
+  //         findPaths(edge.target, [...currentPath]);
+  //       }
+  //     }
+  //     visited.delete(nodeId);
+  //   };
+
+  //   // Find start nodes (type: 'input')
+  //   const startNodes = nodes.filter(node => node.type === 'input');
+  //   startNodes.forEach(startNode => {
+  //     findPaths(startNode.id, []);
+  //   });
+
+  //   return {
+  //     paths,
+  //     edges: edges.map(edge => ({
+  //       id: edge.id,
+  //       from: {
+  //         id: edge.source,
+  //         label: nodes.find(n => n.id === edge.source)?.data.label
+  //       },
+  //       to: {
+  //         id: edge.target,
+  //         label: nodes.find(n => n.id === edge.target)?.data.label
+  //       }
+  //     }))
+  //   };
+  // }, [nodes, edges]);
+
+  // Function to export paths as JSON
+  const exportPathsAsJson = () => {
+    const pathData = extractPaths();
+    const jsonString = JSON.stringify(pathData, null, 2);
+    
+    // Create and download JSON file
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'flow-paths.json';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+
+     {/* <button 
+        onClick={exportPathsAsJson}
+        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+      >
+        Export Paths as JSON
+      </button> */}

@@ -4,6 +4,7 @@ import { MdDelete } from "react-icons/md";
 import { MdEdit } from "react-icons/md";
 import { FaLock } from "react-icons/fa";
 import { FaLockOpen } from "react-icons/fa";
+import Link from "next/link";
 
 const pops = Poppins({
   weight: "500",
@@ -72,14 +73,14 @@ const Tabs: React.FC = () => {
                 </button>
               </div>
               <div className="">
-                <button className="flex flex-row justify-between w-full bg-violet-300 md:p-3 p-1 rounded-full hover:bg-violet-200">
-                  <div className="md:text-md text-sm font-semibold pl-4">
+              <Link href="/Flow"> <button className="flex flex-row justify-between w-full bg-violet-300 md:p-3 p-1 rounded-full hover:bg-violet-200">
+              <div className="md:text-md text-sm font-semibold pl-4">
                     Edit
                   </div>
                   <div className="pr-4">
                     <MdEdit size={20} />
                   </div>
-                </button>
+                </button></Link>
               </div>
             </div>
             <div className="md:w-1/3 w-full bg-indigo-100  rounded-lg flex flex-col justify-between md:space-y-0 space-y-4  p-6">

@@ -167,11 +167,11 @@ const FlowWithPathExtractor = () => {
          const node = nodes.find(n => n.id === nodeId);
          currentPath.push({
            id: nodeId,
-           label: node.data.label,
-           type: node.type
+           label: node?.data.label,
+           type: node?.type
          });
   
-         if (node.type === 'output') {
+         if (node?.type === 'output') {
           paths.push([...currentPath]);
         } else {
            const connectedEdges = edges.filter(edge => edge.source === nodeId);

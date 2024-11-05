@@ -11,6 +11,7 @@ import ReactFlow, {
   Edge,
   ReactFlowProvider,
   Node,
+  OnSelectionChangeParams,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import Tools from '../components/flowtabs/tools';
@@ -107,6 +108,10 @@ const FlowWithPathExtractor = () => {
     setEdges((eds) => eds.filter((edge) => !selectedEdgeIds.includes(edge.id)));
     setSelectedElements({ nodes: [], edges: [] });
   }, [selectedElements, setNodes, setEdges]);
+
+  const onSelectionChange = useCallback((elements: OnSelectionChangeParams) => {
+    setSelectedElements({ nodes: elements.nodes, edges: elements.edges });
+  }, []);
 
   const onInit = useCallback((instance: any) => {
     setReactFlowInstance(instance);
@@ -222,7 +227,7 @@ const FlowWithPathExtractor = () => {
           </div>
         </div>
 
-        <div className="flex-grow p-6 overflow-auto">
+        <div className="flex-1 p-6 overflow-auto">
           <div className="bg-white rounded-xl shadow-sm">
             {activeTab === 0 && <DocuType onDocTypeChange={handleDocTypeChange} />}
             {activeTab === 1 && <Prompts />}
@@ -232,31 +237,53 @@ const FlowWithPathExtractor = () => {
         </div>
 
         <div className="p-6">
+          <button
+            onClick={handleDelete}
+            disabled={!selectedElements.nodes.length && !selectedElements.edges.length}
+            style={{
+              margin: '10px',
+              padding: '10px 20px',
+              backgroundColor: '#FF4D4F',
+              color: 'white',
+              cursor: 'pointer',
+              border: 'none',
+              borderRadius: '5px',
+              fontWeight: 'bold',
+              fontSize: '14px',
+            }}
+          >
+            Delete
+          </button>
           <NextButton text={nextbutton[activeTab]} onClick={handleNext} />
         </div>
       </div>
 
-      <div className="flex-grow" ref={reactFlowWrapper}>
-        <ReactFlowProvider>
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            onInit={onInit}
-            onDrop={onDrop}
-            onDragOver={onDragOver}
-            fitView
-          >
-            <MiniMap />
-            <Controls />
-            <Background />
-          </ReactFlow>
-        </ReactFlowProvider>
+      <div className="flex-1" ref={reactFlowWrapper}>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          onInit={onInit}
+          onDrop={onDrop}
+          onDragOver={onDragOver}
+          onSelectionChange={onSelectionChange}
+          fitView
+        >
+          <Controls />
+          <MiniMap />
+          <Background />
+        </ReactFlow>
       </div>
     </div>
   );
 };
 
-export default FlowWithPathExtractor;
+const FlowApp = () => (
+  <ReactFlowProvider>
+    <FlowWithPathExtractor />
+  </ReactFlowProvider>
+);
+
+export default FlowApp;

@@ -16,8 +16,9 @@ import 'reactflow/dist/style.css';
 import Tools from '../components/flowtabs/tools';
 import Prompts from '@/components/flowtabs/prompts';
 import LLMs from '@/components/flowtabs/llm';
-import { ChevronRight, Layout, Cpu, Icon } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import Image from 'next/image';
+import DocuType from '@/components/flowtabs/documentype';
 
 const getId = (() => {
   let id = 0;
@@ -35,7 +36,7 @@ export const toolNodes = [
 ];
 
 type NavigationButtonProps = {
-  label:string;
+  label: string;
   isActive: boolean;
   onClick: () => void;
 };
@@ -45,20 +46,18 @@ type NextButtonProps = {
   onClick: () => void;
 };
 
-
 const NavigationButton: React.FC<NavigationButtonProps> = ({ label, isActive, onClick }) => (
   <button
     onClick={onClick}
     className={`
-     flex items-center gap-2 px-4 py-2
+      flex items-center gap-2 px-4 py-2
       transition-all duration-200 ease-in-out rounded-sm
       ${isActive 
         ? "bg-slate-300 text-white shadow-lg translate-x-2" 
         : "bg-gray-400 text-gray-600 hover:bg-blue-50 hover:text-blue-600"}
     `}
   >
- 
-   <Image src={label} width="50" height="50" alt="Navigation" />
+    <Image src={label} width="50" height="50" alt="Navigation" />
   </button>
 );
 
@@ -68,7 +67,7 @@ const NextButton: React.FC<NextButtonProps> = ({ text, onClick }) => (
     className="
       group flex items-center gap-2 px-6 py-3 w-full
       bg-white text-black rounded-xl border-2 border-blue-700
-      hover:bg-blue-700 hover:text-white transition-all  duration-200
+      hover:bg-blue-700 hover:text-white transition-all duration-200
       shadow-lg hover:shadow-xl
     "
   >
@@ -80,10 +79,7 @@ const NextButton: React.FC<NextButtonProps> = ({ text, onClick }) => (
   </button>
 );
 
-
-
 const FlowWithPathExtractor = () => {
-
   const navigationItems = [
     { label: "", imageSrc: "" },
     { label: "Tools", imageSrc: "/tools.png" },
@@ -91,12 +87,7 @@ const FlowWithPathExtractor = () => {
   ];
 
   const [activeTab, setActiveTab] = useState(0);
-  const nextbutton = ["Enter prompt", "Select Tools", "Select LLMs","Create Workflow"];
-
-  const handleNext = () => {
-    setActiveTab((prevTab) => (prevTab + 1) % nextbutton.length);
-  }
-
+  const nextbutton = ["Select Document Type", "Enter prompt", "Select Tools", "Select LLMs", "Create Workflow"];
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [selectedElements, setSelectedElements] = useState<{ nodes: Node[]; edges: Edge[] }>({ nodes: [], edges: [] });
@@ -114,7 +105,7 @@ const FlowWithPathExtractor = () => {
 
     setNodes((nds) => nds.filter((node) => !selectedNodeIds.includes(node.id)));
     setEdges((eds) => eds.filter((edge) => !selectedEdgeIds.includes(edge.id)));
-    setSelectedElements({ nodes: [], edges: [] }); // Reset selection
+    setSelectedElements({ nodes: [], edges: [] });
   }, [selectedElements, setNodes, setEdges]);
 
   const onInit = useCallback((instance: any) => {
@@ -129,13 +120,10 @@ const FlowWithPathExtractor = () => {
   const onDrop = useCallback(
     (event: React.DragEvent) => {
       event.preventDefault();
-
       const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
       const type = event.dataTransfer.getData('application/reactflow');
 
-      if (!type || !reactFlowBounds || !reactFlowInstance) {
-        return;
-      }
+      if (!type || !reactFlowBounds || !reactFlowInstance) return;
 
       const position = reactFlowInstance.project({
         x: event.clientX - reactFlowBounds.left,
@@ -154,133 +142,102 @@ const FlowWithPathExtractor = () => {
     [reactFlowInstance, setNodes]
   );
 
- 
+  const extractPaths = useCallback(() => {
+    const paths: any = [];
+    const visited = new Set();
 
- const extractPaths = useCallback(() => {
-       const paths:any = [];
-       const visited = new Set();
-  
-      const findPaths = (nodeId:any, currentPath:any) => {
-         if (visited.has(nodeId)) return;
-         visited.add(nodeId);
-        
-         const node = nodes.find(n => n.id === nodeId);
-         currentPath.push({
-           id: nodeId,
-           label: node?.data.label,
-           type: node?.type
-         });
-  
-         if (node?.type === 'output') {
-          paths.push([...currentPath]);
-        } else {
-           const connectedEdges = edges.filter(edge => edge.source === nodeId);
-           for (const edge of connectedEdges) {
-             findPaths(edge.target, [...currentPath]);
-           }
-         }
-         visited.delete(nodeId);
-       };
-  
-       // Find start nodes (type: 'input')
-       const startNodes = nodes.filter(node => node.type === 'input');
-       startNodes.forEach(startNode => {
-         findPaths(startNode.id, []);
-       });
+    const findPaths = (nodeId: any, currentPath: any) => {
+      if (visited.has(nodeId)) return;
+      visited.add(nodeId);
 
-       return {
-            paths,
-             edges: edges.map(edge => ({
-               id: edge.id,
-               from: {
-                 id: edge.source,
-                 label: nodes.find(n => n.id === edge.source)?.data.label
-               },
-               to: {
-                 id: edge.target,
-               label: nodes.find(n => n.id === edge.target)?.data.label
-               }
-             }))
-           };
-         }, [nodes, edges]);
+      const node = nodes.find(n => n.id === nodeId);
+      currentPath.push({
+        id: nodeId,
+        label: node?.data.label,
+        type: node?.type
+      });
 
+      if (node?.type === 'output') {
+        paths.push([...currentPath]);
+      } else {
+        const connectedEdges = edges.filter(edge => edge.source === nodeId);
+        for (const edge of connectedEdges) {
+          findPaths(edge.target, [...currentPath]);
+        }
+      }
+      visited.delete(nodeId);
+    };
 
-         const exportPathsAsJson = () => {
-          if(activeTab===3)
-          {
-            const pathData = extractPaths();
-            const jsonString = JSON.stringify(pathData, null, 2);
-            
-            // Create and download JSON file
-            const blob = new Blob([jsonString], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'flow-paths.json';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-          };
-          }
-       
-         
+    const startNodes = nodes.filter(node => node.type === 'input');
+    startNodes.forEach(startNode => {
+      findPaths(startNode.id, []);
+    });
 
- 
+    return paths;
+  }, [nodes, edges]);
 
+  const exportPathsAsJson = useCallback(() => {
+    if (activeTab === 3) {  // Only export at specific tab
+      const pathData = extractPaths();
+      const jsonString = JSON.stringify(pathData, null, 2);
+
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'flow-paths.json';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+  }, [activeTab, extractPaths]);
+
+  const handleNext = () => {
+    setActiveTab((prevTab) => (prevTab + 1) % nextbutton.length);
+    exportPathsAsJson();
+  };
+
+  const [option, setOption] = useState<string | null>(null);
+
+  const handleDocTypeChange = (type: string | null) => {
+    setOption(type);
+    console.log('Selected document type:', option);
+  };
 
   return (
     <div className="flex h-screen bg-[#F0F2F5]">
-    <div className="w-80 flex flex-col border-r border-gray-200 bg-white">
-      <div className=" p-6">
-        <h1 className="text-2xl font-bold text-black mb-6">Create</h1>
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          {navigationItems.map((item, index) => (
-            <NavigationButton
-              key={index}
-              label={item.imageSrc}  // Passing image source to NavigationButton
-              isActive={activeTab === index}
-              onClick={() => setActiveTab(index)}
-            />
-          ))}
+      <div className="w-80 flex flex-col border-r border-gray-200 bg-white">
+        <div className=" p-6">
+          <h1 className="text-2xl font-bold text-black mb-6">Create</h1>
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            {navigationItems.map((item, index) => (
+              <NavigationButton
+                key={index}
+                label={item.imageSrc}
+                isActive={activeTab === index}
+                onClick={() => setActiveTab(index)}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="flex-grow p-6 overflow-auto">
+          <div className="bg-white rounded-xl shadow-sm">
+            {activeTab === 0 && <DocuType onDocTypeChange={handleDocTypeChange} />}
+            {activeTab === 1 && <Prompts />}
+            {activeTab === 2 && <Tools />}
+            {activeTab === 3 && <LLMs />}
+          </div>
+        </div>
+
+        <div className="p-6">
+          <NextButton text={nextbutton[activeTab]} onClick={handleNext} />
         </div>
       </div>
-      
-      <div className="flex-grow p-6 overflow-auto">
-        <div className="bg-white rounded-xl shadow-sm">
-          {activeTab === 0 && <Prompts />}
-          {activeTab === 1 && <Tools />}
-          {activeTab === 2 && <LLMs />}
-        </div>
-      </div>
 
-      <div className="p-6 border-t border-gray-200">
-      <button
-        onClick={handleDelete}
-        disabled={!selectedElements.nodes.length && !selectedElements.edges.length}
-        style={{
-          margin: '10px',
-          padding: '10px 20px',
-          backgroundColor: '#FF4D4F',
-          color: 'white',
-          border: 'none',
-          borderRadius: '5px',
-          cursor: 'pointer',
-        }}
-      >
-        Delete Selected
-      </button>
-
-      <NextButton text={nextbutton[activeTab]} onClick={() => {
-    handleNext();
-    exportPathsAsJson();
-}} />
-      </div>
-    </div>
-
-    <div className="flex-1">
-      <ReactFlowProvider>
-        <div className="w-full h-full" ref={reactFlowWrapper}>
+      <div className="flex-grow" ref={reactFlowWrapper}>
+        <ReactFlowProvider>
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -290,18 +247,16 @@ const FlowWithPathExtractor = () => {
             onInit={onInit}
             onDrop={onDrop}
             onDragOver={onDragOver}
-            onSelectionChange={(elements) => setSelectedElements(elements)}
             fitView
           >
-            <Controls className="bg-white shadow-lg border border-gray-200 rounded-lg" />
-            <MiniMap className="bg-white shadow-lg border border-gray-200 rounded-lg" />
-            <Background color="#F0F2F5" gap={16} />
+            <MiniMap />
+            <Controls />
+            <Background />
           </ReactFlow>
-        </div>
-      </ReactFlowProvider>
+        </ReactFlowProvider>
+      </div>
     </div>
-  </div>
-);
+  );
 };
 
 export default FlowWithPathExtractor;

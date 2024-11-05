@@ -14,21 +14,21 @@ const Tools = () => {
         onDragStart={(e) => onDragStart(e, 'default')}
         draggable
       >
-        Default Node
+        Text extractor
       </div>
       <div 
         className="p-2 border rounded mb-2 cursor-move bg-white"
         onDragStart={(e) => onDragStart(e, 'input')}
         draggable
       >
-        Input Node
+        Image extractor
       </div>
       <div 
         className="p-2 border rounded mb-2 cursor-move bg-white"
         onDragStart={(e) => onDragStart(e, 'output')}
         draggable
       >
-        Output Node
+        OCR 
       </div>
     </div>
   );

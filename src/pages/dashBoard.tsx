@@ -112,12 +112,13 @@ const Dashboard = ({ sessionCookie }: any) => {
             </button>
           </div>
           <div className="md:w-1/2 rounded-lg relative md:mt-0 mt-5">
-            <img
+            <Image
               alt="abstract img"
               src="/abstract-img.png"
               className="rounded-xl z-0 object-cover "
               width="1000"
-            ></img>
+              height="1000"
+            />
             <button className="absolute md:bottom-8 bottom-4 md:left-8 left-4  md:w-2/5 w-2/3   p-2 pl-4 pr-4 md:h-1/6 h-8 text-black shadow-sm items-center rounded-full backdrop-blur-lg bg-white/30   hover:bg-transparent hover:shadow-md flex justify-between">
               {" "}
               <div className="md:text-md text-sm">Create new workflows</div>

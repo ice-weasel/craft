@@ -10,6 +10,7 @@ import Image from "next/image";
 import { Montserrat } from "next/font/google";
 import Tabs from "@/components/tabs/tabs-dashboard";
 import { GoArrowUpRight } from "react-icons/go";
+import Link from "next/link";
 //Cookie verification
 export async function getServerSideProps(context: any) {
   const { req } = context;
@@ -120,6 +121,7 @@ const Dashboard = ({ sessionCookie }: any) => {
             <button className="absolute md:bottom-8 bottom-4 md:left-8 left-4  md:w-2/5 w-2/3   p-2 pl-4 pr-4 md:h-1/6 h-8 text-black shadow-sm items-center rounded-full backdrop-blur-lg bg-white/30   hover:bg-transparent hover:shadow-md flex justify-between">
               {" "}
               <div className="md:text-md text-sm">Create new workflows</div>
+             
               <div>
                 <GoArrowUpRight className="mt-1" size={16} />
               </div>

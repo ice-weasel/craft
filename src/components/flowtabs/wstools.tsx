@@ -1,7 +1,7 @@
 // Tools.tsx
 import React from 'react';
 
-const Tools = () => {
+const WSTools = () => {
   const onDragStart = (event: React.DragEvent, nodeType: string) => {
     event.dataTransfer.setData('application/reactflow', nodeType);
     event.dataTransfer.effectAllowed = 'move';
@@ -34,4 +34,4 @@ const Tools = () => {
   );
 };
 
-export default Tools;
+export default WSTools;

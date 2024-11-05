@@ -7,20 +7,13 @@ type DocuTypeProps = {
 export default function DocuType({ onDocTypeChange }: DocuTypeProps) {
   
     const [option, setOption] = useState<string | null>(null);
-
-  
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault(); 
-        alert(`Selected document type: ${option}`);
-    };
-
     // Handle radio button change
     const handleRadioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setOption(e.target.value); 
-        console.log(`Selected document type: ${option}`)
-       
+        const newValue = e.target.value;
+        setOption(newValue);
+        onDocTypeChange(newValue); // Call the prop function
+        console.log(`Selected document type2: ${newValue}`);
     };
-
     return (
         <>
         <p className="text-3xl w-full text-center">Select Document Type</p>

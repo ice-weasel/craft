@@ -11,21 +11,21 @@ export default function LLMs() {
           onDragStart={(e) => onDragStart(e, "default")}
           draggable
         >
-          Default Node
+          ChatGPT
         </div>
         <div
           className="p-2 border rounded mb-2 cursor-move bg-white"
           onDragStart={(e) => onDragStart(e, "input")}
           draggable
         >
-          Input Node
+          Gemini
         </div>
         <div
           className="p-2 border rounded mb-2 cursor-move bg-white"
           onDragStart={(e) => onDragStart(e, "output")}
           draggable
         >
-          Output Node
+          Llama
         </div>
       </div>
     </>

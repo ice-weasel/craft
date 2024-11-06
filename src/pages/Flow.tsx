@@ -35,7 +35,9 @@ export const toolNodes = [
     id: "1",
     type: "input",
     data: { label: "Start" },
+
     position: { x: 250, y: 25 }
+
   },
   {
     id:"2",
@@ -104,12 +106,18 @@ const NextButton: React.FC<NextButtonProps> = ({ text, onClick }) => (
 
 const FlowWithPathExtractor = () => {
   const navigationItems = [
+
     { label: "DocuType", imageSrc: "" },
     { label: "Prompts", imageSrc: "" },
     { label: "R_tools", imageSrc: "/tools.png" },
     { label: "WS_tools", imageSrc: "" },
     { label: "G_tools", imageSrc: "" },
     { label: "LLMs", imageSrc: "/ai.png" },
+
+    { label: "", imageSrc: "" },
+    { label: "Tools", imageSrc: "/tools.png" },
+    { label: "AI", imageSrc: "/ai.png" },
+
   ];
 
   const [activeTab, setActiveTab] = useState(0);
@@ -168,11 +176,13 @@ const FlowWithPathExtractor = () => {
     (event: React.DragEvent) => {
       event.preventDefault();
       const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
+
       const rawData = event.dataTransfer.getData("application/reactflow");
   
       if (!rawData || !reactFlowBounds || !reactFlowInstance) return;
   
       const { type, data } = JSON.parse(rawData);
+
       const position = reactFlowInstance.project({
         x: event.clientX - reactFlowBounds.left,
         y: event.clientY - reactFlowBounds.top,
@@ -198,6 +208,7 @@ const FlowWithPathExtractor = () => {
     const findPaths = (nodeId: any, currentPath: any) => {
       if (visited.has(nodeId)) return;
       visited.add(nodeId);
+
   
       const node = nodes.find(n => n.id === nodeId);
   
@@ -215,11 +226,15 @@ const FlowWithPathExtractor = () => {
           for (const edge of connectedEdges) {
             findPaths(edge.target, [...currentPath]);
           }
+
+
+
         }
       }
   
       visited.delete(nodeId);  // Allow revisiting nodes on different paths
     };
+
   
     // Start with 'input' nodes, or all nodes if none are inputs
     const startNodes = nodes.filter(node => node.type === 'input');
@@ -229,6 +244,7 @@ const FlowWithPathExtractor = () => {
     }
   
     startNodes.forEach(startNode => {
+
       findPaths(startNode.id, []);
     });
   
@@ -238,6 +254,7 @@ const FlowWithPathExtractor = () => {
   
 
   const exportPathsAsJson = useCallback(() => {
+
     // Only export at specific tab
       const pathData = extractPaths();
       
@@ -256,10 +273,13 @@ const FlowWithPathExtractor = () => {
   
       // Create and trigger download
       const blob = new Blob([jsonString], { type: 'application/json' });
+
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
+
       link.download = 'workflow-config.json';  // Changed filename to be more descriptive
+
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -280,7 +300,8 @@ const FlowWithPathExtractor = () => {
   const handleDocTypeChange = (type: string | null) => {
     setOption(type);
 
-    console.log("Selected document type 1:", type);
+
+
   };
 
   const handlePromptsChange = (prompts: string | null) => {
@@ -339,6 +360,7 @@ const FlowWithPathExtractor = () => {
           </div>
         </div>
 
+
         <div className="bg-white flex flex-col items-center p-12 rounded-xl shadow-sm">
           {activeTab === 0 && (
             <DocuType onDocTypeChange={handleDocTypeChange} />
@@ -348,6 +370,8 @@ const FlowWithPathExtractor = () => {
           {activeTab === 3 && <WSTools />}
           {activeTab === 4 && <GTools />}
           {activeTab === 5 && <LLMs onLLMSelected={handleLLMSelected} />}
+
+
           <button
             onClick={handleDelete}
             disabled={

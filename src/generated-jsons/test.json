@@ -1,4 +1,7 @@
 {
-  "abc": "def",
-  "ghi": "jkl"
+  "llm": "groq_model",
+  "doc_type": "pdf_type",
+  "embeddings": "hugging_face_embeddings",
+  "retriever_tools": "default",
+  "vector_stores": "chroma_store"
 }

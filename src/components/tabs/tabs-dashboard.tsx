@@ -63,7 +63,7 @@ const Tabs: React.FC = () => {
                   </button>
                 </div>
                 <div className="md:text-4xl text-xl font-semibold">
-                  <h1 className={pops.className}>PPT RAG</h1>
+                  <h1 className={pops.className}>Self reflection RAG</h1>
                 </div>
                 <button className="mt-2 border-2 rounded-full p-2 border-black md:h-6 h-4 w-1/6 text-sm text-center items-center flex justify-center">
                   <div>
@@ -73,14 +73,17 @@ const Tabs: React.FC = () => {
                 </button>
               </div>
               <div className="">
-              <Link href="/Flow"> <button className="flex flex-row justify-between w-full bg-violet-300 md:p-3 p-1 rounded-full hover:bg-violet-200">
-              <div className="md:text-md text-sm font-semibold pl-4">
-                    Edit
-                  </div>
-                  <div className="pr-4">
-                    <MdEdit size={20} />
-                  </div>
-                </button></Link>
+                <Link href="/Flow">
+                  {" "}
+                  <button className="flex flex-row justify-between w-full bg-violet-300 md:p-3 p-1 rounded-full hover:bg-violet-200">
+                    <div className="md:text-md text-sm font-semibold pl-4">
+                      Edit
+                    </div>
+                    <div className="pr-4">
+                      <MdEdit size={20} />
+                    </div>
+                  </button>
+                </Link>
               </div>
             </div>
             <div className="md:w-1/3 w-full bg-indigo-100  rounded-lg flex flex-col justify-between md:space-y-0 space-y-4  p-6">

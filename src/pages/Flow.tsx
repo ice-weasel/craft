@@ -1,8 +1,8 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from "react";
 import "tailwindcss/tailwind.css";
-import ReactFlow, { 
-  useNodesState, 
-  useEdgesState, 
+import ReactFlow, {
+  useNodesState,
+  useEdgesState,
   addEdge,
   Background,
   Controls,
@@ -11,14 +11,14 @@ import ReactFlow, {
   Edge,
   ReactFlowProvider,
   Node,
-} from 'reactflow';
-import 'reactflow/dist/style.css';
-import Tools from '../components/flowtabs/tools';
-import Prompts from '@/components/flowtabs/prompts';
-import LLMs from '@/components/flowtabs/llm';
-import { ChevronRight } from 'lucide-react';
-import Image from 'next/image';
-import DocuType from '@/components/flowtabs/documentype';
+} from "reactflow";
+import "reactflow/dist/style.css";
+import Tools from "../components/flowtabs/tools";
+import Prompts from "@/components/flowtabs/prompts";
+import LLMs from "@/components/flowtabs/llm";
+import { ChevronRight } from "lucide-react";
+import Image from "next/image";
+import DocuType from "@/components/flowtabs/documentype";
 
 const getId = (() => {
   let id = 0;
@@ -27,9 +27,9 @@ const getId = (() => {
 
 export const toolNodes = [
   {
-    id: '1',
-    type: 'input',
-    data: { label: 'Start' },
+    id: "1",
+    type: "input",
+    data: { label: "Start" },
     position: { x: 250, y: 25 },
   },
   // ... other initial nodes
@@ -46,15 +46,21 @@ type NextButtonProps = {
   onClick: () => void;
 };
 
-const NavigationButton: React.FC<NavigationButtonProps> = ({ label, isActive, onClick }) => (
+const NavigationButton: React.FC<NavigationButtonProps> = ({
+  label,
+  isActive,
+  onClick,
+}) => (
   <button
     onClick={onClick}
     className={`
       flex items-center gap-2 px-4 py-2
       transition-all duration-200 ease-in-out rounded-sm
-      ${isActive 
-        ? "bg-slate-300 text-white shadow-lg translate-x-2" 
-        : "bg-gray-400 text-gray-600 hover:bg-blue-50 hover:text-blue-600"}
+      ${
+        isActive
+          ? "bg-slate-300 text-white shadow-lg translate-x-2"
+          : "bg-gray-400 text-gray-600 hover:bg-blue-50 hover:text-blue-600"
+      }
     `}
   >
     <Image src={label} width="50" height="50" alt="Navigation" />
@@ -72,8 +78,8 @@ const NextButton: React.FC<NextButtonProps> = ({ text, onClick }) => (
     "
   >
     <span className="font-medium">{text}</span>
-    <ChevronRight 
-      size={20} 
+    <ChevronRight
+      size={20}
       className="transition-transform group-hover:translate-x-1"
     />
   </button>
@@ -83,14 +89,23 @@ const FlowWithPathExtractor = () => {
   const navigationItems = [
     { label: "", imageSrc: "" },
     { label: "Tools", imageSrc: "/tools.png" },
-    { label: "AI", imageSrc: "/ai.png"},
+    { label: "AI", imageSrc: "/ai.png" },
   ];
 
   const [activeTab, setActiveTab] = useState(0);
-  const nextbutton = ["Select Document Type", "Enter prompt", "Select Tools", "Select LLMs", "Create Workflow"];
+  const nextbutton = [
+    "Select Document Type",
+    "Enter prompt",
+    "Select Tools",
+    "Select LLMs",
+    "Create Workflow",
+  ];
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
-  const [selectedElements, setSelectedElements] = useState<{ nodes: Node[]; edges: Edge[] }>({ nodes: [], edges: [] });
+  const [selectedElements, setSelectedElements] = useState<{
+    nodes: Node[];
+    edges: Edge[];
+  }>({ nodes: [], edges: [] });
   const [nodes, setNodes, onNodesChange] = useNodesState(toolNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge[]>([]);
 
@@ -114,14 +129,14 @@ const FlowWithPathExtractor = () => {
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
-    event.dataTransfer.dropEffect = 'move';
+    event.dataTransfer.dropEffect = "move";
   }, []);
 
   const onDrop = useCallback(
     (event: React.DragEvent) => {
       event.preventDefault();
       const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
-      const type = event.dataTransfer.getData('application/reactflow');
+      const type = event.dataTransfer.getData("application/reactflow");
 
       if (!type || !reactFlowBounds || !reactFlowInstance) return;
 
@@ -150,17 +165,17 @@ const FlowWithPathExtractor = () => {
       if (visited.has(nodeId)) return;
       visited.add(nodeId);
 
-      const node = nodes.find(n => n.id === nodeId);
+      const node = nodes.find((n) => n.id === nodeId);
       currentPath.push({
         id: nodeId,
         label: node?.data.label,
-        type: node?.type
+        type: node?.type,
       });
 
-      if (node?.type === 'output') {
+      if (node?.type === "output") {
         paths.push([...currentPath]);
       } else {
-        const connectedEdges = edges.filter(edge => edge.source === nodeId);
+        const connectedEdges = edges.filter((edge) => edge.source === nodeId);
         for (const edge of connectedEdges) {
           findPaths(edge.target, [...currentPath]);
         }
@@ -168,8 +183,8 @@ const FlowWithPathExtractor = () => {
       visited.delete(nodeId);
     };
 
-    const startNodes = nodes.filter(node => node.type === 'input');
-    startNodes.forEach(startNode => {
+    const startNodes = nodes.filter((node) => node.type === "input");
+    startNodes.forEach((startNode) => {
       findPaths(startNode.id, []);
     });
 
@@ -177,15 +192,16 @@ const FlowWithPathExtractor = () => {
   }, [nodes, edges]);
 
   const exportPathsAsJson = useCallback(() => {
-    if (activeTab === 3) {  // Only export at specific tab
+    if (activeTab === 3) {
+      // Only export at specific tab
       const pathData = extractPaths();
       const jsonString = JSON.stringify(pathData, null, 2);
 
-      const blob = new Blob([jsonString], { type: 'application/json' });
+      const blob = new Blob([jsonString], { type: "application/json" });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.download = 'flow-paths.json';
+      link.download = "flow-paths.json";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -202,7 +218,7 @@ const FlowWithPathExtractor = () => {
 
   const handleDocTypeChange = (type: string | null) => {
     setOption(type);
-    console.log('Selected document type:', option);
+    console.log("Selected document type:", option);
   };
 
   return (
@@ -224,7 +240,9 @@ const FlowWithPathExtractor = () => {
 
         <div className="flex-grow p-6 overflow-auto">
           <div className="bg-white rounded-xl shadow-sm">
-            {activeTab === 0 && <DocuType onDocTypeChange={handleDocTypeChange} />}
+            {activeTab === 0 && (
+              <DocuType onDocTypeChange={handleDocTypeChange} />
+            )}
             {activeTab === 1 && <Prompts />}
             {activeTab === 2 && <Tools />}
             {activeTab === 3 && <LLMs />}

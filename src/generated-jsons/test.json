@@ -3,5 +3,23 @@
   "doc_type": "pdf_type",
   "embeddings": "hugging_face_embeddings",
   "retriever_tools": "default",
-  "vector_stores": "chroma_store"
+  "vector_stores": "chroma_store",
+  "prompts": "Template 1",
+  "apiKey": "",
+  "temperature": "",
+  "isVerbose": false,
+  "flowPaths": [
+    [
+      {
+        "id": "1",
+        "label": "Start",
+        "type": "input"
+      },
+      {
+        "id": "2",
+        "label": "Retrieve",
+        "type": "default"
+      }
+    ]
+  ]
 }

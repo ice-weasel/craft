@@ -16,7 +16,7 @@ export default function DocuType({ onDocTypeChange }: DocuTypeProps) {
     };
     return (
         <>
-        <p className="text-3xl w-full text-center">Select Document Type</p>
+        <p className="text-xl w-full text-center">Select Document Type</p>
         <div className="flex flex-col items-center">
           {['PPT', 'PDF', 'CSV', 'XLSX', 'JSON'].map((type) => (
             <label key={type}>

@@ -20,10 +20,11 @@ import LLMs from "@/components/flowtabs/llm";
 import { ChevronRight } from "lucide-react";
 import Image from "next/image";
 import DocuType from "@/components/flowtabs/documentype";
-import WSTools from "@/components/flowtabs/wstools";
+import VSTools from "@/components/flowtabs/wstools";
 import GTools from "@/components/flowtabs/gtools";
 import Nodes from "@/components/left/nodes";
 import Checkers from "@/components/left/checkers";
+import Embeddings from "@/components/flowtabs/gtools";
 
 const getId = (() => {
   let id = 0;
@@ -144,6 +145,9 @@ const FlowWithPathExtractor = () => {
   const [temperature, setTemperature] = useState('');
   const [selectedLLM, setSelectedLLM] = useState<string | null>(null);
   const [apiKey,setApiKey] = useState("");
+  const [embeddings,setEmbedding] = useState<string | null>(null);
+  const [rtools,setRTools] = useState<string | null>(null);
+  const [vstools,setVSTools] = useState<string | null>(null);
 
   const onConnect = useCallback(
     (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)),
@@ -260,9 +264,12 @@ const FlowWithPathExtractor = () => {
       
       // Create a complete data object that includes all the information
       const exportData = {
-        documentType: option,  // Include the selected document type
+        llm:selectedLLM,
+        doc_type: option,
+        embeddings:embeddings,
+        retriever_tools:rtools,
+        vector_stores:vstools,  // Include the selected document type
         prompts: prompts,      // Include the selected/entered prompts
-        llms:selectedLLM,
         apiKey:apiKey,
         temperature:temperature,
         isVerbose:isVerbose,
@@ -288,7 +295,7 @@ const FlowWithPathExtractor = () => {
       // Optional: Log the exported data
       console.log('Exported workflow configuration:', exportData);
     
-  }, [extractPaths, option, prompts,selectedLLM,temperature,isVerbose,apiKey]);  // Added option and prompts to dependencies  // Added option and prompts to dependencies
+  }, [extractPaths, option, prompts,selectedLLM,temperature,isVerbose,apiKey,embeddings,rtools,vstools]);  // Added option and prompts to dependencies  // Added option and prompts to dependencies
    // Added option and prompts to dependencies
   // Added option and prompts to dependencies
 
@@ -309,14 +316,23 @@ const FlowWithPathExtractor = () => {
     console.log("Prompt entered:", prompts);
   };
 
+  const rtoolsChange = (rtools : string | null) => {
+    setRTools(rtools);
+  }
 
+  const vsToolsChange =  (vstools : string | null) => {
+    setVSTools(vstools);
+  }
+
+  const embeddingsChange = (embeds : string | null) => {
+    setEmbedding(embeds)
+  }
 
   const handleLLMSelected = (llm: string | null, temperature : string, isVerbose : boolean) => {
     setSelectedLLM(llm);
     setTemperature(temperature)
     setIsVerbose(isVerbose);
     setApiKey(apiKey);
-
   }
 
   return (
@@ -366,9 +382,9 @@ const FlowWithPathExtractor = () => {
             <DocuType onDocTypeChange={handleDocTypeChange} />
           )}
           {activeTab === 1 && <Prompts onpromptsChange={handlePromptsChange} />}
-          {activeTab === 2 && <RTools />}
-          {activeTab === 3 && <WSTools />}
-          {activeTab === 4 && <GTools />}
+          {activeTab === 2 && <RTools onRToolsChange={rtoolsChange} />}
+          {activeTab === 3 && <VSTools onVSToolsChange={vsToolsChange}/>}
+          {activeTab === 4 && <Embeddings onEmbediingsChange={embeddingsChange} />}
           {activeTab === 5 && <LLMs onLLMSelected={handleLLMSelected} />}
 
 

@@ -1,36 +1,38 @@
-// Tools.tsx
-import React from 'react';
+// RTools.tsx
+import React,  { useState } from 'react';
 
-const RTools = () => {
-  const onDragStart = (event: React.DragEvent, nodeType: string) => {
-    event.dataTransfer.setData('application/reactflow', nodeType);
-    event.dataTransfer.effectAllowed = 'move';
+
+type RToolsProps = {
+  onRToolsChange: (type: string|null) => void;
+}
+
+const RTools = ({onRToolsChange}: RToolsProps) => {
+  const [option, setOption] = useState<string | null>(null);
+  // Handle radio button change
+  const handleRadioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newValue = e.target.value;
+      setOption(newValue);
+      onRToolsChange(newValue); // Call the prop function
+      console.log(`Selected document type2: ${newValue}`);
   };
-
   return (
-    <div>
-      <div 
-        className="p-2 border rounded mb-2 cursor-move bg-white"
-        onDragStart={(e) => onDragStart(e, 'default')}
-        draggable
-      >
-        Text extractor
-      </div>
-      <div 
-        className="p-2 border rounded mb-2 cursor-move bg-white"
-        onDragStart={(e) => onDragStart(e, 'input')}
-        draggable
-      >
-        Image extractor
-      </div>
-      <div 
-        className="p-2 border rounded mb-2 cursor-move bg-white"
-        onDragStart={(e) => onDragStart(e, 'output')}
-        draggable
-      >
-        OCR 
-      </div>
+    <>
+    <p className="text-xl w-full text-center">Select Document Type</p>
+    <div className="flex flex-col items-center">
+      {['Default','Self-Query','Multi-Query'].map((type) => (
+        <label key={type}>
+          <input
+            type="radio"
+            name="documentType"
+            value={type}
+            checked={option === type}
+            onChange={handleRadioChange}
+          />
+          {type}
+        </label>
+      ))}
     </div>
+  </>
   );
 };
 

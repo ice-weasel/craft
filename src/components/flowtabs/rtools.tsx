@@ -17,7 +17,7 @@ const RTools = ({onRToolsChange}: RToolsProps) => {
   };
   return (
     <>
-    <p className="text-xl w-full text-center">Select Document Type</p>
+    <p className="text-xl w-full text-center">Select Retriever Tools</p>
     <div className="flex flex-col items-center">
       {['Default','Self-Query','Multi-Query'].map((type) => (
         <label key={type}>

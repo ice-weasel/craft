@@ -1,3 +1,4 @@
+import { FaRegTrashAlt } from "react-icons/fa";
 import { useCallback, useRef, useState } from "react";
 import "tailwindcss/tailwind.css";
 import ReactFlow, {
@@ -337,9 +338,28 @@ const FlowWithPathExtractor = () => {
 
   return (
     <div className="flex  h-screen bg-[#F0F2F5]">
-      <div className="min-w-[30vw] justify-between bg-white flex flex-col ">
+      <div className="min-w-[10vw] justify-center  flex flex-col bg-white  ">
         <Nodes />
+        
         <Checkers />
+        <div className="p-3 self-center">
+          <p className="self-start font-bold text-1xl">
+            Element Properties :
+          </p>
+        <button
+            onClick={handleDelete}
+            disabled={
+              !selectedElements.nodes.length && !selectedElements.edges.length
+            }
+           className="max-w-[10vw] p-2 rounded-lg   mt-3 w-full bg-red-500 "
+          >
+            
+            <FaRegTrashAlt />
+          </button>
+        </div>
+       
+
+  
       </div>
 
       <div className="flex-1" ref={reactFlowWrapper}>
@@ -388,25 +408,7 @@ const FlowWithPathExtractor = () => {
           {activeTab === 5 && <LLMs onLLMSelected={handleLLMSelected} />}
 
 
-          <button
-            onClick={handleDelete}
-            disabled={
-              !selectedElements.nodes.length && !selectedElements.edges.length
-            }
-            style={{
-              margin: "10px",
-              padding: "10px 20px",
-              backgroundColor: "#FF4D4F",
-              color: "white",
-              cursor: "pointer",
-              border: "none",
-              borderRadius: "5px",
-              fontWeight: "bold",
-              fontSize: "14px",
-            }}
-          >
-            Delete
-          </button>
+         
         </div>
 
         <div className="p-6">

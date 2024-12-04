@@ -18,7 +18,7 @@ const Embeddings = ({onEmbediingsChange}: EmbeddingsProps) => {
 
   return (
     <>
-    <p className="text-xl w-full text-center">Select Document Type</p>
+    <p className="text-xl w-full text-center">Select Embeddings</p>
     <div className="flex flex-col items-center">
       {['hugging_face','open_ai'].map((type) => (
         <label key={type}>

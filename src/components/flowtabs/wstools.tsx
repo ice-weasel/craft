@@ -20,7 +20,7 @@ const VSTools = ({onVSToolsChange}: VSToolsProp) => {
 
   return (
     <>
-    <p className="text-xl w-full text-center">Select Document Type</p>
+    <p className="text-xl w-full text-center">Select Vector Store Tools</p>
     <div className="flex flex-col items-center">
       {['Chroma','Faiss'].map((type) => (
         <label key={type}>

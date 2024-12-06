@@ -2,17 +2,17 @@
 import React,  { useState } from 'react';
 
 type EmbeddingsProps = {
-  onEmbediingsChange: (type: string|null) => void;
+  onEmbeddingsChange: (type: string|null) => void;
 }
 
-const Embeddings = ({onEmbediingsChange}: EmbeddingsProps) => {
+const Embeddings = ({onEmbeddingsChange}: EmbeddingsProps) => {
 
   const [option, setOption] = useState<string | null>(null);
   // Handle radio button change
   const handleRadioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = e.target.value;
       setOption(newValue);
-      onEmbediingsChange(newValue); // Call the prop function
+      onEmbeddingsChange(newValue); // Call the prop function
       console.log(`Selected document type2: ${newValue}`);
   };
 

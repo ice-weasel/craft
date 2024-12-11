@@ -1,25 +1,26 @@
-// RTools.tsx
+// Tools.tsx
 import React,  { useState } from 'react';
 
-
-type RToolsProps = {
-  onRToolsChange: (type: string|null) => void;
+type EmbeddingsProps = {
+  onEmbeddingsChange: (type: string|null) => void;
 }
 
-const RTools = ({onRToolsChange}: RToolsProps) => {
+const Embeddings = ({onEmbeddingsChange}: EmbeddingsProps) => {
+
   const [option, setOption] = useState<string | null>(null);
   // Handle radio button change
   const handleRadioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = e.target.value;
       setOption(newValue);
-      onRToolsChange(newValue); // Call the prop function
+      onEmbeddingsChange(newValue); // Call the prop function
       console.log(`Selected document type2: ${newValue}`);
   };
+
   return (
     <>
-    <p className="text-xl w-full text-center">Select Retriever Tools</p>
+    <p className="text-xl w-full text-center">Select Embeddings</p>
     <div className="flex flex-col items-center">
-      {['Default','Self-Query','Multi-Query'].map((type) => (
+      {['hugging_face','open_ai'].map((type) => (
         <label key={type}>
           <input
             type="radio"
@@ -36,4 +37,4 @@ const RTools = ({onRToolsChange}: RToolsProps) => {
   );
 };
 
-export default RTools;
+export default Embeddings;

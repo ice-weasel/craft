@@ -34,7 +34,7 @@ export default function LLMs({onLLMSelected}: LLMProps) {
     onLLMSelected(llmLabel === selectedLLM ? null : llmLabel, temperature, isVerbose, apiKey);
   };
 
-  const llms = [{ label: 'Gemini' }, { label: 'Open AI' }, { label: 'Hugging Face' }];
+  const llms = [{ label: 'Gemini' }, { label: 'Open AI' }, { label: 'groq' }];
 
   return (
     <div className="bg-gray-800 px-4 py-3 rounded-md w-full max-w-md">

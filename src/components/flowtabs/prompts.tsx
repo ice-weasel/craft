@@ -7,9 +7,11 @@ type PromptsProps = {
 export default function Prompts({ onpromptsChange }: PromptsProps) {
   const [prompts, setPrompts] = useState<string | null>(null);
   const [customInput, setCustomInput] = useState<string>('');
+  const [option, setOption] = useState<string | null>(null);
 
   // For template buttons
-  const handleTemplateClick = (templateValue: string) => {
+  const handleTemplateClick = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const templateValue = e.target.value;
     setPrompts(templateValue);
     onpromptsChange(templateValue);
     console.log(`Selected template: ${templateValue}`);
@@ -26,19 +28,16 @@ export default function Prompts({ onpromptsChange }: PromptsProps) {
   return (
     <>
       <div className="w-full flex flex-col gap-6 p-4">
-        <button 
-          onClick={() => handleTemplateClick('Template 1')}
-          className='border-2 p-6 bg-white transition-all duration-200 hover:bg-blue-700 hover:text-white rounded-md'
-        >
-          Template 1
-        </button>
-
-        <button 
-          onClick={() => handleTemplateClick('Template 2')}
-          className='border-2 p-6 bg-white transition-all duration-200 hover:bg-blue-700 hover:text-white rounded-md'
-        >
-          Template 2
-        </button>
+        {['Template 1','Template 2'].map((type) => (
+          <label key={type}>
+             <input
+             value={type}
+             checked={prompts === type}
+             onChange={handleTemplateClick}
+          />
+          </label>
+         
+        ))}
 
         <label className="font-medium">Enter your input</label>
         <input 

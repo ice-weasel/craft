@@ -27,22 +27,43 @@ export default function Prompts({ onpromptsChange }: PromptsProps) {
 
   return (
     <>
-      <div className="w-full flex flex-col gap-6 p-4">
-        {['Template 1','Template 2'].map((type) => (
-          <label key={type}>
-             <input
-             value={type}
-             checked={prompts === type}
-             onChange={handleTemplateClick}
-          />
-          </label>
-         
-        ))}
+      <div className="w-full flex flex-col gap-3 p-3">
+      {['Template 1', 'Template 2'].map((type) => (
+    <label 
+      key={type} 
+      className="flex items-center cursor-pointer group"
+    >
+      <div className="relative">
+        <input
+          type="radio"
+          
+          value={type}
+          checked={prompts === type}
+          onChange={handleTemplateClick}
+          className="sr-only" // Hide default radio but keep it accessible
+        />
+        <div className="w-5 h-5 border-2 border-violet-400 rounded-full group-hover:border-violet-600 transition-colors">
+          <div className={`
+            absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
+            w-3 h-3 rounded-full bg-violet-500 
+            transition-transform duration-200 ease-in-out
+            ${prompts === type ? 'scale-100' : 'scale-0'}
+          `}>
+          </div>
+        </div>
+      </div>
+      <span className="ml-3 text-gray-700 capitalize">
+        {type.replace('_', ' ')}
+      </span>
+    </label>
+  ))}
 
-        <label className="font-medium">Enter your input</label>
+        
+
+       
         <input 
           type="text" 
-          className='border-2 p-2 rounded-md'
+          className='border-1 p-1 rounded-md'
           name="prompts"
           value={customInput}
           onChange={handleCustomInputChange}

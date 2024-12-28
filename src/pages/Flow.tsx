@@ -13,6 +13,9 @@ import ReactFlow, {
   ReactFlowProvider,
   Node,
   OnSelectionChangeParams,
+  ControlButton,
+  NodeResizer,
+  NodeResizeControl
 } from "reactflow";
 import "reactflow/dist/style.css";
 import RTools from "../components/flowtabs/rtools";
@@ -26,6 +29,7 @@ import GTools from "@/components/flowtabs/embeddings";
 import Nodes from "@/components/left/nodes";
 import Checkers from "@/components/left/checkers";
 import Embeddings from "@/components/flowtabs/embeddings";
+import { Panel } from 'reactflow';
 
 const getId = (() => {
   let id = 0;
@@ -36,7 +40,7 @@ export const toolNodes = [
   {
     id: "1",
     type: "input",
-    data: { label: "Start" },
+    data: { label: "Start"},
 
     position: { x: 250, y: 25 },
   },
@@ -44,16 +48,20 @@ export const toolNodes = [
     id: "2",
     type: "default",
     data: { label: "Retrieve" },
+    size: {height:100,width:100},
     position: { x: 250, y: 100 },
   },
   {
     id: "3",
     type: "default",
+    className:"",
     data: { label: "Generate" },
     position: { x: 250, y: 200 },
   },
-  // ... other initial nodes
+
 ];
+
+
 
 type NavigationButtonProps = {
   label: string;
@@ -66,44 +74,44 @@ type NextButtonProps = {
   onClick: () => void;
 };
 
-const NavigationButton: React.FC<NavigationButtonProps> = ({
-  label,
-  isActive,
-  onClick,
-}) => (
-  <button
-    onClick={onClick}
-    className={`
-      flex items-center gap-2 px-4 py-2
-      transition-all duration-200 ease-in-out rounded-sm
-      ${
-        isActive
-          ? "bg-slate-300 text-white shadow-lg translate-x-2"
-          : "bg-gray-400 text-gray-600 hover:bg-blue-50 hover:text-blue-600"
-      }
-    `}
-  >
-    <Image src={label} width="50" height="50" alt="Navigation" />
-  </button>
-);
+// const NavigationButton: React.FC<NavigationButtonProps> = ({
+//   label,
+//   isActive,
+//   onClick,
+// }) => (
+//   <button
+//     onClick={onClick}
+//     className={`
+//       flex items-center gap-2 px-4 py-2
+//       transition-all duration-200 ease-in-out rounded-sm
+//       ${
+//         isActive
+//           ? "bg-slate-300 text-white shadow-lg translate-x-2"
+//           : "bg-gray-400 text-gray-600 hover:bg-blue-50 hover:text-blue-600"
+//       }
+//     `}
+//   >
+//     <Image src={label} width="50" height="50" alt="Navigation" />
+//   </button>
+// );
 
-const NextButton: React.FC<NextButtonProps> = ({ text, onClick }) => (
-  <button
-    onClick={onClick}
-    className="
-      group flex items-center gap-2 px-6 py-3 w-full
-      bg-white text-black rounded-xl border-2 border-blue-700
-      hover:bg-blue-700 hover:text-white transition-all duration-200
-      shadow-lg hover:shadow-xl
-    "
-  >
-    <span className="font-medium">{text}</span>
-    <ChevronRight
-      size={20}
-      className="transition-transform group-hover:translate-x-1"
-    />
-  </button>
-);
+// const NextButton: React.FC<NextButtonProps> = ({ text, onClick }) => (
+//   <button
+//     onClick={onClick}
+//     className="
+//       group flex items-center gap-2 px-6 py-3 w-full
+//       bg-white text-black rounded-xl border-2 border-blue-700
+//       hover:bg-blue-700 hover:text-white transition-all duration-200
+//       shadow-lg hover:shadow-xl
+//     "
+//   >
+//     <span className="font-medium">{text}</span>
+//     <ChevronRight
+//       size={20}
+//       className="transition-transform group-hover:translate-x-1"
+//     />
+//   </button>
+// );
 
 const FlowWithPathExtractor = () => {
   const navigationItems = [
@@ -369,23 +377,25 @@ const plusSVG =
   };
 
   return (
-    <div className="flex  h-screen bg-[#F0F2F5]">
-      <div className="min-w-[10vw] justify-center  flex flex-col  ">
+    
+   
+   <div className="flex flex-row h-screen bg-[#F0F2F5] ">
+   <div className="w-[300px] justify-center bg-indigo-100 flex flex-col ">
         <Nodes />
 
         <Checkers />
-        <div className="p-3 self-center">
+        {/* <div className="p-3 self-center">
           <p className="self-start font-bold text-1xl">Element Properties :</p>
           <button
             onClick={handleDelete}
             disabled={
               !selectedElements.nodes.length && !selectedElements.edges.length
             }
-            className="max-w-[10vw] p-2 rounded-lg   mt-3 w-full bg-red-500 "
+            className="p-2 rounded-lg   mt-3  bg-red-500 "
           >
             <FaRegTrashAlt />
           </button>
-        </div>
+        </div> */}
       </div>
 
       <div className="flex-1" ref={reactFlowWrapper}>
@@ -393,6 +403,7 @@ const plusSVG =
           nodes={nodes}
           edges={edges}
           onNodesChange={onNodesChange}
+        
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           onInit={onInit}
@@ -401,19 +412,38 @@ const plusSVG =
           onSelectionChange={onSelectionChange}
           fitView
         >
-          <Controls />
-          <MiniMap />
-          <Background />
+
+          <Panel position="top-center" className="bg-white shadow-md rounded-lg p-1 m-2 flex gap-3">
+    <button
+      onClick={handleDelete}
+      disabled={
+        !selectedElements.nodes.length && !selectedElements.edges.length
+      }
+      className="p-2 rounded-lg bg-red-500 text-white disabled:bg-gray-300 hover:bg-red-600 transition-colors"
+    >
+      <FaRegTrashAlt />
+    </button>
+    <button
+      onClick={exportPathsAsJson}
+      className="flex items-center gap-2 px-2 py-1 bg-violet-500 text-white rounded-lg hover:bg-violet-600 transition-colors"
+    >
+      <span>Create Workflow</span>
+      <ChevronRight size={20} />
+    </button>
+  </Panel>
+  <Controls />
+  <MiniMap />
+  <Background />
         </ReactFlow>
       </div>
 
-      <div className="w-[20vw] flex flex-col  bg-slate-900">
-      <div className="p-5 divide-y-2 gap-5  transition-transform duration-600 overflow-y-auto">
+      <div className="w-[300px] flex flex-col  bg-indigo-100">
+      <div className="p-6 flex flex-col space-y-4 transition-transform duration-600 overflow-y-auto">
       {Object.entries(components).map(([type, component], index) => (
-        <div key={type} className="border-b shadow-lg rounded-lg px-7 bg-gray-800 border-gray-800">
+        <div key={type} className="border-b shadow-md rounded-lg px-7 bg-violet-300 ">
           <button
             onClick={() => toggleAccordion(index)}
-            className="w-full flex justify-between transition-transform duration-600 items-center py-5 text-white"
+            className="w-full flex justify-between transition-transform duration-60 font-medium items-center py-5 text-black"
           >
             <span>{type}</span>
             <span
@@ -431,7 +461,7 @@ const plusSVG =
                 ? contentRefs.current[index]?.scrollHeight
                 : 0,
             }}
-            className="overflow-hidden transition-[height] bg-gray-600 rounded-md duration-300 ease-in-out"
+            className="overflow-hidden transition-[height] bg-violet-300 rounded-md duration-300 ease-in-out"
           >
             <div className="py-3">{component}</div>
           </div>
@@ -441,25 +471,11 @@ const plusSVG =
       
         
 
-        {/* <div className="p-6">
-            <button
-              onClick={exportPathsAsJson}
-              className="
-        group flex items-center gap-2 px-6 py-3 w-full
-        bg-white text-black rounded-xl border-2 border-blue-700
-        hover:bg-blue-700 hover:text-white transition-all duration-200
-        shadow-lg hover:shadow-xl
-      "
-            >
-              <span className="font-medium">Create Workflow</span>
-              <ChevronRight
-                size={20}
-                className="transition-transform group-hover:translate-x-1"
-              />
-            </button>
-          </div> */}
+        
       </div>
-    </div>
+    </div>        
+      
+   
   );
 };
 

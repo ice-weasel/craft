@@ -29,88 +29,94 @@ export default function LLMs({onLLMSelected}: LLMProps) {
   };
 
   const handleLLMSelect = (llmLabel: string) => {
-    setSelectedLLM(llmLabel === selectedLLM ? null : llmLabel); // Toggle selection
-    setIsDropdownOpen(llmLabel === selectedLLM ? false : true); // Toggle options visibility
+    if (llmLabel === selectedLLM) {
+      setSelectedLLM(null);
+      setIsDropdownOpen(false);
+    } else {
+      setSelectedLLM(llmLabel);
+      setIsDropdownOpen(true);
+    }
     onLLMSelected(llmLabel === selectedLLM ? null : llmLabel, temperature, isVerbose, apiKey);
   };
 
   const llms = [{ label: 'Gemini' }, { label: 'Open AI' }, { label: 'groq' }];
 
   return (
-    <div className="bg-gray-800 px-4 py-3 rounded-md w-full max-w-md">
-      <div className="text-white font-medium mb-3">Select LLM</div>
-      <div className="space-y-2">
-        {llms.map((llm) => (
-          <div
-            key={llm.label}
-            className={`p-2 cursor-pointer rounded ${
-              selectedLLM === llm.label ? 'bg-blue-700 text-white' : 'bg-gray-700 text-gray-300'
-            }`}
-            onClick={() => handleLLMSelect(llm.label)}
-          >
-            {llm.label}
-          </div>
-        ))}
-      </div>
-
-      {selectedLLM && (
-        <div className="mt-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-white font-medium">Options for {selectedLLM}</h3>
-            <button
-              className="text-white hover:text-gray-300 focus:outline-none"
-              onClick={toggleDropdown}
-            >
-              <ChevronDown
-                size={24}
-                className={`transition-transform duration-300 ${
-                  isDropdownOpen ? 'rotate-180' : ''
-                }`}
-              />
-            </button>
-          </div>
-
-          {isDropdownOpen && (
-            <div className="mt-4 space-y-3">
-              <div className="flex items-center">
-                <label htmlFor="number-input" className="text-gray-400 mr-2">
-                 API Key:
-                </label>
-                <input
-                  id="string-input"
-                  type="text"
-                  onChange={handleApiKeyChange}
-                  className="bg-gray-700 text-white px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div className="flex items-center">
-                <label htmlFor="number-input" className="text-gray-400 mr-2">
-                  Temperature:
-                </label>
-                <input
-                  id="number-input"
-                  type="number"
-                  value={temperature}
-                  onChange={handleTemperatureChange}
-                  className="bg-gray-700 text-white px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div className="flex items-center">
-                <label htmlFor="verbose-checkbox" className="text-gray-400 mr-2">
-                  Verbose:
-                </label>
-                <input
-                  id="verbose-checkbox"
-                  type="checkbox"
-                  checked={isVerbose}
-                  onChange={handleVerboseToggle}
-                  className="h-5 w-5 text-blue-500 focus:ring-blue-500 border-gray-600 rounded"
-                />
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+    <div className="p-6 rounded-lg w-full max-w-md bg-white shadow-md">
+    <div className="grid grid-rows-3 gap-3">
+      {llms.map((llm) => (
+        <button
+          key={llm.label}
+          onClick={() => handleLLMSelect(llm.label)}
+          className={`
+            px-4 py-2 rounded-md font-medium transition-all duration-200
+            ${selectedLLM === llm.label 
+              ? 'bg-violet-500 text-white shadow-lg transform scale-105' 
+              : 'bg-gray-100 text-gray-700 hover:bg-violet-100'}
+          `}
+        >
+          {llm.label}
+        </button>
+      ))}
     </div>
+
+    {selectedLLM && (
+      <div className="mt-6 border-t pt-4">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-gray-800 font-semibold">Configuration</h3>
+          <button
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            className="text-gray-600 hover:text-violet-500 transition-colors"
+          >
+            <ChevronDown
+              size={20}
+              className={`transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`}
+            />
+          </button>
+        </div>
+
+        <div className={`space-y-4 transition-all duration-300 ${isDropdownOpen ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden'}`}>
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">API Key</label>
+            <input
+              type="text"
+              onChange={e => setApiKey(e.target.value)}
+              className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors"
+              placeholder="Enter API key"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">Temperature</label>
+            <input
+              type="number"
+              value={temperature}
+              onChange={e => setTemperature(e.target.value)}
+              className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors"
+              placeholder="0.0 - 1.0"
+              step="0.1"
+              min="0"
+              max="1"
+            />
+          </div>
+
+          <div className="flex items-center space-x-3">
+            <div className="relative flex items-center">
+              <input
+                id="verbose"
+                type="checkbox"
+                checked={isVerbose}
+                onChange={() => setIsVerbose(!isVerbose)}
+                className="w-4 h-4 text-violet-500 border-gray-300 rounded focus:ring-violet-500 transition-colors"
+              />
+              <label htmlFor="verbose" className="ml-2 text-sm font-medium text-gray-700">
+                Verbose Output
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
   );
 }

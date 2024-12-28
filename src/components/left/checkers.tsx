@@ -9,12 +9,12 @@ export default function Checkers() {
   };
   return (
     <>
-      <div className="max-w-[17vw] flex flex-col bg-slate-900 p-3">
-      <p className="text-gray-200  rounded-lg text-1xl font-bold px-3 py-3">Checkers</p>
+      <div className="max-w-[17vw] flex flex-col  p-3">
+      <p className="text-black text-center  rounded-lg text-1xl font-bold px-3 py-3">Checkers</p>
         <div className="w-full mt-3  px-7 ">
        
           <div
-            className="p-2  text-center flex gap-3 items-center text-blue font-thin hover:font-semibold hover:text-white bg-gray-400 hover:bg-blue-700 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
+            className="p-2  text-center flex gap-3 items-center text-blue  font-semibold hover:text-black bg-violet-300 hover:bg-violet-500 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
             onDragStart={(e) =>
               onDragStart(e, "default", {
                 label: "relevancy-checker",
@@ -29,7 +29,7 @@ export default function Checkers() {
             <p className="">Relevancy Checker</p>
           </div>
           <div
-            className="p-2  text-center flex gap-3 items-center text-blue font-thin hover:font-semibold  hover:text-white bg-gray-400 hover:bg-blue-700 hover:shadow-lg rounded mb-2 cursor-move"
+            className="p-2  text-center flex gap-3 items-center text-blue  font-semibold hover:text-black bg-violet-300 hover:bg-violet-500 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
             onDragStart={(e) =>
               onDragStart(e, "default", {
                 label: "halucination-checker",
@@ -44,7 +44,7 @@ export default function Checkers() {
             <p>Hallucination Checker</p>
           </div>
           <div
-            className="p-2  text-center flex gap-2 items-center font-thin hover:font-semibold  text-blue  hover:text-white bg-gray-400 hover:bg-blue-700 hover:shadow-lg rounded mb-2 cursor-move"
+            className="p-2  text-center flex gap-3 items-center text-blue  font-semibold hover:text-black bg-violet-300 hover:bg-violet-500 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
             onDragStart={(e) =>
               onDragStart(e, "default", {
                 label: "grounded-answer-checker",

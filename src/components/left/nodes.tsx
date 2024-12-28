@@ -10,12 +10,12 @@ export default function Nodes() {
 
   return (
     <>
-      <div className="flex flex-col  bg-slate-900 p-3">
-      <p className=" text-gray-200 bg-gray-900 rounded-lg text-1xl font-bold px-3 py-3">Nodes</p>
+      <div className="flex flex-col  p-3">
+      <p className=" text-black text-center rounded-lg  font-bold px-3 py-3">Nodes</p>
         <div className="w-full mt-3  px-7">
        
           <div
-            className="p-2  text-center flex gap-3 items-center text-blue font-thin hover:font-semibold hover:text-white bg-gray-400 hover:bg-blue-700 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
+            className="p-2  text-center flex gap-3 items-center text-blue  font-semibold hover:text-black bg-violet-300 hover:bg-violet-500 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
             onDragStart={(e) =>
               onDragStart(e, "default", {
                 label: "grade-documents",
@@ -30,7 +30,7 @@ export default function Nodes() {
             <p>Grade Documents</p>
           </div>
           <div
-            className="p-2  text-center flex gap-3 items-center text-blue font-thin hover:font-semibold  hover:text-white bg-gray-400 hover:bg-blue-700 hover:shadow-lg rounded mb-2 cursor-move"
+            className="p-2  text-center flex gap-3 items-center text-blue  font-semibold hover:text-black bg-violet-300 hover:bg-violet-500 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
             onDragStart={(e) =>
               onDragStart(e, "default", {
                 label: "rewrite-node",
@@ -45,7 +45,7 @@ export default function Nodes() {
             <p>Rewrite Node</p>
           </div>
           <div
-            className="p-2  text-center flex gap-3 items-center font-thin hover:font-semibold  text-blue  hover:text-white bg-gray-400 hover:bg-blue-700 hover:shadow-lg rounded mb-2 cursor-move"
+            className="p-2  text-center flex gap-3 items-center text-blue  font-semibold hover:text-black bg-violet-300 hover:bg-violet-500 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
             onDragStart={(e) =>
               onDragStart(e, "default", {
                 label: "web-search-node",

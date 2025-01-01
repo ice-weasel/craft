@@ -35,6 +35,8 @@ import SelfTab from "@/components/templates/self-reflex/self-tab";
 import Link from "next/link";
 import { IoIosArrowForward } from "react-icons/io";
 import { MdOutlineSaveAlt } from "react-icons/md";
+import { IoIosArrowDown } from "react-icons/io";
+import { IoIosArrowBack } from "react-icons/io";
 
 const getId = (() => {
   let id = 0;
@@ -64,17 +66,6 @@ export const toolNodes = [
     position: { x: 250, y: 200 },
   },
 ];
-
-type NavigationButtonProps = {
-  label: string;
-  isActive: boolean;
-  onClick: () => void;
-};
-
-type NextButtonProps = {
-  text: string;
-  onClick: () => void;
-};
 
 // const NavigationButton: React.FC<NavigationButtonProps> = ({
 //   label,
@@ -116,27 +107,8 @@ type NextButtonProps = {
 // );
 
 const FlowWithPathExtractor = () => {
-  const navigationItems = [
-    { label: "DocuType", imageSrc: "" },
-    { label: "Prompts", imageSrc: "" },
-    { label: "R_tools", imageSrc: "/tools.png" },
-    { label: "WS_tools", imageSrc: "" },
-    { label: "G_tools", imageSrc: "" },
-    { label: "LLMs", imageSrc: "/ai.png" },
-
-    { label: "", imageSrc: "" },
-    { label: "Tools", imageSrc: "/tools.png" },
-    { label: "AI", imageSrc: "/ai.png" },
-  ];
-
   const [activeTab, setActiveTab] = useState(0);
-  const nextbutton = [
-    "Select Document Type",
-    "Enter prompt",
-    "Select Tools",
-    "Select LLMs",
-    "Create Workflow",
-  ];
+
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [selectedElements, setSelectedElements] = useState<{
@@ -381,18 +353,16 @@ const FlowWithPathExtractor = () => {
     <div className="flex flex-row h-screen  ">
       <div
         className={`
-          w-1/5  bg-neutral flex flex-col shadow-xl border-1 border-black  transition-all duration-300 ease-in-out
+          w-1/5  bg-neutral flex flex-col shadow-xl border-1 border-black  transition-all duration-600 ease-in-out
           ${isExpanded ? "w-1/5" : "w-14"}
         `}
       >
         {isExpanded && <SelfTab />}
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className={`absolute bottom-5 left-2 p-2 rounded-full hover:bg-gray-200 transition-transform ${
-            isExpanded ? "rotate-180" : ""
-          }`}
+          className="absolute bottom-5 left-2 p-2 rounded-full hover:bg-gray-200 transition-transform duration-300 ease-in-out"
         >
-          <IoIosArrowForward />
+          {isExpanded ? <IoIosArrowBack /> : <IoIosArrowForward />}
         </button>
         {/* <div className="p-3 self-center">
           <p className="self-start font-bold text-1xl">Element Properties :</p>
@@ -447,25 +417,29 @@ const FlowWithPathExtractor = () => {
         </ReactFlow>
       </div>
 
-      <div className="w-1/5 flex flex-col  bg-indigo-100">
-        <div className="p-6 flex flex-col space-y-4 transition-transform duration-600 overflow-y-auto">
+      <div className="w-1/5 flex flex-col  bg-white shadow-xl border-1 border-black">
+        <div className="p-5">
+          <h1 className="text-lg font-semibold text-right">Components</h1>
+          <hr className="h-[1.5px] my-3 bg-black border-0 " />
+        </div>
+        <div className="p-5 flex flex-col space-y-2 transition-transform duration-600 overflow-y-auto">
           {Object.entries(components).map(([type, component], index) => (
-            <div
-              key={type}
-              className="border-b shadow-md rounded-lg px-7 bg-violet-300 "
-            >
+            <div key={type} className="border-b rounded-md p-3 bg-violet-200 ">
               <button
                 onClick={() => toggleAccordion(index)}
-                className="w-full flex justify-between transition-transform duration-60 font-medium items-center py-5 text-black"
+                className="w-full flex justify-between flex-row transition-transform duration-60 font-semibold text-black"
               >
-                <span>{type}</span>
-                <span
+                <div>{type}</div>
+                <div>
+                  <IoIosArrowDown />
+                </div>
+                {/* <span
                   id={`icon-${index}`}
                   className="transition-transform duration-300"
                   dangerouslySetInnerHTML={{
                     __html: openIndices.includes(index) ? minusSVG : plusSVG,
                   }}
-                />
+                />*/}
               </button>
               <div
                 ref={(el: any) => (contentRefs.current[index] = el)}
@@ -474,7 +448,7 @@ const FlowWithPathExtractor = () => {
                     ? contentRefs.current[index]?.scrollHeight
                     : 0,
                 }}
-                className="overflow-hidden transition-[height] bg-violet-300 rounded-md duration-300 ease-in-out"
+                className="overflow-hidden transition-[height] bg-violet-200 rounded-md duration-300 ease-in-out"
               >
                 <div className="py-3">{component}</div>
               </div>

@@ -1,3 +1,4 @@
+import "tailwindcss/tailwind.css";
 import { RiDraggable } from "react-icons/ri";
 export default function Nodes() {
   const onDragStart = (event: React.DragEvent, nodeType: string, data: any) => {
@@ -10,12 +11,11 @@ export default function Nodes() {
 
   return (
     <>
-      <div className="flex flex-col  p-3">
-      <p className=" text-black text-center rounded-lg  font-bold px-3 py-3">Nodes</p>
-        <div className="w-full mt-3  px-7">
-       
+      <div className="flex flex-col ">
+        <p className=" text-black  rounded-lg font-semibold px-3 mt-3">Nodes</p>
+        <div className="w-full flex flex-col p-3">
           <div
-            className="p-2  text-center flex gap-3 items-center text-blue  font-semibold hover:text-black bg-violet-300 hover:bg-violet-500 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
+            className="p-2  text-center flex gap-3 items-center text-blue  font-semibold hover:text-black bg-indigo-100 hover:bg-indigo-200 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
             onDragStart={(e) =>
               onDragStart(e, "default", {
                 label: "grade-documents",
@@ -30,7 +30,7 @@ export default function Nodes() {
             <p>Grade Documents</p>
           </div>
           <div
-            className="p-2  text-center flex gap-3 items-center text-blue  font-semibold hover:text-black bg-violet-300 hover:bg-violet-500 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
+            className="p-2  text-center flex gap-3 items-center text-blue  font-semibold hover:text-black bg-indigo-100 hover:bg-indigo-200 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
             onDragStart={(e) =>
               onDragStart(e, "default", {
                 label: "rewrite-node",
@@ -45,7 +45,7 @@ export default function Nodes() {
             <p>Rewrite Node</p>
           </div>
           <div
-            className="p-2  text-center flex gap-3 items-center text-blue  font-semibold hover:text-black bg-violet-300 hover:bg-violet-500 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
+            className="p-2  text-center flex gap-3 items-center text-blue  font-semibold hover:text-black bg-indigo-100 hover:bg-indigo-200 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
             onDragStart={(e) =>
               onDragStart(e, "default", {
                 label: "web-search-node",

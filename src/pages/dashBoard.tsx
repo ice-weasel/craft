@@ -73,14 +73,11 @@ const Dashboard = ({ sessionCookie }: any) => {
         <div className="flex md:flex-row flex-col justify-between md:p-10 p-6">
           <div className="md:w-1/2 rounded-lg flex flex-col space-y-5 md:space-y-0 justify-around ">
             <div className="space-y-8">
-
-
               <div className="md:text-6xl text-4xl font-semibold">
                 Hey, Carolina!
               </div>
               <div className="md:text-md text-sm">
                 Bring your ideas to life with adaptability that grows with you.
-
                 Whether it’s organizing simple steps <br />
                 or managing complex tasks, you have the tools to make it happen.
                 Get started with a template <br />
@@ -121,8 +118,9 @@ const Dashboard = ({ sessionCookie }: any) => {
             />
             <button className="absolute md:bottom-8 bottom-4 md:left-8 left-4  md:w-2/5 w-2/3   p-2 pl-4 pr-4 md:h-1/6 h-8 text-black shadow-sm items-center rounded-full backdrop-blur-lg bg-white/30   hover:bg-transparent hover:shadow-md flex justify-between">
               {" "}
-              <div className="md:text-md text-sm">Create new workflows</div>
-             
+              <Link href="" className="md:text-md text-sm">
+                Create new workflows
+              </Link>
               <div>
                 <GoArrowUpRight className="mt-1" size={16} />
               </div>

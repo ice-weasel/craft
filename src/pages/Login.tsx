@@ -10,6 +10,7 @@ import Image from "next/image";
 import { Montserrat } from "next/font/google";
 import logo from "../../public/craft-logo-new.png";
 import { error } from "console";
+import Link from "next/link";
 
 
 const mont = Montserrat({
@@ -52,13 +53,25 @@ export default function Login() {
         setIsTransitioning(false);
         console.error("Failed to log in");
       }
-    } catch (error) {
+    } catch (error:any) {
       setIsTransitioning(false);
       console.error("Error signing in", error);
-      if(error === "FirebaseError: Firebase: Error (auth/invalid-credential)")
+      if (error.code === 'auth/invalid-credential' || 
+        error.code === 'auth/invalid-email' || 
+        error.code === 'auth/wrong-password')
       {
         setShowWarning(true)
         setErrormessage("Email or Password is incorrect")
+      }
+      if(error.code === 'auth/auth/email-already-exists')
+      {
+        setShowWarning(true)
+        setErrormessage("Email already exists")
+      }
+      if(error.code === 'auth/user-not-found')
+      {
+        setShowWarning(true)
+        setErrormessage("User not found, Create a new one here")
       }
       else {
         setShowWarning(true)
@@ -68,10 +81,6 @@ export default function Login() {
       setisLoading(false);
     }
   };
-
-
-
- 
 
   return (
     <div className="relative h-screen w-screen">
@@ -165,6 +174,9 @@ export default function Login() {
                 <span className="relative z-10">{isLoading ? "Logging in..." : ""}</span>
               </motion.button>
             </motion.form>
+          </div>
+          <div>
+            <p>Dont have an account ? <span><Link className="" href="/Signup">Click Here</Link></span></p>
           </div>
           <p className={mont.className}>All rights reserved © 2024</p>
         </motion.div>

@@ -14,6 +14,11 @@ const RTools = ({ onRToolsChange }: RToolsProps) => {
     onRToolsChange(newValue); // Call the prop function
     console.log(`Selected document type2: ${newValue}`);
   };
+  const dynamicText: { [key: string]: string } = {
+    Default: "You have selected the Default option.",
+    "Self-Query": "The Self-Query option is selected for personalized queries.",
+    "Multi-Query": "Multi-Query allows multiple queries to be processed.",
+  };
   return (
     <>
       <div className="flex flex-col space-y-3">
@@ -45,6 +50,14 @@ const RTools = ({ onRToolsChange }: RToolsProps) => {
           </label>
         ))}
       </div>
+      {option && (
+        <div className="p-1">
+          {" "}
+          <p className="mt-4 text-sm text-gray-600">
+            {dynamicText[option] || "Please select an option."}
+          </p>
+        </div>
+      )}
     </>
   );
 };

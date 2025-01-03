@@ -333,7 +333,7 @@ const FlowWithPathExtractor = () => {
     "Document Type": <DocuType onDocTypeChange={handleDocTypeChange} />,
     Prompts: <Prompts onpromptsChange={handlePromptsChange} />,
     Embeddings: <Embeddings onEmbeddingsChange={embeddingsChange} />,
-    "Retriever Tools": <RTools onRToolsChange={rtoolsChange} />,
+    "Retriever Techniques": <RTools onRToolsChange={rtoolsChange} />,
     "Vector Store": <VSTools onVSToolsChange={vsToolsChange} />,
     LLMs: <LLMs onLLMSelected={handleLLMSelected} />,
   };

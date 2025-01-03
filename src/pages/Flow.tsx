@@ -25,7 +25,7 @@ import LLMs from "@/components/flowtabs/llm";
 import { ChevronRight } from "lucide-react";
 import Image from "next/image";
 import DocuType from "@/components/flowtabs/documentype";
-import VSTools from "@/components/flowtabs/wstools";
+import VSTools from "@/components/flowtabs/vstools";
 import GTools from "@/components/flowtabs/embeddings";
 import Nodes from "@/components/templates/self-reflex/nodes";
 import Checkers from "@/components/templates/self-reflex/checkers";

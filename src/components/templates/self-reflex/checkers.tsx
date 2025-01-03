@@ -1,3 +1,4 @@
+import "tailwindcss/tailwind.css";
 import { RiDraggable } from "react-icons/ri";
 export default function Checkers() {
   const onDragStart = (event: React.DragEvent, nodeType: string, data: any) => {
@@ -9,12 +10,13 @@ export default function Checkers() {
   };
   return (
     <>
-      <div className="max-w-[17vw] flex flex-col  p-3">
-      <p className="text-black text-center  rounded-lg text-1xl font-bold px-3 py-3">Checkers</p>
-        <div className="w-full mt-3  px-7 ">
-       
+      <div className=" flex flex-col ">
+        <p className="text-black  rounded-lg font-semibold px-3 mt-3">
+          Checkers
+        </p>
+        <div className="w-full flex flex-col p-3 ">
           <div
-            className="p-2  text-center flex gap-3 items-center text-blue  font-semibold hover:text-black bg-violet-300 hover:bg-violet-500 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
+            className="p-2 flex gap-3 items-center text-blue  font-semibold hover:text-black bg-indigo-100 hover:bg-indigo-200 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
             onDragStart={(e) =>
               onDragStart(e, "default", {
                 label: "relevancy-checker",
@@ -29,7 +31,7 @@ export default function Checkers() {
             <p className="">Relevancy Checker</p>
           </div>
           <div
-            className="p-2  text-center flex gap-3 items-center text-blue  font-semibold hover:text-black bg-violet-300 hover:bg-violet-500 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
+            className="p-2 flex gap-3 items-center text-blue  font-semibold hover:text-black bg-indigo-100 hover:bg-indigo-200 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
             onDragStart={(e) =>
               onDragStart(e, "default", {
                 label: "halucination-checker",
@@ -44,7 +46,7 @@ export default function Checkers() {
             <p>Hallucination Checker</p>
           </div>
           <div
-            className="p-2  text-center flex gap-3 items-center text-blue  font-semibold hover:text-black bg-violet-300 hover:bg-violet-500 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
+            className="p-2  flex gap-3 items-center text-blue  font-semibold hover:text-black bg-indigo-100 hover:bg-indigo-200 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
             onDragStart={(e) =>
               onDragStart(e, "default", {
                 label: "grounded-answer-checker",
@@ -56,7 +58,7 @@ export default function Checkers() {
             <span>
               <RiDraggable />
             </span>
-            <p className="">Grounded Answer Checker</p>
+            <p className="">Answer Checker</p>
           </div>
         </div>
       </div>

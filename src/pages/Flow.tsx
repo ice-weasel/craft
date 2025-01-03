@@ -1,3 +1,4 @@
+import React, { useEffect } from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { useCallback, useRef, useState } from "react";
 import "tailwindcss/tailwind.css";
@@ -15,7 +16,7 @@ import ReactFlow, {
   OnSelectionChangeParams,
   ControlButton,
   NodeResizer,
-  NodeResizeControl
+  NodeResizeControl,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import RTools from "../components/flowtabs/rtools";
@@ -26,10 +27,16 @@ import Image from "next/image";
 import DocuType from "@/components/flowtabs/documentype";
 import VSTools from "@/components/flowtabs/wstools";
 import GTools from "@/components/flowtabs/embeddings";
-import Nodes from "@/components/left/nodes";
-import Checkers from "@/components/left/checkers";
+import Nodes from "@/components/templates/self-reflex/nodes";
+import Checkers from "@/components/templates/self-reflex/checkers";
 import Embeddings from "@/components/flowtabs/embeddings";
-import { Panel } from 'reactflow';
+import { Panel } from "reactflow";
+import SelfTab from "@/components/templates/self-reflex/self-tab";
+import Link from "next/link";
+import { IoIosArrowForward } from "react-icons/io";
+import { MdOutlineSaveAlt } from "react-icons/md";
+import { IoIosArrowDown } from "react-icons/io";
+import { IoIosArrowBack } from "react-icons/io";
 
 const getId = (() => {
   let id = 0;
@@ -40,7 +47,7 @@ export const toolNodes = [
   {
     id: "1",
     type: "input",
-    data: { label: "Start"},
+    data: { label: "Start" },
 
     position: { x: 250, y: 25 },
   },
@@ -48,31 +55,17 @@ export const toolNodes = [
     id: "2",
     type: "default",
     data: { label: "Retrieve" },
-    size: {height:100,width:100},
+    size: { height: 100, width: 100 },
     position: { x: 250, y: 100 },
   },
   {
     id: "3",
     type: "default",
-    className:"",
+    className: "",
     data: { label: "Generate" },
     position: { x: 250, y: 200 },
   },
-
 ];
-
-
-
-type NavigationButtonProps = {
-  label: string;
-  isActive: boolean;
-  onClick: () => void;
-};
-
-type NextButtonProps = {
-  text: string;
-  onClick: () => void;
-};
 
 // const NavigationButton: React.FC<NavigationButtonProps> = ({
 //   label,
@@ -114,27 +107,8 @@ type NextButtonProps = {
 // );
 
 const FlowWithPathExtractor = () => {
-  const navigationItems = [
-    { label: "DocuType", imageSrc: "" },
-    { label: "Prompts", imageSrc: "" },
-    { label: "R_tools", imageSrc: "/tools.png" },
-    { label: "WS_tools", imageSrc: "" },
-    { label: "G_tools", imageSrc: "" },
-    { label: "LLMs", imageSrc: "/ai.png" },
-
-    { label: "", imageSrc: "" },
-    { label: "Tools", imageSrc: "/tools.png" },
-    { label: "AI", imageSrc: "/ai.png" },
-  ];
-
   const [activeTab, setActiveTab] = useState(0);
-  const nextbutton = [
-    "Select Document Type",
-    "Enter prompt",
-    "Select Tools",
-    "Select LLMs",
-    "Create Workflow",
-  ];
+
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [selectedElements, setSelectedElements] = useState<{
@@ -314,29 +288,29 @@ const FlowWithPathExtractor = () => {
   const handleDocTypeChange = (type: string | null) => {
     setOption(type);
   };
-  
-  const minusSVG = 
-  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
-    <path d="M3.75 7.25a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5h-8.5Z" />
-  </svg>`
-;
 
-// SVG for Plus icon
-const plusSVG = 
-  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
+  const [openIndices, setOpenIndices] = useState<number[]>([]);
+
+  const minusSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
+
+    <path d="M3.75 7.25a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5h-8.5Z" />
+  </svg>`;
+  // SVG for Plus icon
+  const plusSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">
     <path d="M8.75 3.75a.75.75 0 0 0-1.5 0v3.5h-3.5a.75.75 0 0 0 0 1.5h3.5v3.5a.75.75 0 0 0 1.5 0v-3.5h3.5a.75.75 0 0 0 0-1.5h-3.5v-3.5Z" />
-  </svg>`
+  </svg>`;
 
   const [openIndices, setOpenIndices] = useState<number[]>([]);
 
   const toggleAccordion = (index: any) => {
-    setOpenIndices((prev:any) =>
-      prev.includes(index) ? prev.filter((i:any) => i !== index) : [...prev, index]
+    setOpenIndices((prev: any) =>
+      prev.includes(index)
+        ? prev.filter((i: any) => i !== index)
+        : [...prev, index]
     );
-
   };
 
-  const contentRefs = useRef<(HTMLDivElement | null)[]>([]); 
+  const contentRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const handlePromptsChange = (prompts: string | null) => {
     setPrompts(prompts);
@@ -367,22 +341,32 @@ const plusSVG =
   };
 
   const components = {
-    'Document Type': <DocuType onDocTypeChange={handleDocTypeChange} />,
+    "Document Type": <DocuType onDocTypeChange={handleDocTypeChange} />,
     Prompts: <Prompts onpromptsChange={handlePromptsChange} />,
     Embeddings: <Embeddings onEmbeddingsChange={embeddingsChange} />,
-    'Retriever Tools': <RTools onRToolsChange={rtoolsChange} />,
-    'Vector Store': <VSTools onVSToolsChange={vsToolsChange} />,
+    "Retriever Tools": <RTools onRToolsChange={rtoolsChange} />,
+    "Vector Store": <VSTools onVSToolsChange={vsToolsChange} />,
     LLMs: <LLMs onLLMSelected={handleLLMSelected} />,
   };
 
-  return (
-    
-   
-   <div className="flex flex-row h-screen bg-[#F0F2F5] ">
-   <div className="w-[300px] justify-center bg-indigo-100 flex flex-col ">
-        <Nodes />
+  //sidebar
+  const [isExpanded, setIsExpanded] = useState(true);
 
-        <Checkers />
+  return (
+    <div className="flex flex-row h-screen  ">
+      <div
+        className={`
+          w-1/5  bg-neutral flex flex-col shadow-xl border-1 border-black  transition-all duration-600 ease-in-out
+          ${isExpanded ? "w-1/5" : "w-14"}
+        `}
+      >
+        {isExpanded && <SelfTab />}
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="absolute bottom-5 left-2 p-2 rounded-full hover:bg-gray-200 transition-transform duration-300 ease-in-out"
+        >
+          {isExpanded ? <IoIosArrowBack /> : <IoIosArrowForward />}
+        </button>
         {/* <div className="p-3 self-center">
           <p className="self-start font-bold text-1xl">Element Properties :</p>
           <button
@@ -402,7 +386,6 @@ const plusSVG =
           nodes={nodes}
           edges={edges}
           onNodesChange={onNodesChange}
-        
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           onInit={onInit}
@@ -411,70 +394,72 @@ const plusSVG =
           onSelectionChange={onSelectionChange}
           fitView
         >
-
-          <Panel position="top-center" className="bg-white shadow-md rounded-lg p-1 m-2 flex gap-3">
-    <button
-      onClick={handleDelete}
-      disabled={
-        !selectedElements.nodes.length && !selectedElements.edges.length
-      }
-      className="p-2 rounded-lg bg-red-500 text-white disabled:bg-gray-300 hover:bg-red-600 transition-colors"
-    >
-      <FaRegTrashAlt />
-    </button>
-    <button
-      onClick={exportPathsAsJson}
-      className="flex items-center gap-2 px-2 py-1 bg-violet-500 text-white rounded-lg hover:bg-violet-600 transition-colors"
-    >
-      <span>Create Workflow</span>
-      <ChevronRight size={20} />
-    </button>
-  </Panel>
-  <Controls />
-  <MiniMap />
-  <Background />
+          <Panel
+            position="top-center"
+            className="bg-white shadow-md rounded-lg p-1 m-2 flex gap-3"
+          >
+            <button
+              onClick={handleDelete}
+              disabled={
+                !selectedElements.nodes.length && !selectedElements.edges.length
+              }
+              className="p-2 rounded-lg bg-red-500 text-white disabled:bg-gray-300 hover:bg-red-600 transition-colors"
+            >
+              <FaRegTrashAlt />
+            </button>
+            <button
+              onClick={exportPathsAsJson}
+              className="flex items-center gap-2 px-2 py-1 bg-black text-white rounded-lg hover:bg-violet-500 transition-colors"
+            >
+              <MdOutlineSaveAlt size={20} />
+            </button>
+          </Panel>
+          <Controls />
+          <MiniMap />
+          <Background />
         </ReactFlow>
       </div>
 
-      <div className="w-[300px] flex flex-col  bg-indigo-100">
-      <div className="p-6 flex flex-col space-y-4 transition-transform duration-600 overflow-y-auto">
-      {Object.entries(components).map(([type, component], index) => (
-        <div key={type} className="border-b shadow-md rounded-lg px-7 bg-violet-300 ">
-          <button
-            onClick={() => toggleAccordion(index)}
-            className="w-full flex justify-between transition-transform duration-60 font-medium items-center py-5 text-black"
-          >
-            <span>{type}</span>
-            <span
-              id={`icon-${index}`}
-              className="transition-transform duration-300"
-              dangerouslySetInnerHTML={{
-                __html: openIndices.includes(index) ? minusSVG : plusSVG,
-              }}
-            />
-          </button>
-          <div
-            ref={(el:any) => (contentRefs.current[index] = el)}
-            style={{
-              height: openIndices.includes(index)
-                ? contentRefs.current[index]?.scrollHeight
-                : 0,
-            }}
-            className="overflow-hidden transition-[height] bg-violet-300 rounded-md duration-300 ease-in-out"
-          >
-            <div className="py-3">{component}</div>
-          </div>
+      <div className="w-1/5 flex flex-col  bg-white shadow-xl border-1 border-black">
+        <div className="p-5">
+          <h1 className="text-lg font-semibold text-right">Components</h1>
+          <hr className="h-[1.5px] my-3 bg-black border-0 " />
         </div>
-      ))}
-    </div>
-      
-        
-
-        
+        <div className="p-5 flex flex-col space-y-2 transition-transform duration-600 overflow-y-auto">
+          {Object.entries(components).map(([type, component], index) => (
+            <div key={type} className="border-b rounded-md p-3 bg-violet-200 ">
+              <button
+                onClick={() => toggleAccordion(index)}
+                className="w-full flex justify-between flex-row transition-transform duration-60 font-semibold text-black"
+              >
+                <div>{type}</div>
+                <div>
+                  <IoIosArrowDown />
+                </div>
+                {/* <span
+                  id={`icon-${index}`}
+                  className="transition-transform duration-300"
+                  dangerouslySetInnerHTML={{
+                    __html: openIndices.includes(index) ? minusSVG : plusSVG,
+                  }}
+                />*/}
+              </button>
+              <div
+                ref={(el: any) => (contentRefs.current[index] = el)}
+                style={{
+                  height: openIndices.includes(index)
+                    ? contentRefs.current[index]?.scrollHeight
+                    : 0,
+                }}
+                className="overflow-hidden transition-[height] bg-violet-200 rounded-md duration-300 ease-in-out"
+              >
+                <div className="py-3">{component}</div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>        
-      
-   
+    </div>
   );
 };
 

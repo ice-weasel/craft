@@ -1,23 +1,30 @@
 "use client";
 import Navbar from "@/components/navbar";
-import { useState } from "react";
+import { useState,useEffect, ReactEventHandler } from "react";
 import "tailwindcss/tailwind.css";
 import { useRouter } from "next/navigation";
 import { NextApiRequest } from "next";
-import { motion } from "framer-motion";
 import CircularProgress from "@/components/circluarProgress";
 import Image from "next/image";
 import { Montserrat } from "next/font/google";
 import Tabs from "@/components/tabs/tabs-dashboard";
 import { GoArrowUpRight } from "react-icons/go";
 import Link from "next/link";
+import { getAuth, signInWithCredential } from "firebase/auth";
+import firebaseApp from "@/app/firebase";
+import { adminauth,db }  from "@/app/firebaseAdmin";
+import { signOut } from "firebase/auth";
+
+
+
+
 //Cookie verification
 export async function getServerSideProps(context: any) {
   const { req } = context;
   const sessionCookie = req.cookies["session"];
 
   if (!sessionCookie) {
-    // Redirect to login
+    console.log("No session cookie found.");
     return {
       redirect: {
         destination: "/Login",
@@ -26,16 +33,87 @@ export async function getServerSideProps(context: any) {
     };
   }
 
-  // Pass session data to the page
-  return { props: { sessionCookie } };
+  
+
+  try {
+    // Verify the session cookie
+    const decodedToken = await adminauth.verifySessionCookie(sessionCookie, true);
+    const { uid } = decodedToken;
+
+    console.log("Decoded UID:", uid);
+
+    // Fetch user data from Firestore
+    const userDoc = await db.collection("Users").doc(uid).get();
+
+    if (!userDoc.exists) {
+      console.log(`No user document found for UID: ${uid}`);
+      
+    }
+
+    const firestoreData = userDoc.data();
+    console.log("Fetched Firestore Data:", firestoreData);
+
+    const user = {
+      uid,
+      ...firestoreData,
+      Name: firestoreData?.Name || "User",
+    };
+
+    return {
+      props: {
+        user: JSON.parse(JSON.stringify(user)),
+      },
+    };
+  } catch (error) {
+    console.error("Error in getServerSideProps:", error);
+    return {
+      redirect: {
+        destination: "/Login",
+        permanent: false,
+      },
+    };
+  }
 }
+
+
+
+
 
 const mont = Montserrat({
   weight: "700",
   subsets: ["latin"],
 });
 
-const Dashboard = ({ sessionCookie }: any) => {
+const Dashboard =({ user }: { user: any }) => {
+  const [userName, setUserName] = useState(user?.Name || "User");
+  const [showProf,setshowProf] = useState(false);
+
+  const router = useRouter()
+
+  const openProfdraw = () => setshowProf(!showProf)
+
+  useEffect(() => {
+    if (user) {
+      setUserName(user.Name || "User");
+    }
+  }, [user]);
+
+  const auth = getAuth(firebaseApp);
+
+  const handleLogout = async () => {
+    try {
+      await auth.signOut();
+      await fetch("/api/logout", { 
+        method: "POST",
+        credentials: 'same-origin'
+      });
+      router.push("/Login");
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
+  };
+  
+
   return (
     <div className="bg-white w-full text-black h-screen flex md:flex-col flex-col justify-between">
       <div className="md:h-1/2 ">
@@ -52,15 +130,29 @@ const Dashboard = ({ sessionCookie }: any) => {
                 <h1 className={mont.className}>Craft</h1>
               </div>
             </div>
-            <div className="flex flex-row space-x-5 p-2">
-              <button className="rounded-full ">
-                <Image
-                  alt="profile"
-                  src="/profile-icon-new.png"
-                  width="40"
-                  height="40"
-                ></Image>
+            <div className="flex flex-row space-x-5 p-2 relative">
+            <button className="rounded-full" onClick={openProfdraw}>
+        <Image
+          alt="profile"
+          src="/profile-icon-new.png"
+          width="40"
+          height="40"
+        />
+      </button>
+      {showProf && (
+        <div className="absolute z-50 right-0 top-14 w-48 bg-white rounded-lg shadow-lg border-gray-200">
+          <ul className="py-2">
+            <li>
+              <button 
+                onClick={handleLogout}
+                className="w-full px-4 py-2 text-left hover:bg-gray-100 text-sm"
+              >
+                Logout
               </button>
+            </li>
+          </ul>
+        </div>
+      )}
               <a
                 href="#_"
                 className="flex items-center justify-center px-2 py-1 md:text-base text-xs font-medium leading-6 text-white whitespace-no-wrap bg-black border-2 border-transparent rounded-full shadow-sm hover:bg-transparent hover:text-black hover:border-black focus:outline-none"
@@ -74,7 +166,7 @@ const Dashboard = ({ sessionCookie }: any) => {
           <div className="md:w-1/2 rounded-lg flex flex-col space-y-5 md:space-y-0 justify-around ">
             <div className="space-y-8">
               <div className="md:text-6xl text-4xl font-semibold">
-                Hey, Carolina!
+                Hey, {userName}!
               </div>
               <div className="md:text-md text-sm">
                 Bring your ideas to life with adaptability that grows with you.
@@ -108,7 +200,7 @@ const Dashboard = ({ sessionCookie }: any) => {
               </div>
             </button>
           </div>
-          <div className="md:w-1/2 rounded-lg relative md:mt-0 mt-5">
+          <div className="md:w-1/2 rounded-lg relative  md:mt-0 mt-5">
             <Image
               alt="abstract img"
               src="/abstract-img.png"
@@ -116,7 +208,7 @@ const Dashboard = ({ sessionCookie }: any) => {
               width="1000"
               height="1000"
             />
-            <button className="absolute md:bottom-8 bottom-4 md:left-8 left-4  md:w-2/5 w-2/3   p-2 pl-4 pr-4 md:h-1/6 h-8 text-black shadow-sm items-center rounded-full backdrop-blur-lg bg-white/30   hover:bg-transparent hover:shadow-md flex justify-between">
+            <button className="absolute z-10 md:bottom-8 bottom-4 md:left-8 left-4  md:w-2/5 w-2/3   p-2 pl-4 pr-4 md:h-1/6 h-8 text-black shadow-sm items-center rounded-full backdrop-blur-lg bg-white/30   hover:bg-transparent hover:shadow-md flex justify-between">
               {" "}
               <Link href="" className="md:text-md text-sm">
                 Create new workflows

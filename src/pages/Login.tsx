@@ -56,25 +56,26 @@ export default function Login() {
     } catch (error:any) {
       setIsTransitioning(false);
       console.error("Error signing in", error);
-      if (error.code === 'auth/invalid-credential' || 
-        error.code === 'auth/invalid-email' || 
-        error.code === 'auth/wrong-password')
+      if (error.code == "auth/invalid-credential" || 
+        error.code == 'auth/invalid-email' || 
+        error.code == 'auth/wrong-password')
       {
         setShowWarning(true)
         setErrormessage("Email or Password is incorrect")
       }
-      if(error.code === 'auth/auth/email-already-exists')
+      else if(error.code === 'auth/auth/email-already-exists')
       {
         setShowWarning(true)
         setErrormessage("Email already exists")
       }
-      if(error.code === 'auth/user-not-found')
+      else if(error.code === 'auth/user-not-found')
       {
         setShowWarning(true)
         setErrormessage("User not found, Create a new one here")
       }
       else {
         setShowWarning(true)
+        console.log(error.code)
         setErrormessage("Unknown error occurred, check your internet connection")
       }
     } finally {
@@ -97,7 +98,7 @@ export default function Login() {
       />
       
       {/* Content layer */}
-      <div className="relative h-full z-10 flex justify-center items-center">
+      <div className="relative gap-11 h-full z-10 flex justify-center items-center">
         <motion.div
           className="w-[200px] sm:w-[500px] md:w-[550px] md:h-[550px] p-8 bg-white/90 rounded-lg shadow-lg flex flex-col justify-center items-center"
           initial={{ scale: 0.8, opacity: 0 }}
@@ -121,9 +122,7 @@ export default function Login() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2, duration: 0.5, ease: "easeIn" }}
               >
-                {showWarning && (
-                  <div className="bg-red-500 w-full p-3 ">{errormessage}</div>
-                )}
+             
                 <div className="relative w-full">
                   <input
                     type="email"
@@ -173,11 +172,13 @@ export default function Login() {
                 )}
                 <span className="relative z-10">{isLoading ? "Logging in..." : ""}</span>
               </motion.button>
+              {showWarning && (
+                  <div className="text-center w-full pt-3 text-red-400">{errormessage}</div>
+                )}
             </motion.form>
           </div>
-          <div>
-            <p>Dont have an account ? <span><Link className="" href="/Signup">Click Here</Link></span></p>
-          </div>
+        
+          <p >Dont have an account ? <span><Link className="text-indigo-500 hover:text-violet-500" href="/Signup">Create an account</Link></span></p>
           <p className={mont.className}>All rights reserved © 2024</p>
         </motion.div>
       </div>

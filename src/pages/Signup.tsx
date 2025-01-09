@@ -13,6 +13,7 @@ import logo from "../../public/craft-logo-new.png";
 import { Check, X } from 'lucide-react';
 import { addDoc, collection, doc, getFirestore, setDoc } from 'firebase/firestore'
 import app from '@/app/firebase'
+import Link from "next/link";
 
 const mont = Montserrat({
   weight: "700",
@@ -28,6 +29,9 @@ export default function Signup() {
   const [cpass,setCpass] = useState("");
   const router = useRouter();
   const [docID,setDocID] = useState("");
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [showWarning,setShowWarning] = useState(false)
+  const [errormessage,setErrormessage] = useState("")
  
   const passwordMatch =(e:React.ChangeEvent<HTMLInputElement>) => {
     const cpass  = e.target.value;
@@ -49,7 +53,7 @@ export default function Signup() {
       const uid = userCredential.user.uid;
       const idToken = await userCredential.user.getIdToken();
       console.log("User UID:", uid);
-  
+      setIsTransitioning(true)
       const db = getFirestore(app);
       const userCollectionRef = doc(db, "Users", uid);
       console.log("Firestore Path:", userCollectionRef.path);
@@ -74,10 +78,21 @@ export default function Signup() {
       if (response.ok) {
         router.push("/dashBoard");
       } else {
+        setIsTransitioning(false)
         console.error("Failed to log in");
       }
-    } catch (authError) {
-      console.error("Error signing in:", authError);
+    } catch (authError:any) {
+      setIsTransitioning(false)
+      if(authError.code == 'auth/auth/email-already-exists')
+      {
+        setShowWarning(true)
+        setErrormessage("Email already exists!")
+      }
+      else{
+          setShowWarning(true)
+          setErrormessage("Unknown error occurred,check your internet connection");
+      }
+      
     } finally {
       setisLoading(false);
     }
@@ -123,7 +138,7 @@ export default function Signup() {
                 transition={{ delay: 0.2, duration: 0.5, ease: "easeIn" }}
               >
                   <div className="relative w-full">
-                  <label>Name*</label>
+                  
                   <input
                     type="text"
                     placeholder="Name"
@@ -197,15 +212,21 @@ export default function Signup() {
                     className="absolute top-0 left-0 h-full rounded-lg bg-violet-200"
                     initial={{ width: 0 }}
                     animate={{ width: "100%" }}
-                    transition={{ duration: 3 }}
+                    transition={{ duration: isTransitioning ? 0.5 : 2,
+                      ease:"linear"
+                     }}
                   />
                 ) : (
                   "Create"
                 )}
                 <span className="relative z-10">{isLoading ? "Loading..." : ""}</span>
               </motion.button>
+              {showWarning && (
+                  <div className="text-center w-full pt-3 text-red-400">{errormessage}</div>
+                )}
             </motion.form>
           </div>
+          <p>Already have an account ? <span><Link className="text-indigo-500 hover:text-violet-500" href="/Login">Login</Link></span></p>
           <p className={mont.className}>All rights reserved © 2024</p>
         </motion.div>
       </div>

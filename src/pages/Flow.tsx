@@ -25,7 +25,7 @@ import LLMs from "@/components/flowtabs/llm";
 import { ChevronRight } from "lucide-react";
 import Image from "next/image";
 import DocuType from "@/components/flowtabs/documentype";
-import VSTools from "@/components/flowtabs/wstools";
+import VSTools from "@/components/flowtabs/vstools";
 import GTools from "@/components/flowtabs/embeddings";
 import Nodes from "@/components/templates/self-reflex/nodes";
 import Checkers from "@/components/templates/self-reflex/checkers";
@@ -333,28 +333,28 @@ const FlowWithPathExtractor = () => {
     "Document Type": <DocuType onDocTypeChange={handleDocTypeChange} />,
     Prompts: <Prompts onpromptsChange={handlePromptsChange} />,
     Embeddings: <Embeddings onEmbeddingsChange={embeddingsChange} />,
-    "Retriever Tools": <RTools onRToolsChange={rtoolsChange} />,
+    "Retriever Techniques": <RTools onRToolsChange={rtoolsChange} />,
     "Vector Store": <VSTools onVSToolsChange={vsToolsChange} />,
     LLMs: <LLMs onLLMSelected={handleLLMSelected} />,
   };
 
   //sidebar
-  const [isExpanded, setIsExpanded] = useState(true);
-
+  const [isExpanded1, setIsExpanded1] = useState(true);
+  const [isExpanded2, setIsExpanded2] = useState(true);
   return (
     <div className="flex flex-row h-screen  ">
       <div
         className={`
           w-1/5  bg-neutral flex flex-col shadow-xl border-1 border-black  transition-all duration-600 ease-in-out
-          ${isExpanded ? "w-1/5" : "w-14"}
+          ${isExpanded1 ? "w-1/5" : "w-14 bg-indigo-100"}
         `}
       >
-        {isExpanded && <SelfTab />}
+        {isExpanded1 && <SelfTab />}
         <button
-          onClick={() => setIsExpanded(!isExpanded)}
+          onClick={() => setIsExpanded1(!isExpanded1)}
           className="absolute bottom-5 left-2 p-2 rounded-full hover:bg-gray-200 transition-transform duration-300 ease-in-out"
         >
-          {isExpanded ? <IoIosArrowBack /> : <IoIosArrowForward />}
+          {isExpanded1 ? <IoIosArrowBack /> : <IoIosArrowForward />}
         </button>
         {/* <div className="p-3 self-center">
           <p className="self-start font-bold text-1xl">Element Properties :</p>
@@ -409,44 +409,62 @@ const FlowWithPathExtractor = () => {
         </ReactFlow>
       </div>
 
-      <div className="w-1/5 flex flex-col  bg-white shadow-xl border-1 border-black">
-        <div className="p-5">
-          <h1 className="text-lg font-semibold text-right">Components</h1>
-          <hr className="h-[1.5px] my-3 bg-black border-0 " />
-        </div>
-        <div className="p-5 flex flex-col space-y-2 transition-transform duration-600 overflow-y-auto">
-          {Object.entries(components).map(([type, component], index) => (
-            <div key={type} className="border-b rounded-md p-3 bg-violet-200 ">
-              <button
-                onClick={() => toggleAccordion(index)}
-                className="w-full flex justify-between flex-row transition-transform duration-60 font-semibold text-black"
-              >
-                <div>{type}</div>
-                <div>
-                  <IoIosArrowDown />
-                </div>
-                {/* <span
+      <div
+        className={` w-1/5  bg-neutral flex flex-col shadow-xl border-1 border-black  transition-all duration-600 ease-in-out ${
+          isExpanded2 ? "w-1/5" : "w-14 bg-violet-200"
+        }`}
+      >
+        {isExpanded2 && (
+          <div>
+            {" "}
+            <div className="p-5">
+              <h1 className="text-lg font-semibold text-right">Components</h1>
+              <hr className="h-[1.5px] my-3 bg-black border-0 " />
+            </div>
+            <div className="p-5 flex flex-col space-y-2 transition-transform duration-600 overflow-y-auto">
+              {Object.entries(components).map(([type, component], index) => (
+                <div
+                  key={type}
+                  className="border-b rounded-md p-3 bg-violet-200 "
+                >
+                  <button
+                    onClick={() => toggleAccordion(index)}
+                    className="w-full flex justify-between flex-row transition-transform duration-60 font-semibold text-black"
+                  >
+                    <div>{type}</div>
+                    <div>
+                      <IoIosArrowDown />
+                    </div>
+                    {/* <span
                   id={`icon-${index}`}
                   className="transition-transform duration-300"
                   dangerouslySetInnerHTML={{
                     __html: openIndices.includes(index) ? minusSVG : plusSVG,
                   }}
                 />*/}
-              </button>
-              <div
-                ref={(el: any) => (contentRefs.current[index] = el)}
-                style={{
-                  height: openIndices.includes(index)
-                    ? contentRefs.current[index]?.scrollHeight
-                    : 0,
-                }}
-                className="overflow-hidden transition-[height] bg-violet-200 rounded-md duration-300 ease-in-out"
-              >
-                <div className="py-3">{component}</div>
-              </div>
+                  </button>
+                  <div
+                    ref={(el: any) => (contentRefs.current[index] = el)}
+                    style={{
+                      height: openIndices.includes(index)
+                        ? contentRefs.current[index]?.scrollHeight
+                        : 0,
+                    }}
+                    className="overflow-hidden transition-[height] bg-violet-200 rounded-md duration-300 ease-in-out"
+                  >
+                    <div className="py-3">{component}</div>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+        )}
+        <button
+          onClick={() => setIsExpanded2(!isExpanded2)}
+          className="absolute bottom-5 right-2 p-2 rounded-full hover:bg-gray-200 transition-transform duration-300 ease-in-out"
+        >
+          {isExpanded2 ? <IoIosArrowForward /> : <IoIosArrowBack />}
+        </button>
       </div>
     </div>
   );

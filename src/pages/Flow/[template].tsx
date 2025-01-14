@@ -19,7 +19,7 @@ import ReactFlow, {
   NodeResizeControl,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import RTools from "../components/flowtabs/rtools";
+import RTools from "@/components/flowtabs/rtools";
 import Prompts from "@/components/flowtabs/prompts";
 import LLMs from "@/components/flowtabs/llm";
 import { ChevronRight } from "lucide-react";
@@ -37,6 +37,13 @@ import { IoIosArrowForward } from "react-icons/io";
 import { MdOutlineSaveAlt } from "react-icons/md";
 import { IoIosArrowDown } from "react-icons/io";
 import { IoIosArrowBack } from "react-icons/io";
+import { initialEdges, initialNodes } from "@/components/templates/self-rag";
+import { useRouter } from "next/router";
+import Conditionals from "@/components/conditionals";
+
+
+
+
 
 
 const getId = (() => {
@@ -45,10 +52,8 @@ const getId = (() => {
 })();
 
 
-
 const FlowWithPathExtractor = () => {
-  const [activeTab, setActiveTab] = useState(0);
-
+    /*React Flow requisities*/
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [selectedElements, setSelectedElements] = useState<{
@@ -57,10 +62,13 @@ const FlowWithPathExtractor = () => {
   }>({ nodes: [], edges: [] });
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [nonDeletableNodes,setnonDeleteableNodes] = useState([])
+  const [nonDeletableEdges,setnonDeleteableEdges] = useState([])
 
+
+  /*Right Tab requisites*/
   const [option, setOption] = useState<string | null>(null);
   const [prompts, setPrompts] = useState<string | null>(null);
-
   const [isVerbose, setIsVerbose] = useState(false);
   const [temperature, setTemperature] = useState("");
   const [selectedLLM, setSelectedLLM] = useState<string | null>(null);
@@ -69,20 +77,70 @@ const FlowWithPathExtractor = () => {
   const [rtools, setRTools] = useState<string | null>(null);
   const [vstools, setVSTools] = useState<string | null>(null);
 
-  const onConnect = useCallback(
-    (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)),
-    [setEdges]
-  );
 
-  const handleDelete = useCallback(() => {
-    const selectedNodeIds = selectedElements.nodes.map((node) => node.id);
-    const selectedEdgeIds = selectedElements.edges.map((edge) => edge.id);
 
-    setNodes((nds) => nds.filter((node) => !selectedNodeIds.includes(node.id)));
-    setEdges((eds) => eds.filter((edge) => !selectedEdgeIds.includes(edge.id)));
-    setSelectedElements({ nodes: [], edges: [] });
-  }, [selectedElements, setNodes, setEdges]);
+ const router = useRouter();
+ useEffect(() => {
+    const loadTemplate = async () => {
+      const { template } = router.query; // Assume `template` is the template name
+      if (template) {
+        try {
+          const { initialNodes, initialEdges, nonDeletableNodes, nonDeletableEdges } = await import(`@/components/templates/${template}.js`);
+          setNodes(initialNodes);
+          setEdges(initialEdges);
+          setnonDeleteableNodes(nonDeletableNodes);
+          setnonDeleteableEdges(nonDeletableEdges);
+        } catch (error) {
+          console.error('Error loading template:', error);
+        }
+      } else {
+        // Load a generic or empty template if no template is selected
+        setNodes([]);
+        setEdges([]);
+        setnonDeleteableNodes([]);
+        setnonDeleteableEdges([]);
+      }
+    };
 
+    loadTemplate();
+  },[setEdges,setNodes,router.query]);
+
+  const [showModal, setShowModal] = useState(false);
+  const [pendingEdges, setPendingEdges] = useState<Edge[]>([]);
+
+
+  const onConnect = useCallback((params: Connection) => {
+    if (!params.source || !params.target) {
+      console.error("Source or target is null.");
+      return;
+    }
+  
+    const sourceEdges = edges.filter(edge => edge.source === params.source);
+    const newEdge: Edge = {
+      ...params,
+      id: `e${params.source}-${params.target}`,
+      data: { condition: sourceEdges.length === 0 ? 'if' : 'else' },
+      source: params.source, // Ensure these are not null
+      target: params.target  // Ensure these are not null
+    };
+  
+    if (sourceEdges.length < 2) {
+      setEdges(prev => addEdge(newEdge, prev));
+    } else {
+      setPendingEdges([...sourceEdges, newEdge]);
+      setShowModal(true);
+    }
+  }, [edges, setEdges]);
+  
+
+  const handleEdgeLabels = useCallback((edgeLabels: { id: string; label: string }[]) => {
+    setEdges(eds => eds.map(edge => {
+      const label = edgeLabels.find(l => l.id === edge.id);
+      return label ? { ...edge, data: { condition: label.label } } : edge;
+    }));
+    setShowModal(false);
+  }, [setEdges]);
+ 
   const onSelectionChange = useCallback((elements: OnSelectionChangeParams) => {
     setSelectedElements({ nodes: elements.nodes, edges: elements.edges });
   }, []);
@@ -95,6 +153,30 @@ const FlowWithPathExtractor = () => {
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
   }, []);
+
+
+    const canDeleteNode = (nodeId:string) => !(nonDeletableNodes as string[]).includes(nodeId);
+    const canDeleteEdge = (edgeId:string) => !(nonDeletableEdges as string[]).includes(edgeId);
+
+
+  const handleDelete = useCallback(() => {
+    const deletableNodes = selectedElements.nodes.filter(node => canDeleteNode(node.id));
+    const deletableEdges = selectedElements.edges.filter(edge => canDeleteEdge(edge.id));
+  
+    if (deletableNodes.length > 0 || deletableEdges.length > 0) {
+      setNodes((nds) => nds.filter((node) => 
+        !deletableNodes.map(n => n.id).includes(node.id)
+
+      ));
+      
+      setEdges((eds) => eds.filter((edge) => 
+        !deletableEdges.map(e => e.id).includes(edge.id)
+      ));
+    }
+  
+    setSelectedElements({ nodes: [], edges: [] });
+  }, [canDeleteNode,canDeleteEdge,selectedElements, setNodes, setEdges]);
+  
 
   const onDrop = useCallback(
     (event: React.DragEvent) => {
@@ -123,87 +205,88 @@ const FlowWithPathExtractor = () => {
     },
     [reactFlowInstance, setNodes]
   );
+  
+
 
   const extractPaths = useCallback(() => {
-    const paths: any = [];
+    const paths: any = {};
+    let counter = 1; // Counter for numerical keys
+  
     const visited = new Set();
-
-    const findPaths = (nodeId: any, currentPath: any) => {
+  
+    const findPaths = (nodeId: string, parentPath: any) => {
       if (visited.has(nodeId)) return;
       visited.add(nodeId);
-
+  
       const node = nodes.find((n) => n.id === nodeId);
-
       if (node) {
-        currentPath.push({
-          id: nodeId,
-          label: node.data.label || "Unnamed",
-          type: node.type,
-        });
-
-        if (node.type === "default") {
-          paths.push([...currentPath]);
+        const nodeKey = counter++; // Increment key for each node
+  
+        // Initialize the node path with its label
+        const nodeLabel = node.data.label || "Unnamed";
+  
+        if (node.type === "conditional") {
+          parentPath[nodeKey] = { [nodeLabel]: {} }; // Create object for conditional node
         } else {
-          const connectedEdges = edges.filter((edge) => edge.source === nodeId);
-          for (const edge of connectedEdges) {
-            findPaths(edge.target, [...currentPath]);
-          }
+          parentPath[nodeKey] = nodeLabel;
+        }
+  
+        const connectedEdges = edges.filter((edge) => edge.source === nodeId);
+        for (const edge of connectedEdges) {
+          const edgeLabel = edge.data?.label || "unnamed";
+          const targetPath =
+            node.type === "conditional" ? parentPath[nodeKey][nodeLabel] : parentPath;
+  
+          findPaths(edge.target, targetPath[edgeLabel] ? targetPath : targetPath[edgeLabel] = {});
         }
       }
-
-      visited.delete(nodeId); // Allow revisiting nodes on different paths
     };
-
-    // Start with 'input' nodes, or all nodes if none are inputs
+  
+    // Start from input nodes or all nodes if none are inputs
     const startNodes = nodes.filter((node) => node.type === "input");
     if (startNodes.length === 0) {
       console.warn("No input nodes found; using all nodes as starting points.");
-      startNodes.push(...nodes); // Start from all nodes if no inputs
+      startNodes.push(...nodes); // Fallback to all nodes
     }
-
+  
     startNodes.forEach((startNode) => {
-      findPaths(startNode.id, []);
+      findPaths(startNode.id, paths);
     });
-
-    console.log("Extracted paths:", paths); // Debugging to check paths content
-    return paths.length > 0 ? paths : null;
+  
+    console.log("Extracted paths:", paths); // Debugging
+    return paths;
   }, [nodes, edges]);
-
+  
   const exportPathsAsJson = useCallback(() => {
-    // Only export at specific tab
     const pathData = extractPaths();
-
-    // Create a complete data object that includes all the information
+  
+    // Include other relevant fields
     const exportData = {
       llm: selectedLLM,
       doc_type: option,
       embeddings: embeddings,
       retriever_tools: rtools,
-      vector_stores: vstools, // Include the selected document type
-      prompts: prompts, // Include the selected/entered prompts
+      vector_stores: vstools,
+      prompts: prompts,
       apiKey: apiKey,
       temperature: temperature,
       isVerbose: isVerbose,
-      flowPaths: pathData, // Include the original path data
+      flowPaths: pathData, // Inject extracted paths here
     };
-
+  
     const jsonString = JSON.stringify(exportData, null, 2);
-
+  
     // Create and trigger download
     const blob = new Blob([jsonString], { type: "application/json" });
-
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-
-    link.download = "workflow-config.json"; // Changed filename to be more descriptive
-
+    link.download = "workflow-config.json";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-
-    // Optional: Log the exported data
+  
     console.log("Exported workflow configuration:", exportData);
   }, [
     extractPaths,
@@ -216,14 +299,10 @@ const FlowWithPathExtractor = () => {
     embeddings,
     rtools,
     vstools,
-  ]); // Added option and prompts to dependencies  // Added option and prompts to dependencies
-  // Added option and prompts to dependencies
-  // Added option and prompts to dependencies
-
-  // const handleNext = () => {
-  //   setActiveTab((prevTab) => prevTab + 1);
-  //   exportPathsAsJson();
-  // };
+  ]);
+  
+  
+ 
 
   const handleDocTypeChange = (type: string | null) => {
     setOption(type);
@@ -289,6 +368,8 @@ const FlowWithPathExtractor = () => {
           ${isExpanded1 ? "w-1/5" : "w-14 bg-indigo-100"}
         `}
       >
+
+        {/* I want to do freaky shit on template change so that when it loads up correct thingy on selftab */}
         {isExpanded1 && <SelfTab />}
         <button
           onClick={() => setIsExpanded1(!isExpanded1)}
@@ -296,18 +377,7 @@ const FlowWithPathExtractor = () => {
         >
           {isExpanded1 ? <IoIosArrowBack /> : <IoIosArrowForward />}
         </button>
-        {/* <div className="p-3 self-center">
-          <p className="self-start font-bold text-1xl">Element Properties :</p>
-          <button
-            onClick={handleDelete}
-            disabled={
-              !selectedElements.nodes.length && !selectedElements.edges.length
-            }
-            className="p-2 rounded-lg   mt-3  bg-red-500 "
-          >
-            <FaRegTrashAlt />
-          </button>
-        </div> */}
+     
       </div>
 
       <div className="flex-1" ref={reactFlowWrapper}>
@@ -347,6 +417,12 @@ const FlowWithPathExtractor = () => {
           <MiniMap />
           <Background />
         </ReactFlow>
+        <Conditionals
+        isOpen={showModal}
+        edges={pendingEdges}
+        onClose={() => setShowModal(false)}
+        onSave={handleEdgeLabels}
+        />
       </div>
 
       <div
@@ -412,7 +488,7 @@ const FlowWithPathExtractor = () => {
 
 const FlowApp = () => (
   <ReactFlowProvider>
-    <FlowWithPathExtractor />
+    <FlowWithPathExtractor  />
   </ReactFlowProvider>
 );
 

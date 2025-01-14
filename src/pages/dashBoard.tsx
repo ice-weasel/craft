@@ -57,8 +57,27 @@ export async function getServerSideProps(context: any) {
       uid,
       ...firestoreData,
       Name: firestoreData?.Name || "User",
+    
     };
 
+    const projectData = await db.collection("Users").doc(uid).collection("projects").get();
+
+    if(!projectData.empty)
+    {
+      console.log("No projects done");
+    }
+    
+    const projects = projectData.docs.map((doc) => ({
+      id: doc.id,
+      Name: doc.data().Name || "Unnamed Project",
+      template: doc.data().template || "default-template",
+    }));
+    
+    projects.forEach((project) => {
+      console.log(`Project Name: ${project.Name}, Template: ${project.template}`);
+    });
+    
+    
     return {
       props: {
         user: JSON.parse(JSON.stringify(user)),
@@ -84,10 +103,10 @@ const mont = Montserrat({
   subsets: ["latin"],
 });
 
-const Dashboard =({ user }: { user: any }) => {
+const Dashboard =({ user,projects }: { user: any,projects:any }) => {
   const [userName, setUserName] = useState(user?.Name || "User");
   const [showProf,setshowProf] = useState(false);
-
+  const [projectList,setProjectList] = useState([])
   const router = useRouter()
 
   const openProfdraw = () => setshowProf(!showProf)
@@ -96,6 +115,12 @@ const Dashboard =({ user }: { user: any }) => {
     if (user) {
       setUserName(user.Name || "User");
     }
+
+    if (projects) {
+      
+    }
+
+
   }, [user]);
 
   const auth = getAuth(firebaseApp);

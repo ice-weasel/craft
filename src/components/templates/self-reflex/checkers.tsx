@@ -34,7 +34,7 @@ export default function Checkers() {
             className="p-2 flex gap-3 items-center text-blue  font-semibold hover:text-black bg-indigo-100 hover:bg-indigo-200 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
             onDragStart={(e) =>
               onDragStart(e, "default", {
-                label: "halucination-checker",
+                label: "hallucination-checker",
                 action: "hallucinate",
               })
             }

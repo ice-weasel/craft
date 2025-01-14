@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import Nodes from "./nodes";
 import Checkers from "./checkers";
+import Advanced from "./advanced";
+
+// type SelfTabProps = {
+//   onTemplateChange :
+//   (basicTools:string | null,advancedTools:string | null) => void
+// }
 
 const SelfTab = () => {
   const [activeTab, setActiveTab] = useState<number>(0);
@@ -35,6 +41,9 @@ const SelfTab = () => {
           <Nodes />
           <Checkers />
         </div>
+      )}
+      {activeTab === 1 && (
+        <Advanced/>
       )}
     </div>
   );

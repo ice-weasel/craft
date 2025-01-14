@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { useCallback, useRef, useState } from "react";
+import { X } from "lucide-react";
 import "tailwindcss/tailwind.css";
 import ReactFlow, {
   useNodesState,
@@ -108,7 +109,8 @@ export const toolNodes = [
 
 const FlowWithPathExtractor = () => {
   const [activeTab, setActiveTab] = useState(0);
-
+  const [jsonData, setJsonData] = useState<any>(null);
+  const [error, setError] = useState<string>("");
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [selectedElements, setSelectedElements] = useState<{
@@ -117,10 +119,8 @@ const FlowWithPathExtractor = () => {
   }>({ nodes: [], edges: [] });
   const [nodes, setNodes, onNodesChange] = useNodesState(toolNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge[]>([]);
-
   const [option, setOption] = useState<string | null>(null);
   const [prompts, setPrompts] = useState<string | null>(null);
-
   const [isVerbose, setIsVerbose] = useState(false);
   const [temperature, setTemperature] = useState("");
   const [selectedLLM, setSelectedLLM] = useState<string | null>(null);
@@ -128,6 +128,24 @@ const FlowWithPathExtractor = () => {
   const [embeddings, setEmbedding] = useState<string | null>(null);
   const [rtools, setRTools] = useState<string | null>(null);
   const [vstools, setVSTools] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const openModal = () => setIsOpen(true);
+  const closeModal = () => setIsOpen(false);
+
+  useEffect(() => {
+    loadJsonData();
+  }, []);
+
+  const loadJsonData = async () => {
+    try {
+      const data = await import("../generated-jsons/test.json");
+      setJsonData(data.default);
+      setError("");
+    } catch (err) {
+      setError("Failed to load JSON file");
+      console.error("Error loading JSON:", err);
+    }
+  };
 
   const onConnect = useCallback(
     (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)),
@@ -397,7 +415,7 @@ const FlowWithPathExtractor = () => {
               <FaRegTrashAlt />
             </button>
             <button
-              onClick={exportPathsAsJson}
+              onClick={openModal}
               className="flex items-center gap-2 px-2 py-1 bg-black text-white rounded-lg hover:bg-violet-500 transition-colors"
             >
               <MdOutlineSaveAlt size={20} />
@@ -408,7 +426,35 @@ const FlowWithPathExtractor = () => {
           <Background />
         </ReactFlow>
       </div>
+      {isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md relative">
+            <button
+              onClick={closeModal}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            >
+              <X size={24} />
+            </button>
 
+            <h2 className="text-xl font-bold mb-4">Preview: </h2>
+            <div className="mb-6">
+              <pre className="bg-gray-100 p-4 rounded-md overflow-auto max-h-60">
+                {jsonData
+                  ? JSON.stringify(jsonData, null, 2)
+                  : "No data loaded"}
+              </pre>
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={exportPathsAsJson}
+                className="px-3 py-2 bg-black text-white rounded-md hover:bg-neutral-700 transition-colors"
+              >
+                Download
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div
         className={` w-1/5  bg-neutral flex flex-col shadow-xl border-1 border-black  transition-all duration-600 ease-in-out ${
           isExpanded2 ? "w-1/5" : "w-14 bg-violet-200"

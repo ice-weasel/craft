@@ -233,7 +233,7 @@ const FlowWithPathExtractor = () => {
   
         const connectedEdges = edges.filter((edge) => edge.source === nodeId);
         for (const edge of connectedEdges) {
-          const edgeLabel = edge.data?.label || "unnamed";
+          const edgeLabel = edge.data?.label || "yes";
           const targetPath =
             node.type === "conditional" ? parentPath[nodeKey][nodeLabel] : parentPath;
   
@@ -262,15 +262,15 @@ const FlowWithPathExtractor = () => {
   
     // Include other relevant fields
     const exportData = {
-      llm: selectedLLM,
-      doc_type: option,
-      embeddings: embeddings,
-      retriever_tools: rtools,
-      vector_stores: vstools,
-      prompts: prompts,
-      apiKey: apiKey,
-      temperature: temperature,
-      isVerbose: isVerbose,
+      llm: selectedLLM || "groq_model",
+      doc_type: option || "pdf_type",
+      embeddings: embeddings || "hugging_face_type_embeddings",
+      retriever_tools: rtools || "multi-query",
+      vector_stores: vstools || "chroma_store",
+      prompts: prompts || "default",
+      apiKey: apiKey || "23423452342",
+      temperature: temperature || "0.3",
+      isVerbose: isVerbose || "false",
       flowPaths: pathData, // Inject extracted paths here
     };
   

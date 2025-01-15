@@ -117,11 +117,11 @@ const Dashboard =({ user,projects }: { user: any,projects:any }) => {
     }
 
     if (projects) {
-      
+      //do this pinne
     }
 
 
-  }, [user]);
+  }, [projects,user]);
 
   const auth = getAuth(firebaseApp);
 

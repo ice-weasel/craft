@@ -3,7 +3,7 @@ import axios from "axios";
 
 interface ResponseData {
   message: string;
-  data?: any;
+  generated_file?: string; // This allows us to access the generated file's URL/path
   error?: string;
 }
 
@@ -22,7 +22,7 @@ const TestData: React.FC = () => {
 
   const loadJsonData = async () => {
     try {
-      const data = await import("./../generated-jsons/test.json");
+      const data = await import("../generated-jsons/test.json");
       setJsonData(data.default);
       setError("");
     } catch (err) {
@@ -42,46 +42,41 @@ const TestData: React.FC = () => {
     setSuccessMessage("");
 
     try {
-      // Create axios instance with default config
-      const axiosInstance = axios.create({
-        baseURL: BACKEND_URL,
+      // Send JSON data to the backend
+      const response = await fetch("http://localhost:8000/receive-data", {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        // Enable CORS credentials if your Flask backend requires it
-        withCredentials: true,
+        body: JSON.stringify(jsonData),
       });
 
-      // Make the request
-      const response = await axiosInstance.post<ResponseData>(
-        "/receive-data",
-        jsonData
-      );
-
-      setSuccessMessage(response.data.message || "Data sent successfully!");
-      console.log("Backend response:", response.data);
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        const errorMessage =
-          err.response?.data?.error || err.message || "Failed to send data";
-        setError(`Error: ${errorMessage}`);
-
-        // Detailed error logging
-        console.error("Request failed:", {
-          status: err.response?.status,
-          statusText: err.response?.statusText,
-          data: err.response?.data,
-          headers: err.response?.headers,
-          config: {
-            url: err.config?.url,
-            method: err.config?.method,
-            headers: err.config?.headers,
-          },
-        });
-      } else {
-        setError("An unexpected error occurred");
-        console.error("Non-Axios error:", err);
+      if (!response.ok) {
+        throw new Error("Failed to send data to backend");
       }
+
+      // If the backend responds with a file, download it
+      // After the backend processes the data, download the .py file
+      const fileResponse = await fetch(
+        "http://localhost:8000/download-sample",
+        {
+          method: "GET",
+        }
+      );
+      console.log(fileResponse);
+      if (!fileResponse.ok) {
+        throw new Error("Failed to fetch the .py file");
+      }
+
+      const blob = await fileResponse.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "sample.py"; // Name of the file when downloaded
+      link.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Download failed:", error);
     } finally {
       setIsLoading(false);
     }
@@ -91,11 +86,6 @@ const TestData: React.FC = () => {
     <div className="max-w-4xl mx-auto p-6">
       <div className="bg-white rounded-lg shadow-md p-6">
         <h1 className="text-2xl font-bold mb-6">JSON Data Sender</h1>
-
-        {/* Backend URL Display */}
-        <div className="mb-4 p-4 bg-gray-100 rounded-md">
-          <p className="text-sm text-gray-600">Backend URL: {BACKEND_URL}</p>
-        </div>
 
         {/* Status Section */}
         <div className="mb-6">

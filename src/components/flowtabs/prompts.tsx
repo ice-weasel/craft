@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { MdEditDocument } from "react-icons/md";
+import { X } from "lucide-react";
 
 type PromptsProps = {
   onpromptsChange: (type: string | null) => void;
@@ -15,30 +16,45 @@ const initialOptions = [
 ];
 export default function Prompts({ onpromptsChange }: PromptsProps) {
   const [selectedOption, setSelectedOption] = useState<string>(""); // Radio button state
-  const [customText, setCustomText] = useState<string>(selfprompt); // Toast text state
+  const [customText, setCustomText] = useState<string>(); // Toast text state
   const [selectedDropdown, setSelectedDropdown] = useState<string>(""); // Dropdown state
+  const forceUpdate = useState(false)[1];
 
   const handleEditClick = () => {
     const selected = initialOptions.find(
       (opt) => opt.value === selectedDropdown
     );
 
+    console.log(selected);
     if (selected) {
-      setCustomText(selected.content);
+      const sel_text = selected.content;
+      setCustomText(sel_text);
+      forceUpdate((prev) => !prev);
+      console.log("sel text - ", sel_text);
+      console.log("custom text - ", customText);
       toast(
         (t) => (
           <div className="p-4">
+            <button
+              onClick={() => {
+                toast.dismiss(t.id);
+              }}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            >
+              <X size={24} />
+            </button>
             <h2 className="font-semibold text-lg mb-2">{selected.label}</h2>
             <textarea
               value={customText}
-              onChange={(e) => setCustomText(e.target.value)}
+              onChange={(e) => {
+                setCustomText(e.target.value); // Update the state as the user types
+              }}
               className="w-full p-2 border border-gray-300 rounded mb-3"
               rows={4}
             />
             <button
               onClick={() => {
                 toast.dismiss(t.id);
-                alert(`Saved text for ${selected.label}: ${customText}`);
               }}
               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
             >
@@ -49,7 +65,9 @@ export default function Prompts({ onpromptsChange }: PromptsProps) {
         { duration: Infinity }
       );
     } else {
-      toast.error("Please select an option from the dropdown.");
+      toast.error("Please select an option from the dropdown.", {
+        duration: 2000,
+      });
     }
   };
 
@@ -61,7 +79,7 @@ export default function Prompts({ onpromptsChange }: PromptsProps) {
   };
 
   return (
-    <div className="">
+    <div className="p-2 h-full">
       <Toaster />
       {/* Radio Buttons */}
       <div className="flex flex-col space-y-2 ">
@@ -119,11 +137,11 @@ export default function Prompts({ onpromptsChange }: PromptsProps) {
       </div>
 
       {selectedOption === "custom" && (
-        <div className="pt-2 flex justify-between pb-2 space-x-2">
+        <div className="pt-2 flex justify-between pb-2 space-x-2 h-full">
           <select
             value={selectedDropdown}
             onChange={(e) => setSelectedDropdown(e.target.value)}
-            className="w-2/3 p-2 border border-gray-300 rounded-md"
+            className="w-3/4 p-1 border border-gray-300 rounded-md"
           >
             <option value="" disabled className="">
               Select an option

@@ -41,11 +41,6 @@ import { initialEdges, initialNodes } from "@/components/templates/self-rag";
 import { useRouter } from "next/router";
 import Conditionals from "@/components/conditionals";
 
-
-
-
-
-
 const getId = (() => {
   let id = 0;
   return () => `dndnode_${id++}`;
@@ -259,9 +254,10 @@ const FlowWithPathExtractor = () => {
   
   const exportPathsAsJson = useCallback(() => {
     const pathData = extractPaths();
-  
+    const  { template } = router.query;
     // Include other relevant fields
     const exportData = {
+      
       llm: selectedLLM || "groq_model",
       doc_type: option || "pdf_type",
       embeddings: embeddings || "hugging_face_type_embeddings",
@@ -271,6 +267,7 @@ const FlowWithPathExtractor = () => {
       apiKey: apiKey || "23423452342",
       temperature: temperature || "0.3",
       isVerbose: isVerbose || "false",
+      template: template || "custom-template",
       flowPaths: pathData, // Inject extracted paths here
     };
   

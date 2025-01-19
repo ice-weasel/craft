@@ -137,10 +137,14 @@ const initialNodes = [
   ]
 
   // Define which nodes cannot be deleted
-const nonDeletableNodes = ['1', '2', '3', '4', '5', '6', '7', '10'];
+const nonDeletableNodes = ['1','10'];
 // Define which edges cannot be deleted
-const nonDeletableEdges = ['1-2', '2-3', '3-4', '4-5', '5-6', '6-7', '7-10'];
+const nonDeletableEdges = [];
+
+const group1 = ['3', '4', '8'];
+const group2 = ['6', '7', '9'];
 
 
 
-export  {initialNodes,initialEdges,nonDeletableNodes,nonDeletableEdges}
+
+export  {initialNodes,initialEdges,nonDeletableNodes,nonDeletableEdges,group1,group2}

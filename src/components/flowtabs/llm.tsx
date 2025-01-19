@@ -1,3 +1,4 @@
+import e from "express";
 import React, { useState } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 type LLMProps = {
@@ -11,19 +12,20 @@ type LLMProps = {
 
 export default function LLMs({ onLLMSelected }: LLMProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedLLM, setSelectedLLM] = useState<string | null>(null);
+  const [selectedLLM, setSelectedLLM] = useState("");
   const [isVerbose, setIsVerbose] = useState(false);
   const [temperature, setTemperature] = useState("");
   const [apiKey, setApiKey] = useState("");
 
-  const handleLLMSelect = (llmLabel: string) => {
-    // If selecting a different LLM, always open the dropdown and update selection
-    setIsDropdownOpen(true);
-    setSelectedLLM(llmLabel);
-
-    // Call the callback with the new selection
-    onLLMSelected(llmLabel, temperature, isVerbose, apiKey);
-  };
+  // const handleLLMSelect = (llmLabel: string) => {
+  //   // If selecting a different LLM, always open the dropdown and update selection
+  //   setIsDropdownOpen(true);
+  //   setSelectedLLM(llmLabel);
+  //   console.log("temperature" ,temperature)
+  //   console.log("llmlabel" , llmLabel)
+  //   // Call the callback with the new selection
+  //   onLLMSelected(llmLabel, temperature, isVerbose, apiKey);
+  // };
 
   const llms = [{ label: "Gemini" }, { label: "Open AI" }, { label: "groq" }];
 
@@ -33,7 +35,7 @@ export default function LLMs({ onLLMSelected }: LLMProps) {
         {llms.map((llm) => (
           <button
             key={llm.label}
-            onClick={() => handleLLMSelect(llm.label)}
+            onClick={() => {setSelectedLLM(llm.label);setIsDropdownOpen(!isDropdownOpen);console.log(selectedLLM)}}
             className="
             px-4 py-2 rounded-md font-medium transition-all duration-200 bg-gray-100 text-gray-700 hover:bg-violet-100"
           >
@@ -99,7 +101,10 @@ export default function LLMs({ onLLMSelected }: LLMProps) {
                   Verbose Output
                 </label>
               </div>
+
+              
             </div>
+            <button onClick={()=> {onLLMSelected(selectedLLM,temperature,isVerbose,apiKey);console.log(selectedLLM,temperature,isVerbose,apiKey)}}>Confirm</button>
           </div>
         </div>
       )}

@@ -144,7 +144,10 @@ const nonDeletableEdges = [];
 const group1 = ['3', '4', '8'];
 const group2 = ['6', '7', '9'];
 
+const basic  = ["Nodes","Checkers"];
+const advanced = ["Advanced"];
 
 
 
-export  {initialNodes,initialEdges,nonDeletableNodes,nonDeletableEdges,group1,group2}
+
+export  {initialNodes,initialEdges,nonDeletableNodes,nonDeletableEdges,group1,group2,basic,advanced}

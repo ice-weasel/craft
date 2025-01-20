@@ -1,4 +1,5 @@
 // firebase.ts (for client-side only)
+import { getFirestore } from 'firebase-admin/firestore';
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 
@@ -15,7 +16,7 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig)
 
 const auth = getAuth(firebaseApp);
-
+const firedb = getFirestore(firebaseApp);
 
 export { auth};
 export default firebaseApp;

@@ -4,21 +4,32 @@ import { MdEditDocument } from "react-icons/md";
 import { X } from "lucide-react";
 
 type PromptsProps = {
-  onpromptsChange: (type: string | null) => void;
+  onpromptsChange: (type: string | null, customContent?: string) => void;
 };
 
 const selfprompt = "tempcontent";
 
 const initialOptions = [
-  { value: "option1", label: "Option 1", content: "This is Option 1 content." },
-  { value: "option2", label: "Option 2", content: "This is Option 2 content." },
-  { value: "option3", label: "Option 3", content: "This is Option 3 content." },
+  { value: "grading-prompt", label: "grading-prompt", content: "This is the prompt for grading" },
+  { value: "relevancy-prompt", label: "relevancy-prompt", content: "This is the prompt for relevancy." },
+  { value: "generating-prompt", label: "generating-prompt", content: "This is the prompt for generating." },
+  { value: "hallucinating-prompt", label: "hallucinating-prompt", content: "This is the prompt for hallucinatin.g" },
+  { value: "answer-checking", label: "answer-checking", content: "This is the prompt for answer checking." },
+  { value: "rewriting-prompt", label: "rewriting-prompt", content: "This is the prompt for rewriting." },
 ];
 export default function Prompts({ onpromptsChange }: PromptsProps) {
   const [selectedOption, setSelectedOption] = useState<string>("default"); // Radio button state
   const [customText, setCustomText] = useState<string>(); // Toast text state
   const [selectedDropdown, setSelectedDropdown] = useState<string>(""); // Dropdown state
   const forceUpdate = useState(false)[1];
+
+  const handlePromptsChange = () => {
+    if (selectedOption !== "default") {
+      onpromptsChange(selectedOption, customText); // Pass customText when in custom mode
+    }
+  };
+
+
 
   const handleEditClick = () => {
     const selected = initialOptions.find(

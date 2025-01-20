@@ -67,6 +67,7 @@ const FlowWithPathExtractor =  () => {
   /*Right Tab requisites*/
   const [option, setOption] = useState<string | null>(null);
   const [prompts, setPrompts] = useState<string | null>(null);
+  const [customtext,setCustomtext] = useState<string|null|undefined>(null);
   const [isVerbose, setIsVerbose] = useState(false);
   const [temperature, setTemperature] = useState("");
   const [selectedLLM, setSelectedLLM] = useState<string | null>(null);
@@ -347,6 +348,7 @@ const FlowWithPathExtractor =  () => {
       retriever_tools: rtools || "multi-query",
       vector_stores: vstools || "chroma_store",
       prompts: prompts || "default",
+      customtext: customtext || null,
       template: template || "custom-template",
       flowPaths: pathData // Inject extracted paths here
     };
@@ -404,9 +406,10 @@ const FlowWithPathExtractor =  () => {
 
   const contentRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  const handlePromptsChange = (prompts: string | null) => {
-    setPrompts(prompts);
-    console.log("Prompt entered:", prompts);
+  const handlePromptsChange = (prompts: string | null, customContent?: string | null) => {
+    setPrompts(prompts); 
+    setCustomtext(customContent)
+    
   };
 
   const rtoolsChange = (rtools: string | null) => {

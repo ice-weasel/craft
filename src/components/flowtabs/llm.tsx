@@ -37,7 +37,7 @@ export default function LLMs({ onLLMSelected }: LLMProps) {
             key={llm.label}
             onClick={() => {setSelectedLLM(llm.label);setIsDropdownOpen(!isDropdownOpen);console.log(selectedLLM)}}
             className="
-            px-4 py-2 rounded-md font-medium transition-all duration-200 bg-gray-100 text-gray-700 hover:bg-violet-100"
+            px-4 py-2 rounded-md font-medium transition-all duration-200 bg-gray-100  text-gray-700 hover:bg-violet-100"
           >
             {llm.label}
           </button>
@@ -47,7 +47,7 @@ export default function LLMs({ onLLMSelected }: LLMProps) {
       {selectedLLM && (
         <div className="mt-6 border-t pt-4">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-gray-800 font-semibold">Configuration</h3>
+            <h3 className="text-gray-800  font-semibold">Configuration</h3>
             <button className="text-gray-600 hover:text-violet-500 transition-colors">
               <IoIosArrowDown
                 size={20}

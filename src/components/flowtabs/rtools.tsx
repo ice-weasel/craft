@@ -6,7 +6,7 @@ type RToolsProps = {
 };
 
 const RTools = ({ onRToolsChange }: RToolsProps) => {
-  const [option, setOption] = useState<string | null>(null);
+  const [option, setOption] = useState<string | null>("Basic");
   // Handle radio button change
   const handleRadioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
@@ -15,14 +15,14 @@ const RTools = ({ onRToolsChange }: RToolsProps) => {
     console.log(`Selected document type2: ${newValue}`);
   };
   const dynamicText: { [key: string]: string } = {
-    Default: "You have selected the Default option.",
+    Basic: "You have selected the Basic option.",
     "Self-Query": "The Self-Query option is selected for personalized queries.",
     "Multi-Query": "Multi-Query allows multiple queries to be processed.",
   };
   return (
     <>
       <div className="flex flex-col space-y-3">
-        {["Default", "Self-Query", "Multi-Query"].map((type) => (
+        {["Basic", "Self-Query", "Multi-Query"].map((type) => (
           <label key={type} className="flex items-center cursor-pointer group">
             <div className="relative">
               <input

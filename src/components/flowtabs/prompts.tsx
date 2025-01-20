@@ -15,7 +15,7 @@ const initialOptions = [
   { value: "option3", label: "Option 3", content: "This is Option 3 content." },
 ];
 export default function Prompts({ onpromptsChange }: PromptsProps) {
-  const [selectedOption, setSelectedOption] = useState<string>(""); // Radio button state
+  const [selectedOption, setSelectedOption] = useState<string>("default"); // Radio button state
   const [customText, setCustomText] = useState<string>(); // Toast text state
   const [selectedDropdown, setSelectedDropdown] = useState<string>(""); // Dropdown state
   const forceUpdate = useState(false)[1];

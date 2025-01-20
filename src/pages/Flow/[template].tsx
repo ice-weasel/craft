@@ -367,7 +367,7 @@ const FlowWithPathExtractor =  () => {
     //   body:jsonString,
     // });
 
-    setJsonData(jsonString)
+    setJsonData(exportData)
 
     openModal(jsonString)
   

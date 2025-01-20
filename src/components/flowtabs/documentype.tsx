@@ -9,6 +9,8 @@ export default function DocuType({ onDocTypeChange }: DocuTypeProps) {
   const [isOpen, setIsOpen] = useState(false);
   const options = ["PPT", "PDF", "CSV", "XLSX", "JSON"];
 
+  
+
   const handleRadioChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const newValue = event.target.value as string; // Ensure type safety
     setSelectedType(newValue);
@@ -22,7 +24,7 @@ export default function DocuType({ onDocTypeChange }: DocuTypeProps) {
         className="p-1 overflow-y-auto bg-white rounded-md w-full"
         onChange={handleRadioChange}
       >
-        {["PPT", "PDF", "CSV", "XLSX", "JSON"].map((type) => (
+        {["PDF","PPT", "CSV", "XLSX", "JSON"].map((type) => (
           <option key={type} value={type}>
             {type}
           </option>

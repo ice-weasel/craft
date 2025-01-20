@@ -4,57 +4,64 @@ import { MdEditDocument } from "react-icons/md";
 import { X } from "lucide-react";
 
 type PromptsProps = {
-  onpromptsChange: (type: string | null) => void;
+  onpromptsChange: (type: string | null, customContent?: string) => void;
 };
 
 const selfprompt = "tempcontent";
 
 const initialOptions = [
-  { value: "option1", label: "Option 1", content: "This is Option 1 content." },
-  { value: "option2", label: "Option 2", content: "This is Option 2 content." },
-  { value: "option3", label: "Option 3", content: "This is Option 3 content." },
+  { value: "grading-prompt", label: "grading-prompt", content: "This is the prompt for grading" },
+  { value: "relevancy-prompt", label: "relevancy-prompt", content: "This is the prompt for relevancy." },
+  { value: "generating-prompt", label: "generating-prompt", content: "This is the prompt for generating." },
+  { value: "hallucinating-prompt", label: "hallucinating-prompt", content: "This is the prompt for hallucinatin.g" },
+  { value: "answer-checking", label: "answer-checking", content: "This is the prompt for answer checking." },
+  { value: "rewriting-prompt", label: "rewriting-prompt", content: "This is the prompt for rewriting." },
 ];
 export default function Prompts({ onpromptsChange }: PromptsProps) {
-  const [selectedOption, setSelectedOption] = useState<string>(""); // Radio button state
+  const [selectedOption, setSelectedOption] = useState<string>("default"); // Radio button state
   const [customText, setCustomText] = useState<string>(); // Toast text state
   const [selectedDropdown, setSelectedDropdown] = useState<string>(""); // Dropdown state
   const forceUpdate = useState(false)[1];
 
-  const handleEditClick = () => {
-    const selected = initialOptions.find(
-      (opt) => opt.value === selectedDropdown
-    );
+  const handlePromptsChange = (selectedDropdown: string, customText: string) => {
+    if (selectedOption === "custom" && selectedDropdown) {
+      // Pass the selected dropdown and custom text values to the parent
+      onpromptsChange(selectedDropdown, customText);
+    } else if (selectedOption === "default") {
+      // For default, handle accordingly if needed
+    
+    }
+  };
+  
 
-    console.log(selected);
+
+  const handleEditClick = () => {
+    const selected = initialOptions.find((opt) => opt.value === selectedDropdown);
+  
     if (selected) {
       const sel_text = selected.content;
-      setCustomText(sel_text);
-      forceUpdate((prev) => !prev);
-      console.log("sel text - ", sel_text);
-      console.log("custom text - ", customText);
+      setCustomText(sel_text); // Set the selected option's content to customText
+  
       toast(
         (t) => (
           <div className="p-4">
             <button
-              onClick={() => {
-                toast.dismiss(t.id);
-              }}
+              onClick={() => toast.dismiss(t.id)}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
             >
               <X size={24} />
             </button>
             <h2 className="font-semibold text-lg mb-2">{selected.label}</h2>
             <textarea
-              value={customText}
-              onChange={(e) => {
-                setCustomText(e.target.value); // Update the state as the user types
-              }}
+              value={customText} // Ensure value is linked to the state
+              onChange={(e) => setCustomText(e.target.value)} // Update state on input
               className="w-full p-2 border border-gray-300 rounded mb-3"
               rows={4}
             />
             <button
               onClick={() => {
-                toast.dismiss(t.id);
+                toast.dismiss(t.id); // Close the toast
+                handlePromptsChange(selectedDropdown, customText as string); // Pass updated values to parent
               }}
               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
             >
@@ -62,7 +69,7 @@ export default function Prompts({ onpromptsChange }: PromptsProps) {
             </button>
           </div>
         ),
-        { duration: Infinity }
+        { duration: Infinity } // Ensure toast stays open until dismissed
       );
     } else {
       toast.error("Please select an option from the dropdown.", {
@@ -70,6 +77,7 @@ export default function Prompts({ onpromptsChange }: PromptsProps) {
       });
     }
   };
+  
 
   const handleChange = (option: string) => {
     setSelectedOption(option);

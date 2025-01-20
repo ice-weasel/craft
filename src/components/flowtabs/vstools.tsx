@@ -8,7 +8,7 @@ type VSToolsProp = {
 
 const VSTools = ({onVSToolsChange}: VSToolsProp) => {
 
-  const [option,setOption] = useState<string| null>(null)
+  const [option,setOption] = useState<string| null>("Chroma")
 
   const handleRadioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;

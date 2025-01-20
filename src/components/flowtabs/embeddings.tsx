@@ -6,7 +6,7 @@ type EmbeddingsProps = {
 };
 
 const Embeddings = ({ onEmbeddingsChange }: EmbeddingsProps) => {
-  const [option, setOption] = useState<string | null>(null);
+  const [option, setOption] = useState<string | null>("hugging_face");
   // Handle radio button change
   const handleRadioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;

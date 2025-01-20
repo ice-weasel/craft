@@ -1,15 +1,58 @@
-import React, { useState } from "react";
+import React, { useState ,useEffect,lazy, Suspense } from "react";
 import Nodes from "./nodes";
 import Checkers from "./checkers";
 import Advanced from "./advanced";
+import { useRouter } from "next/router";
 
 // type SelfTabProps = {
 //   onTemplateChange :
 //   (basicTools:string | null,advancedTools:string | null) => void
 // }
 
+
 const SelfTab = () => {
+
   const [activeTab, setActiveTab] = useState<number>(0);
+  const [basicComponents, setBasicComponents] = useState<JSX.Element[]>([]);
+  const [advancedComponents, setAdvancedComponents] = useState<JSX.Element[]>([]);
+  const router = useRouter();
+ useEffect(() => {
+    const loadTemplate = async () => {
+      const { template } = router.query; // Assume `template` is the template name
+      if (template) {
+        try {
+          const {basic,advanced} = await import(`@/components/templates/${template}.js`);
+        
+
+          const basicImports = await Promise.all(
+            basic.map(async (comp:any) => {
+              const Component = (await import(`@/components/templates/self-reflex/${comp.toLowerCase()}`)).default;
+              return <Component key={comp} />;
+            })
+          );
+          setBasicComponents(basicImports);
+
+          const advancedImports = await Promise.all(
+            advanced.map(async (comp:any) => {
+              const Component = (await import(`@/components/templates/self-reflex/${comp.toLowerCase()}`)).default;
+              return <Component key={comp} />;
+            })
+          );
+          setAdvancedComponents(advancedImports);
+
+        } catch (error) {
+          console.error('Error loading template:', error);
+        }
+      } else {
+        // Load a generic or empty template if no template is selected
+    
+      }
+    };
+
+    loadTemplate();
+  },[router.query]);
+  
+
   return (
     <div className="p-5">
       <h1 className="text-lg font-semibold">Tool Box</h1>
@@ -36,15 +79,10 @@ const SelfTab = () => {
           Advanced
         </button>
       </div>
-      {activeTab === 0 && (
-        <div>
-          <Nodes />
-          <Checkers />
-        </div>
-      )}
-      {activeTab === 1 && (
-        <Advanced/>
-      )}
+      <Suspense fallback={<div>Loading...</div>}>
+        {activeTab === 0 && <div>{basicComponents}</div>}
+        {activeTab === 1 && <div>{advancedComponents}</div>}
+      </Suspense>
     </div>
   );
 };

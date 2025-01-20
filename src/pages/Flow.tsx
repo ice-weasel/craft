@@ -38,7 +38,71 @@ import { IoIosArrowForward } from "react-icons/io";
 import { MdOutlineSaveAlt } from "react-icons/md";
 import { IoIosArrowDown } from "react-icons/io";
 import { IoIosArrowBack } from "react-icons/io";
+import { FiUploadCloud } from "react-icons/fi";
 import Conditionals from "@/components/conditionals";
+import { adminauth,db }  from "@/app/firebaseAdmin";
+import { collection, getFirestore } from "firebase/firestore";
+import firebaseApp from "@/app/firebase";
+
+//Cookie verification
+
+
+
+export async function getServerSideProps(context: any) {
+  const { req } = context;
+  const sessionCookie = req.cookies["session"];
+
+  if (!sessionCookie) {
+    console.log("No session cookie found.");
+    return {
+      redirect: {
+        destination: "/Login",
+        permanent: false,
+      },
+    };
+  }
+  try {
+    // Verify the session cookie
+    const decodedToken = await adminauth.verifySessionCookie(sessionCookie, true);
+     const { uid } = decodedToken;
+
+    console.log("Decoded UID:", uid);
+
+    // Fetch user data from Firestore
+    const userDoc = await db.collection("Users").doc(uid).get();
+
+    if (!userDoc.exists) {
+      console.log(`No user document found for UID: ${uid}`);
+      
+    }
+
+    const firestoreData = userDoc.data();
+    console.log("Fetched Firestore Data:", firestoreData);
+
+    const user = {
+      uid,
+      ...firestoreData,
+      Name: firestoreData?.Name || "User",
+    
+    }; 
+    return {
+      props: {
+        user: JSON.parse(JSON.stringify(user)),
+        uid
+      },
+    };
+  } catch (error) {
+    console.error("Error in getServerSideProps:", error);
+    return {
+      redirect: {
+        destination: "/Login",
+        permanent: false,
+      },
+    };
+  }
+}
+
+
 
 const getId = (() => {
   let id = 0;
@@ -60,7 +124,7 @@ const initialNodes =[
   }
 ]
 
-const FlowWithPathExtractor = () => {
+const FlowWithPathExtractor = ({user}:any) => {
   const [activeTab, setActiveTab] = useState(0);
   const [jsonData, setJsonData] = useState<any>(null);
   const [error, setError] = useState<string>("");
@@ -73,6 +137,11 @@ const FlowWithPathExtractor = () => {
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [saveModalOpen,setSaveModalOpen] = useState(false)
+  const [filename,setFileName] = useState("");
+
+  const openSaveModal = () => setSaveModalOpen(true)
+  const closeSaveModal = () => setSaveModalOpen(false);
 
   const [option, setOption] = useState<string | null>(null);
   const [prompts, setPrompts] = useState<string | null>(null);
@@ -309,6 +378,12 @@ const FlowWithPathExtractor = () => {
 
   }
 
+  const saveFile = ( {uid}:any ) => {
+
+      console.log("Uid is : ", uid)
+  }
+
+
   const handleDocTypeChange = (type: string | null) => {
     setOption(type);
   };
@@ -322,6 +397,8 @@ const FlowWithPathExtractor = () => {
         : [...prev, index]
     );
   };
+
+  
 
   const contentRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -426,6 +503,12 @@ const FlowWithPathExtractor = () => {
             >
               <MdOutlineSaveAlt size={20} />
             </button>
+            <button
+              onClick={openSaveModal}
+              className="flex items-center gap-2 px-2 py-1 bg-black text-white rounded-lg hover:bg-violet-500 transition-colors"
+            >
+              <FiUploadCloud size={20} />
+            </button>
           </Panel>
           <Controls />
           <MiniMap />
@@ -467,6 +550,48 @@ const FlowWithPathExtractor = () => {
           </div>
         </div>
       )}
+       {saveModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md relative">
+            <button
+              onClick={closeSaveModal}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            >
+              <X size={24} />
+            </button>
+
+            <h2 className="text-xl font-bold mb-4">Preview: </h2>
+            <div className="mb-6">
+              <pre className="bg-gray-100 p-4 rounded-md overflow-auto max-h-60">
+                {jsonData
+                  ? JSON.stringify(jsonData, null, 2)
+                  : "No data loaded"}
+              </pre>
+            </div>
+            <form onSubmit={saveFile}>
+            <input
+                type="text"
+                onChange={(e) => setFileName(e.target.value)}
+                className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors"
+                required
+                placeholder="Enter File Name"
+              />
+                <div className="flex justify-end gap-2">
+              <button
+                
+                type="submit"
+                className="px-3 py-2 mt-3  bg-black text-white rounded-md hover:bg-neutral-700 transition-colors"
+              >
+                Save
+              </button>
+            </div>
+            </form>
+           
+          
+          </div>
+        </div>
+      )}
+
       <div
         className={` w-1/5  bg-neutral flex flex-col shadow-xl border-1 border-black  transition-all duration-600 ease-in-out ${
           isExpanded2 ? "w-1/5" : "w-14 bg-violet-200"
@@ -530,7 +655,7 @@ const FlowWithPathExtractor = () => {
 
 const FlowApp = () => (
   <ReactFlowProvider>
-    <FlowWithPathExtractor />
+    <FlowWithPathExtractor  />
   </ReactFlowProvider>
 );
 

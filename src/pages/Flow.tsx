@@ -45,7 +45,7 @@ const getId = (() => {
   return () => `dndnode_${id++}`;
 })();
 
-const initialNodes =[
+const initialNodes = [
   {
     id: "1",
     type: "input",
@@ -53,12 +53,12 @@ const initialNodes =[
     position: { x: 250, y: 25 },
   },
   {
-    id:"10",
-    type:"output",
+    id: "10",
+    type: "output",
     data: { label: "Stop" },
-    position: { x:250,y:175 }
-  }
-]
+    position: { x: 250, y: 175 },
+  },
+];
 
 const FlowWithPathExtractor = () => {
   const [activeTab, setActiveTab] = useState(0);
@@ -84,7 +84,7 @@ const FlowWithPathExtractor = () => {
   const [rtools, setRTools] = useState<string | null>(null);
   const [vstools, setVSTools] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const openModal = (jsonString:string) => setIsOpen(true);
+  const openModal = (jsonString: string) => setIsOpen(true);
   const closeModal = () => setIsOpen(false);
   const [showModal, setShowModal] = useState(false);
   const [pendingEdges, setPendingEdges] = useState<Edge[]>([]);
@@ -104,29 +104,31 @@ const FlowWithPathExtractor = () => {
     }
   };
 
-   const onConnect = useCallback((params: Connection) => {
+  const onConnect = useCallback(
+    (params: Connection) => {
       if (!params.source || !params.target) {
         console.error("Source or target is null.");
         return;
       }
-    
-      const sourceEdges = edges.filter(edge => edge.source === params.source);
+
+      const sourceEdges = edges.filter((edge) => edge.source === params.source);
       const newEdge: Edge = {
         ...params,
         id: `e${params.source}-${params.target}`,
-        data: { condition: sourceEdges.length === 0 ? 'if' : 'else' },
+        data: { condition: sourceEdges.length === 0 ? "if" : "else" },
         source: params.source, // Ensure these are not null
-        target: params.target  // Ensure these are not null
+        target: params.target, // Ensure these are not null
       };
-    
+
       if (sourceEdges.length < 2) {
-        setEdges(prev => addEdge(newEdge, prev));
+        setEdges((prev) => addEdge(newEdge, prev));
       } else {
         setPendingEdges([...sourceEdges, newEdge]);
         setShowModal(true);
       }
-    }, [edges, setEdges]);
-
+    },
+    [edges, setEdges]
+  );
 
   const handleDelete = useCallback(() => {
     const selectedNodeIds = selectedElements.nodes.map((node) => node.id);
@@ -137,14 +139,18 @@ const FlowWithPathExtractor = () => {
     setSelectedElements({ nodes: [], edges: [] });
   }, [selectedElements, setNodes, setEdges]);
 
-
-   const handleEdgeLabels = useCallback((edgeLabels: { id: string; label: string }[]) => {
-      setEdges(eds => eds.map(edge => {
-        const label = edgeLabels.find(l => l.id === edge.id);
-        return label ? { ...edge, data: { condition: label.label } } : edge;
-      }));
+  const handleEdgeLabels = useCallback(
+    (edgeLabels: { id: string; label: string }[]) => {
+      setEdges((eds) =>
+        eds.map((edge) => {
+          const label = edgeLabels.find((l) => l.id === edge.id);
+          return label ? { ...edge, data: { condition: label.label } } : edge;
+        })
+      );
       setShowModal(false);
-    }, [setEdges]);
+    },
+    [setEdges]
+  );
 
   const onSelectionChange = useCallback((elements: OnSelectionChangeParams) => {
     setSelectedElements({ nodes: elements.nodes, edges: elements.edges });
@@ -256,7 +262,7 @@ const FlowWithPathExtractor = () => {
 
     openModal(jsonString);
 
-  //  Create and trigger download
+    //  Create and trigger download
     // const blob = new Blob([jsonString], { type: "application/json" });
 
     // const url = URL.createObjectURL(blob);
@@ -293,7 +299,6 @@ const FlowWithPathExtractor = () => {
   // };
 
   const downloadJson = () => {
-
     const blob = new Blob([jsonData], { type: "application/json" });
 
     const url = URL.createObjectURL(blob);
@@ -306,8 +311,7 @@ const FlowWithPathExtractor = () => {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-
-  }
+  };
 
   const handleDocTypeChange = (type: string | null) => {
     setOption(type);
@@ -432,10 +436,10 @@ const FlowWithPathExtractor = () => {
           <Background />
         </ReactFlow>
         <Conditionals
-        isOpen={showModal}
-        edges={pendingEdges}
-        onClose={() => setShowModal(false)}
-        onSave={handleEdgeLabels}
+          isOpen={showModal}
+          edges={pendingEdges}
+          onClose={() => setShowModal(false)}
+          onSave={handleEdgeLabels}
         />
       </div>
       {isOpen && (
@@ -473,21 +477,21 @@ const FlowWithPathExtractor = () => {
         }`}
       >
         {isExpanded2 && (
-          <div>
+          <div className="h-screen">
             {" "}
             <div className="p-5">
               <h1 className="text-lg font-semibold text-right">Components</h1>
               <hr className="h-[1.5px] my-3 bg-black border-0 " />
             </div>
-            <div className="p-5 flex flex-col space-y-2 transition-transform duration-600 overflow-y-auto">
+            <div className="px-5 flex flex-col space-y-2 transition-transform duration-600 overflow-y-auto">
               {Object.entries(components).map(([type, component], index) => (
                 <div
                   key={type}
-                  className="border-b rounded-md p-3 bg-violet-200 "
+                  className="border-b rounded-md p-3 bg-violet-200 overflow-y-auto"
                 >
                   <button
                     onClick={() => toggleAccordion(index)}
-                    className="w-full flex justify-between flex-row transition-transform duration-60 font-semibold text-black"
+                    className="w-full flex justify-between flex-row transition-transform duration-60 font-semibold text-black "
                   >
                     <div>{type}</div>
                     <div>
@@ -508,7 +512,7 @@ const FlowWithPathExtractor = () => {
                         ? contentRefs.current[index]?.scrollHeight
                         : 0,
                     }}
-                    className="overflow-hidden transition-[height] bg-violet-200 rounded-md duration-300 ease-in-out"
+                    className="overflow-y-auto transition-[height] bg-violet-200 rounded-md duration-300 ease-in-out"
                   >
                     <div className="py-3">{component}</div>
                   </div>

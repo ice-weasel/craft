@@ -38,6 +38,7 @@ import { IoIosArrowForward } from "react-icons/io";
 import { MdOutlineSaveAlt } from "react-icons/md";
 import { IoIosArrowDown } from "react-icons/io";
 import { IoIosArrowBack } from "react-icons/io";
+import Conditionals from "@/components/conditionals";
 
 const getId = (() => {
   let id = 0;
@@ -68,8 +69,10 @@ const FlowWithPathExtractor = () => {
   const [rtools, setRTools] = useState<string | null>(null);
   const [vstools, setVSTools] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const openModal = () => setIsOpen(true);
+  const openModal = (jsonString:string) => setIsOpen(true);
   const closeModal = () => setIsOpen(false);
+  const [showModal, setShowModal] = useState(false);
+  const [pendingEdges, setPendingEdges] = useState<Edge[]>([]);
 
   useEffect(() => {
     loadJsonData();
@@ -86,10 +89,28 @@ const FlowWithPathExtractor = () => {
     }
   };
 
-  const onConnect = useCallback(
-    (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)),
-    [setEdges]
-  );
+   const onConnect = useCallback((params: Connection) => {
+      if (!params.source || !params.target) {
+        console.error("Source or target is null.");
+        return;
+      }
+    
+      const sourceEdges = edges.filter(edge => edge.source === params.source);
+      const newEdge: Edge = {
+        ...params,
+        id: `e${params.source}-${params.target}`,
+        data: { condition: sourceEdges.length === 0 ? 'if' : 'else' },
+        source: params.source, // Ensure these are not null
+        target: params.target  // Ensure these are not null
+      };
+    
+      if (sourceEdges.length < 2) {
+        setEdges(prev => addEdge(newEdge, prev));
+      } else {
+        setPendingEdges([...sourceEdges, newEdge]);
+        setShowModal(true);
+      }
+    }, [edges, setEdges]);
 
   const handleDelete = useCallback(() => {
     const selectedNodeIds = selectedElements.nodes.map((node) => node.id);
@@ -99,6 +120,15 @@ const FlowWithPathExtractor = () => {
     setEdges((eds) => eds.filter((edge) => !selectedEdgeIds.includes(edge.id)));
     setSelectedElements({ nodes: [], edges: [] });
   }, [selectedElements, setNodes, setEdges]);
+
+
+   const handleEdgeLabels = useCallback((edgeLabels: { id: string; label: string }[]) => {
+      setEdges(eds => eds.map(edge => {
+        const label = edgeLabels.find(l => l.id === edge.id);
+        return label ? { ...edge, data: { condition: label.label } } : edge;
+      }));
+      setShowModal(false);
+    }, [setEdges]);
 
   const onSelectionChange = useCallback((elements: OnSelectionChangeParams) => {
     setSelectedElements({ nodes: elements.nodes, edges: elements.edges });
@@ -206,19 +236,23 @@ const FlowWithPathExtractor = () => {
 
     const jsonString = JSON.stringify(exportData, null, 2);
 
-    // Create and trigger download
-    const blob = new Blob([jsonString], { type: "application/json" });
+    setJsonData(jsonString);
 
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
+    openModal(jsonString);
 
-    link.download = "workflow-config.json"; // Changed filename to be more descriptive
+  //  Create and trigger download
+    // const blob = new Blob([jsonString], { type: "application/json" });
 
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    // const url = URL.createObjectURL(blob);
+    // const link = document.createElement("a");
+    // link.href = url;
+
+    // link.download = "workflow-config.json"; // Changed filename to be more descriptive
+
+    // document.body.appendChild(link);
+    // link.click();
+    // document.body.removeChild(link);
+    // URL.revokeObjectURL(url);
 
     // Optional: Log the exported data
     console.log("Exported workflow configuration:", exportData);
@@ -241,6 +275,23 @@ const FlowWithPathExtractor = () => {
   //   setActiveTab((prevTab) => prevTab + 1);
   //   exportPathsAsJson();
   // };
+
+  const downloadJson = () => {
+
+    const blob = new Blob([jsonData], { type: "application/json" });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+
+    link.download = "workflow-config.json"; // Changed filename to be more descriptive
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+  }
 
   const handleDocTypeChange = (type: string | null) => {
     setOption(type);
@@ -354,7 +405,7 @@ const FlowWithPathExtractor = () => {
               <FaRegTrashAlt />
             </button>
             <button
-              onClick={openModal}
+              onClick={exportPathsAsJson}
               className="flex items-center gap-2 px-2 py-1 bg-black text-white rounded-lg hover:bg-violet-500 transition-colors"
             >
               <MdOutlineSaveAlt size={20} />
@@ -364,6 +415,12 @@ const FlowWithPathExtractor = () => {
           <MiniMap />
           <Background />
         </ReactFlow>
+        <Conditionals
+        isOpen={showModal}
+        edges={pendingEdges}
+        onClose={() => setShowModal(false)}
+        onSave={handleEdgeLabels}
+        />
       </div>
       {isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -385,7 +442,7 @@ const FlowWithPathExtractor = () => {
             </div>
             <div className="flex justify-end gap-2">
               <button
-                onClick={exportPathsAsJson}
+                onClick={downloadJson}
                 className="px-3 py-2 bg-black text-white rounded-md hover:bg-neutral-700 transition-colors"
               >
                 Download

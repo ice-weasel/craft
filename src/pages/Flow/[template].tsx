@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { useCallback, useRef, useState } from "react";
+import { X } from "lucide-react";
 import "tailwindcss/tailwind.css";
 import ReactFlow, {
   useNodesState,
@@ -65,6 +66,10 @@ const FlowWithPathExtractor =  () => {
 
 
   /*Right Tab requisites*/
+   const [jsonData, setJsonData] = useState<any>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const openModal = (jsonString:string) => setIsOpen(true);
+  const closeModal = () => setIsOpen(false);
   const [option, setOption] = useState<string | null>(null);
   const [prompts, setPrompts] = useState<string | null>(null);
   const [customtext,setCustomtext] = useState<string|null|undefined>(null);
@@ -354,26 +359,20 @@ const FlowWithPathExtractor =  () => {
     };
     const jsonString = JSON.stringify(exportData, null, 2);
 
-    const response = await fetch("/api/sendjson", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body:jsonString,
-    });
+    // const response = await fetch("/api/sendjson", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body:jsonString,
+    // });
+
+    setJsonData(jsonString)
+
+    openModal(jsonString)
   
    // Create and trigger download
-    const blob = new Blob([jsonString], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "workflow-config.json";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  
-    console.log("Exported workflow configuration:", exportData);
+
   }, [
     extractPaths,
     option,
@@ -387,6 +386,24 @@ const FlowWithPathExtractor =  () => {
     vstools,
   ]);
   
+  const downloadJson = () => {
+
+    const blob = new Blob([jsonData], { type: "application/json" });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+
+    link.download = "workflow-config.json"; // Changed filename to be more descriptive
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+  }
+
+
   
  
 
@@ -511,6 +528,35 @@ const FlowWithPathExtractor =  () => {
         onSave={handleEdgeLabels}
         />
       </div>
+      {isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md relative">
+            <button
+              onClick={closeModal}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            >
+              <X size={24} />
+            </button>
+
+            <h2 className="text-xl font-bold mb-4">Preview: </h2>
+            <div className="mb-6">
+              <pre className="bg-gray-100 p-4 rounded-md overflow-auto max-h-60">
+                {jsonData
+                  ? JSON.stringify(jsonData, null, 2)
+                  : "No data loaded"}
+              </pre>
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={downloadJson}
+                className="px-3 py-2 bg-black text-white rounded-md hover:bg-neutral-700 transition-colors"
+              >
+                Download
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div
         className={` w-1/5  bg-neutral flex flex-col shadow-xl border-1 border-black  transition-all duration-600 ease-in-out ${

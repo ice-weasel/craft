@@ -45,6 +45,24 @@ const SelfTab = () => {
         }
       } else {
         // Load a generic or empty template if no template is selected
+        const basic  = ["Nodes","Checkers"];
+        const advanced = ["Advanced"];
+
+        const basicImports = await Promise.all(
+          basic.map(async (comp:any) => {
+            const Component = (await import(`@/components/templates/self-reflex/${comp.toLowerCase()}`)).default;
+            return <Component key={comp} />;
+          })
+        );
+        setBasicComponents(basicImports);
+
+        const advancedImports = await Promise.all(
+          advanced.map(async (comp:any) => {
+            const Component = (await import(`@/components/templates/self-reflex/${comp.toLowerCase()}`)).default;
+            return <Component key={comp} />;
+          })
+        );
+        setAdvancedComponents(advancedImports);
     
       }
     };

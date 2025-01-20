@@ -338,21 +338,14 @@ const extractPaths = useCallback(() => {
     const { template } = router.query;
     // Create a complete data object that includes all the information
     const exportData = {
-      llm: selectedLLM
-        ? {
-            [selectedLLM]: {
-              apiKey: apiKey || "23423452342",
-              temperature: temperature || "0.3",
-              isVerbose: isVerbose || "false",
-            },
-          }
-        : {
-            groq_model: {
-              apiKey: apiKey || "23423452342",
-              temperature: temperature || "0.3",
-              isVerbose: isVerbose || "false",
-            },
-          },
+      llm: {
+        llm_name: selectedLLM || "groq",
+        config: {
+          apiKey: apiKey || "23423452342",
+          temperature: temperature || "0.3",
+          isVerbose: isVerbose || "false"
+        }
+      },
       doc_type: option || "pdf_type",
       embeddings: embeddings || "hugging_face_type_embeddings",
       retriever_tools: rtools || "multi-query",
@@ -401,13 +394,8 @@ const extractPaths = useCallback(() => {
   const saveFile = (jsonData: any) => {
    
     try {
-     const newdb = getFirestore(firebaseApp)
-
- 
-      
-  
+    
      
-      
       console.log("File saved successfully!");
     } catch (error) {
       console.error("Error saving file to Firestore:", error);

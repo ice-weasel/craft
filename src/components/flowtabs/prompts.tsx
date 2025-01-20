@@ -10,12 +10,36 @@ type PromptsProps = {
 const selfprompt = "tempcontent";
 
 const initialOptions = [
-  { value: "grading-prompt", label: "grading-prompt", content: "This is the prompt for grading" },
-  { value: "relevancy-prompt", label: "relevancy-prompt", content: "This is the prompt for relevancy." },
-  { value: "generating-prompt", label: "generating-prompt", content: "This is the prompt for generating." },
-  { value: "hallucinating-prompt", label: "hallucinating-prompt", content: "This is the prompt for hallucinatin.g" },
-  { value: "answer-checking", label: "answer-checking", content: "This is the prompt for answer checking." },
-  { value: "rewriting-prompt", label: "rewriting-prompt", content: "This is the prompt for rewriting." },
+  {
+    value: "grading-prompt",
+    label: "grading-prompt",
+    content: "This is the prompt for grading",
+  },
+  {
+    value: "relevancy-prompt",
+    label: "relevancy-prompt",
+    content: "This is the prompt for relevancy.",
+  },
+  {
+    value: "generating-prompt",
+    label: "generating-prompt",
+    content: "This is the prompt for generating.",
+  },
+  {
+    value: "hallucinating-prompt",
+    label: "hallucinating-prompt",
+    content: "This is the prompt for hallucinatin.g",
+  },
+  {
+    value: "answer-checking",
+    label: "answer-checking",
+    content: "This is the prompt for answer checking.",
+  },
+  {
+    value: "rewriting-prompt",
+    label: "rewriting-prompt",
+    content: "This is the prompt for rewriting.",
+  },
 ];
 export default function Prompts({ onpromptsChange }: PromptsProps) {
   const [selectedOption, setSelectedOption] = useState<string>("default"); // Radio button state
@@ -23,25 +47,27 @@ export default function Prompts({ onpromptsChange }: PromptsProps) {
   const [selectedDropdown, setSelectedDropdown] = useState<string>(""); // Dropdown state
   const forceUpdate = useState(false)[1];
 
-  const handlePromptsChange = (selectedDropdown: string, customText: string) => {
+  const handlePromptsChange = (
+    selectedDropdown: string,
+    customText: string
+  ) => {
     if (selectedOption === "custom" && selectedDropdown) {
       // Pass the selected dropdown and custom text values to the parent
       onpromptsChange(selectedDropdown, customText);
     } else if (selectedOption === "default") {
       // For default, handle accordingly if needed
-    
     }
   };
-  
-
 
   const handleEditClick = () => {
-    const selected = initialOptions.find((opt) => opt.value === selectedDropdown);
-  
+    const selected = initialOptions.find(
+      (opt) => opt.value === selectedDropdown
+    );
+
     if (selected) {
       const sel_text = selected.content;
       setCustomText(sel_text); // Set the selected option's content to customText
-  
+
       toast(
         (t) => (
           <div className="p-4">
@@ -77,7 +103,6 @@ export default function Prompts({ onpromptsChange }: PromptsProps) {
       });
     }
   };
-  
 
   const handleChange = (option: string) => {
     setSelectedOption(option);
@@ -145,7 +170,7 @@ export default function Prompts({ onpromptsChange }: PromptsProps) {
       </div>
 
       {selectedOption === "custom" && (
-        <div className="pt-2 flex justify-between pb-2 space-x-2 h-full">
+        <div className="pt-4 flex justify-between space-x-2 h-full">
           <select
             value={selectedDropdown}
             onChange={(e) => setSelectedDropdown(e.target.value)}

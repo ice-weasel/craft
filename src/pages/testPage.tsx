@@ -40,7 +40,7 @@ const TestData: React.FC = () => {
     setIsLoading(true);
     setError("");
     setSuccessMessage("");
-
+    console.log("typeof : ", jsonData);
     try {
       // Send JSON data to the backend
       const response = await fetch("http://localhost:8000/receive-data", {

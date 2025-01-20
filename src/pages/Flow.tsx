@@ -45,6 +45,21 @@ const getId = (() => {
   return () => `dndnode_${id++}`;
 })();
 
+const initialNodes =[
+  {
+    id: "1",
+    type: "input",
+    data: { label: "Start" },
+    position: { x: 250, y: 25 },
+  },
+  {
+    id:"10",
+    type:"output",
+    data: { label: "Stop" },
+    position: { x:250,y:175 }
+  }
+]
+
 const FlowWithPathExtractor = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [jsonData, setJsonData] = useState<any>(null);
@@ -56,7 +71,7 @@ const FlowWithPathExtractor = () => {
     edges: Edge[];
   }>({ nodes: [], edges: [] });
 
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
   const [option, setOption] = useState<string | null>(null);
@@ -111,6 +126,7 @@ const FlowWithPathExtractor = () => {
         setShowModal(true);
       }
     }, [edges, setEdges]);
+
 
   const handleDelete = useCallback(() => {
     const selectedNodeIds = selectedElements.nodes.map((node) => node.id);

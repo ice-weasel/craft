@@ -41,8 +41,11 @@ import { IoIosArrowBack } from "react-icons/io";
 import { FiUploadCloud } from "react-icons/fi";
 import Conditionals from "@/components/conditionals";
 import { adminauth,db }  from "@/app/firebaseAdmin";
-import { collection, getFirestore } from "firebase/firestore";
+import { collection, doc } from "firebase/firestore";
 import firebaseApp from "@/app/firebase";
+import { useRouter } from "next/router";
+import { json } from "stream/consumers";
+import { getFirestore } from "firebase-admin/firestore";
 
 //Cookie verification
 
@@ -124,7 +127,7 @@ const initialNodes = [
   },
 ];
 
-const FlowWithPathExtractor = ({user}:any) => {
+const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   const [activeTab, setActiveTab] = useState(0);
   const [jsonData, setJsonData] = useState<any>(null);
   const [error, setError] = useState<string>("");
@@ -157,6 +160,7 @@ const FlowWithPathExtractor = ({user}:any) => {
   const closeModal = () => setIsOpen(false);
   const [showModal, setShowModal] = useState(false);
   const [pendingEdges, setPendingEdges] = useState<Edge[]>([]);
+   const [customtext, setCustomtext] = useState<string | null | undefined>(null);
 
   useEffect(() => {
     loadJsonData();
@@ -261,91 +265,111 @@ const FlowWithPathExtractor = ({user}:any) => {
     },
     [reactFlowInstance, setNodes]
   );
+  
+  const router = useRouter();
 
-  const extractPaths = useCallback(() => {
-    const paths: any = [];
+const extractPaths = useCallback(() => {
+    const paths: any = {};
     const visited = new Set();
 
-    const findPaths = (nodeId: any, currentPath: any) => {
+    const processNode = (nodeId: string) => {
       if (visited.has(nodeId)) return;
       visited.add(nodeId);
 
       const node = nodes.find((n) => n.id === nodeId);
+      if (!node) return;
 
-      if (node) {
-        currentPath.push({
-          id: nodeId,
-          label: node.data.label || "Unnamed",
-          type: node.type,
-        });
+      const nodeLabel = node.data.label || "Unnamed";
 
-        if (node.type === "default") {
-          paths.push([...currentPath]);
-        } else {
-          const connectedEdges = edges.filter((edge) => edge.source === nodeId);
-          for (const edge of connectedEdges) {
-            findPaths(edge.target, [...currentPath]);
-          }
+      // Initialize the node's paths
+      if (!paths[nodeLabel]) {
+        paths[nodeLabel] = {
+          yes: null,
+          no: null,
+        };
+
+        // Special case for rewrite node
+        if (nodeLabel.toLowerCase().includes("rewrite")) {
+          paths[nodeLabel]["yes"] = "Retrieve";
         }
       }
 
-      visited.delete(nodeId); // Allow revisiting nodes on different paths
+      // Find all edges from this node
+      const connectedEdges = edges.filter((edge) => edge.source === nodeId);
+
+      for (const edge of connectedEdges) {
+        const targetNode = nodes.find((n) => n.id === edge.target);
+        if (!targetNode) continue;
+
+        const edgeLabel = edge.data?.label?.toLowerCase() || "yes";
+        const targetLabel = targetNode.data.label;
+
+        // Set the path based on edge label (yes/no), except for rewrite node
+        if (
+          (edgeLabel === "yes" || edgeLabel === "no") &&
+          !nodeLabel.toLowerCase().includes("rewrite")
+        ) {
+          paths[nodeLabel][edgeLabel] = targetLabel;
+        }
+
+        // Process the target node
+        processNode(edge.target);
+      }
     };
 
-    // Start with 'input' nodes, or all nodes if none are inputs
+    // Start from input nodes or all nodes if none are inputs
     const startNodes = nodes.filter((node) => node.type === "input");
     if (startNodes.length === 0) {
       console.warn("No input nodes found; using all nodes as starting points.");
-      startNodes.push(...nodes); // Start from all nodes if no inputs
+      startNodes.push(...nodes);
     }
 
     startNodes.forEach((startNode) => {
-      findPaths(startNode.id, []);
+      processNode(startNode.id);
     });
 
-    console.log("Extracted paths:", paths); // Debugging to check paths content
-    return paths.length > 0 ? paths : null;
+    console.log("Extracted paths:", paths);
+    return paths;
   }, [nodes, edges]);
 
   const exportPathsAsJson = useCallback(() => {
     // Only export at specific tab
     const pathData = extractPaths();
-
+    const { template } = router.query;
     // Create a complete data object that includes all the information
     const exportData = {
-      llm: selectedLLM,
-      doc_type: option,
-      embeddings: embeddings,
-      retriever_tools: rtools,
-      vector_stores: vstools, // Include the selected document type
-      prompts: prompts, // Include the selected/entered prompts
-      apiKey: apiKey,
-      temperature: temperature,
-      isVerbose: isVerbose,
-      flowPaths: pathData, // Include the original path data
+      llm: selectedLLM
+        ? {
+            [selectedLLM]: {
+              apiKey: apiKey || "23423452342",
+              temperature: temperature || "0.3",
+              isVerbose: isVerbose || "false",
+            },
+          }
+        : {
+            groq_model: {
+              apiKey: apiKey || "23423452342",
+              temperature: temperature || "0.3",
+              isVerbose: isVerbose || "false",
+            },
+          },
+      doc_type: option || "pdf_type",
+      embeddings: embeddings || "hugging_face_type_embeddings",
+      retriever_tools: rtools || "multi-query",
+      vector_stores: vstools || "chroma_store",
+      prompts: prompts || "default",
+      customtext: customtext || null,
+      template: template || "custom-template",
+      flowPaths: pathData, // Inject extracted paths here
     };
 
     const jsonString = JSON.stringify(exportData, null, 2);
 
     setJsonData(exportData);
 
+    console.log("json string", jsonString)
+
     openModal(jsonString);
-
-    //  Create and trigger download
-    // const blob = new Blob([jsonString], { type: "application/json" });
-
-    // const url = URL.createObjectURL(blob);
-    // const link = document.createElement("a");
-    // link.href = url;
-
-    // link.download = "workflow-config.json"; // Changed filename to be more descriptive
-
-    // document.body.appendChild(link);
-    // link.click();
-    // document.body.removeChild(link);
-    // URL.revokeObjectURL(url);
-
-    // Optional: Log the exported data
     console.log("Exported workflow configuration:", exportData);
   }, [
     extractPaths,
@@ -358,18 +382,10 @@ const FlowWithPathExtractor = ({user}:any) => {
     embeddings,
     rtools,
     vstools,
-  ]); // Added option and prompts to dependencies  // Added option and prompts to dependencies
-  // Added option and prompts to dependencies
-  // Added option and prompts to dependencies
-
-  // const handleNext = () => {
-  //   setActiveTab((prevTab) => prevTab + 1);
-  //   exportPathsAsJson();
-  // };
-
+  ]); 
+ 
   const downloadJson = () => {
     const blob = new Blob([jsonData], { type: "application/json" });
-
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -382,12 +398,21 @@ const FlowWithPathExtractor = ({user}:any) => {
     URL.revokeObjectURL(url);
   };
 
-  const saveFile = ( {uid}:any ) => {
+  const saveFile = (jsonData: any) => {
+   
+    try {
+     const newdb = getFirestore(firebaseApp)
 
-      console.log("Uid is : ", uid)
-  }
-
-
+ 
+      
+  
+     
+      
+      console.log("File saved successfully!");
+    } catch (error) {
+      console.error("Error saving file to Firestore:", error);
+    }
+  };
   const handleDocTypeChange = (type: string | null) => {
     setOption(type);
   };
@@ -426,7 +451,8 @@ const FlowWithPathExtractor = ({user}:any) => {
   const handleLLMSelected = (
     llm: string | null,
     temperature: string,
-    isVerbose: boolean
+    isVerbose: boolean,
+    apiKey:string
   ) => {
     setSelectedLLM(llm);
     setTemperature(temperature);
@@ -461,18 +487,6 @@ const FlowWithPathExtractor = ({user}:any) => {
         >
           {isExpanded1 ? <IoIosArrowBack /> : <IoIosArrowForward />}
         </button>
-        {/* <div className="p-3 self-center">
-          <p className="self-start font-bold text-1xl">Element Properties :</p>
-          <button
-            onClick={handleDelete}
-            disabled={
-              !selectedElements.nodes.length && !selectedElements.edges.length
-            }
-            className="p-2 rounded-lg   mt-3  bg-red-500 "
-          >
-            <FaRegTrashAlt />
-          </button>
-        </div> */}
       </div>
 
       <div className="flex-1" ref={reactFlowWrapper}>
@@ -507,8 +521,11 @@ const FlowWithPathExtractor = ({user}:any) => {
             >
               <MdOutlineSaveAlt size={20} />
             </button>
-            <button
-              onClick={openSaveModal}
+            <button onClick=
+              {() => {
+                exportPathsAsJson();
+                openSaveModal();
+              }}
               className="flex items-center gap-2 px-2 py-1 bg-black text-white rounded-lg hover:bg-violet-500 transition-colors"
             >
               <FiUploadCloud size={20} />
@@ -572,7 +589,10 @@ const FlowWithPathExtractor = ({user}:any) => {
                   : "No data loaded"}
               </pre>
             </div>
-            <form onSubmit={saveFile}>
+            <form  onSubmit={(e) => {
+    e.preventDefault(); // Prevent page reload
+    saveFile(jsonData); // Pass the latest jsonData value
+  }}>
             <input
                 type="text"
                 onChange={(e) => setFileName(e.target.value)}
@@ -582,7 +602,6 @@ const FlowWithPathExtractor = ({user}:any) => {
               />
                 <div className="flex justify-end gap-2">
               <button
-                
                 type="submit"
                 className="px-3 py-2 mt-3  bg-black text-white rounded-md hover:bg-neutral-700 transition-colors"
               >
@@ -657,9 +676,9 @@ const FlowWithPathExtractor = ({user}:any) => {
   );
 };
 
-const FlowApp = () => (
+const FlowApp = ({user}:any) => (
   <ReactFlowProvider>
-    <FlowWithPathExtractor  />
+    <FlowWithPathExtractor user={user} uid = {user.uid} />
   </ReactFlowProvider>
 );
 

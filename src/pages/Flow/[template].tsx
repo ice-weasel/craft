@@ -456,7 +456,8 @@ const FlowWithPathExtractor = () => {
   const handleLLMSelected = (
     llm: string | null,
     temperature: string,
-    isVerbose: boolean
+    isVerbose: boolean,
+    apiKey:string
   ) => {
     setSelectedLLM(llm);
     setTemperature(temperature);

@@ -41,11 +41,13 @@ import { IoIosArrowBack } from "react-icons/io";
 import { FiUploadCloud } from "react-icons/fi";
 import Conditionals from "@/components/conditionals";
 import { adminauth,db }  from "@/app/firebaseAdmin";
-import { collection, doc } from "firebase/firestore";
-import firebaseApp from "@/app/firebase";
+import { addDoc, collection, doc, setDoc } from "firebase/firestore";
+import  firebaseApp  from "@/app/firebase";
 import { useRouter } from "next/router";
 import { json } from "stream/consumers";
-import { getFirestore } from "firebase-admin/firestore";
+import { firedb } from "@/app/firebase";
+
+
 
 //Cookie verification
 
@@ -142,6 +144,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [saveModalOpen,setSaveModalOpen] = useState(false)
   const [filename,setFileName] = useState("");
+  const [ispublic,setIsPublic] = useState(true)
 
   const openSaveModal = () => setSaveModalOpen(true)
   const closeSaveModal = () => setSaveModalOpen(false);
@@ -391,16 +394,32 @@ const extractPaths = useCallback(() => {
     URL.revokeObjectURL(url);
   };
 
-  const saveFile = (jsonData: any) => {
-   
+  const saveFile = async (jsonData: any, filename: string, ispublic: boolean) => {
     try {
-    
-     
+      // Get the current date and format it as "dd-month-yyyy"
+      const today = new Date();
+      const formattedDate = today.toLocaleString('default', { day: '2-digit', month: 'long', year: 'numeric' });
+  
+      // Reference to the "projects" subcollection under the current user
+      const fileDocRef = doc(collection(firedb, "Users", uid as string, "projects"));
+  
+      // Prepare the data to be saved
+      const projectData = {
+        filename, // Project file name
+        isPublic: ispublic, // Visibility of the project
+        createdAt: formattedDate, // Formatted creation date
+        flow: JSON.stringify(jsonData), // Save flow as stringified JSON
+      };
+  
+      // Save the document to Firestore
+      await setDoc(fileDocRef, projectData);
+  
       console.log("File saved successfully!");
     } catch (error) {
       console.error("Error saving file to Firestore:", error);
     }
   };
+  
   const handleDocTypeChange = (type: string | null) => {
     setOption(type);
   };
@@ -579,7 +598,7 @@ const extractPaths = useCallback(() => {
             </div>
             <form  onSubmit={(e) => {
     e.preventDefault(); // Prevent page reload
-    saveFile(jsonData); // Pass the latest jsonData value
+    saveFile(jsonData,filename,ispublic); // Pass the latest jsonData value
   }}>
             <input
                 type="text"
@@ -588,6 +607,16 @@ const extractPaths = useCallback(() => {
                 required
                 placeholder="Enter File Name"
               />
+              <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                name="isVerbose"
+                checked
+                onChange={(e) => setIsPublic(e.target.checked)}
+                className="active:bg-violet-500 focus:ring-violet-500"
+              />
+              <label className="font-medium ">Make your project public</label>
+            </div>
                 <div className="flex justify-end gap-2">
               <button
                 type="submit"

@@ -382,14 +382,9 @@ const FlowWithPathExtractor = () => {
       flowPaths: pathData, // Inject extracted paths here
     };
     const jsonString = JSON.stringify(exportData, null, 2);
+
     console.log("Export data : ", exportData);
-    // const response = await fetch("/api/sendjson", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body:jsonString,
-    // });
+
 
     setJsonData(exportData);
 

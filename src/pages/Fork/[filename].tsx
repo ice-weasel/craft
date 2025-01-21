@@ -3,7 +3,6 @@ import { FaRegTrashAlt } from "react-icons/fa";
 import { useCallback, useRef, useState } from "react";
 import { X } from "lucide-react";
 import "tailwindcss/tailwind.css";
-import { SiStreamlit } from "react-icons/si";
 import ReactFlow, {
   useNodesState,
   useEdgesState,
@@ -39,14 +38,12 @@ import { IoIosArrowForward } from "react-icons/io";
 import { MdOutlineSaveAlt } from "react-icons/md";
 import { IoIosArrowDown } from "react-icons/io";
 import { IoIosArrowBack } from "react-icons/io";
-
-import { initialEdges, initialNodes } from "@/components/templates/self_rag";
-
+import { initialEdges, initialNodes } from "@/components/templates/self-rag";
+import { collectionGroup, getDocs, query, where } from "firebase/firestore";
 import { useRouter } from "next/router";
 import Conditionals from "@/components/conditionals";
-import { RiShareForwardLine } from "react-icons/ri";
-import { MdOutlineDownloading } from "react-icons/md";
-
+import { firedb } from "@/app/firebase";
+import localforage from 'localforage'
 
 const getId = (() => {
   let id = 0;
@@ -72,6 +69,9 @@ const FlowWithPathExtractor = () => {
   const [jsonData, setJsonData] = useState<any>(null);
   const [isOpen, setIsOpen] = useState(false);
 
+  
+  const openModal = (jsonString: string) => setIsOpen(true);
+  const closeModal = () => setIsOpen(false);
   const [option, setOption] = useState<string | null>(null);
   const [prompts, setPrompts] = useState<string | null>(null);
   const [customtext, setCustomtext] = useState<string | null | undefined>(null);
@@ -82,60 +82,95 @@ const FlowWithPathExtractor = () => {
   const [embeddings, setEmbedding] = useState<string | null>(null);
   const [rtools, setRTools] = useState<string | null>(null);
   const [vstools, setVSTools] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
-  const [successMessage, setSuccessMessage] = useState<string>("");
-
-  /*useEffect(() => {
-    console.log("jsondata updated:", jsonData);
-  }, [jsonData]);*/
-  /*
-  useEffect(() => {
-    exportPathsAsJson();
-  }, [jsonData]);*/
 
   const router = useRouter();
   useEffect(() => {
     const loadTemplate = async () => {
-      const { template } = router.query; // Assume `template` is the template name
-      if (template) {
+      const { filename } = router.query;
+  
+      if (filename) {
         try {
-          const {
-            initialNodes,
-            initialEdges,
-            nonDeletableNodes,
-            nonDeletableEdges,
-            group1,
-            group2,
-          } = await import(`@/components/templates/${template}.js`);
-          setNodes(initialNodes);
-          setEdges(initialEdges);
-          setnonDeleteableNodes(nonDeletableNodes);
-          setnonDeleteableEdges(nonDeletableEdges);
-          setfirstGroup(group1);
-          setSecondGroup(group2);
-
-          if(template == "image_search") {
-            setOption("IMGS")
+          const projectsRef = collectionGroup(firedb, "projects");
+          const q = query(projectsRef, where("filename", "==", filename));
+          const querySnapshot = await getDocs(q);
+  
+          if (!querySnapshot.empty) {
+            const project = querySnapshot.docs[0].data();
+            const { flowPaths } = JSON.parse(project.flow);
+  
+            // Define types
+            type Position = { x: number; y: number };
+            const nodes: Node[] = []; // React Flow's Node type
+            const edges: Edge[] = []; // React Flow's Edge type
+            const visited = new Set<string>(); // Track visited nodes
+            const nodePositions: Record<string, Position> = {}; // Store positions for each node
+            let yPosition = 0; // Initial y-position for nodes
+            const yOffset = 100; // Vertical spacing between nodes
+  
+            // Helper to add a node if it doesn't already exist
+            const addNode = (nodeId: string) => {
+              if (!visited.has(nodeId)) {
+                visited.add(nodeId);
+                nodePositions[nodeId] = { x: 250, y: yPosition }; // Assign position
+                nodes.push({
+                  id: nodeId,
+                  data: { label: nodeId },
+                  position: nodePositions[nodeId],
+                  type: "default",
+                });
+                yPosition += yOffset; // Increment y-position for next node
+              }
+            };
+  
+            // Traverse flowPaths to create nodes and edges
+            Object.keys(flowPaths).forEach((nodeId) => {
+              addNode(nodeId); // Add the current node
+  
+              const { yes, no } = flowPaths[nodeId];
+  
+              // Add edges for `yes` and `no` paths
+              if (yes) {
+                addNode(yes); // Ensure the target node exists
+                edges.push({
+                  id: `e-${nodeId}-${yes}`,
+                  source: nodeId,
+                  target: yes,
+                  label: "Yes",
+                  type: "smoothstep",
+                });
+              }
+  
+              if (no) {
+                addNode(no); // Ensure the target node exists
+                edges.push({
+                  id: `e-${nodeId}-${no}`,
+                  source: nodeId,
+                  target: no,
+                  label: "No",
+                  type: "smoothstep",
+                });
+              }
+            });
+  
+            // Set nodes and edges
+            setNodes(nodes);
+            setEdges(edges);
+          } else {
+            console.warn("No project found with the given filename.");
           }
-
         } catch (error) {
-          console.error("Error loading template:", error);
+          console.error("Error fetching project:", error);
         }
-      }  else {
-            // If no project is found, clear the state or load default values
-            setNodes([]);
-            setEdges([]);
-            setnonDeleteableNodes([]);
-            setnonDeleteableEdges([]);
-            setfirstGroup([]);
-            setSecondGroup([]);
+      } else {
+        console.warn("Filename not found in query.");
       }
     };
-
-    loadTemplate();
-  }, [setEdges, setNodes, router.query]);
+  
+    if (router.isReady) {
+      loadTemplate();
+    }
+  }, [router.query, router.isReady]);
+  
 
   const [showModal, setShowModal] = useState(false);
   const [pendingEdges, setPendingEdges] = useState<Edge[]>([]);
@@ -186,6 +221,8 @@ const FlowWithPathExtractor = () => {
   const onInit = useCallback((instance: any) => {
     setReactFlowInstance(instance);
   }, []);
+
+
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
@@ -377,8 +414,8 @@ const FlowWithPathExtractor = () => {
         config: {
           apiKey: apiKey || "23423452342",
           temperature: temperature || "0.3",
-          isVerbose: isVerbose || "false",
-        },
+          isVerbose: isVerbose || "false"
+        }
       },
       doc_type: option || "pdf_type",
       embeddings: embeddings || "hugging_face_type_embeddings",
@@ -391,12 +428,9 @@ const FlowWithPathExtractor = () => {
     };
     const jsonString = JSON.stringify(exportData, null, 2);
 
-    console.log("Export data : ", exportData);
-
-
     setJsonData(exportData);
 
-    openModal();
+    openModal(jsonString);
 
     // Create and trigger download
   }, [
@@ -467,7 +501,7 @@ const FlowWithPathExtractor = () => {
     llm: string | null,
     temperature: string,
     isVerbose: boolean,
-    apiKey: string
+    apiKey:string
   ) => {
     setSelectedLLM(llm);
     setTemperature(temperature);
@@ -487,113 +521,6 @@ const FlowWithPathExtractor = () => {
   //sidebar
   const [isExpanded1, setIsExpanded1] = useState(true);
   const [isExpanded2, setIsExpanded2] = useState(true);
-
-  const handleHost = () => {
-    // Navigate to the specified link (localhost:8501)
-    window.location.href = "http://localhost:8501";
-  };
-
-  const openModal = () => {
-    setIsOpen(true);
-  };
-  const closeModal = () => {
-    setIsOpen(false);
-  };
-  //send to backend
-  const handleClick = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-
-  const sendBackend = async () => {
-    //exportPathsAsJson();
-    const pathData = extractPaths();
-    const { template } = router.query;
-    // Include other relevant fields
-    const exportData = {
-      llm: {
-        llm_name: selectedLLM || "groq",
-        config: {
-          apiKey: apiKey || "23423452342",
-          temperature: temperature || "0.3",
-          isVerbose: isVerbose || "false",
-        },
-      },
-      doc_type: option || "pdf",
-      embeddings: embeddings || "hugging_face",
-      retriever_tools: rtools || "basic",
-      vector_stores: vstools || "chroma_store",
-      prompts: prompts || "default",
-      customtext: customtext || null,
-      template: template || "custom-template",
-      flowPaths: pathData, // Inject extracted paths here
-    };
-    const jsonString = JSON.stringify(exportData, null, 2);
-    console.log("Export data : ", exportData);
-    // const response = await fetch("/api/sendjson", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body:jsonString,
-    // });
-
-    setJsonData(exportData);
-
-    //export end
-    console.log("json data after: ", jsonData);
-    if (!exportData) {
-      setError("No data to send");
-      return;
-    }
-    setIsLoading(true);
-    setError("");
-    setSuccessMessage("");
-    console.log("typeof : ", exportData);
-    try {
-      // Send JSON data to the backend
-      const response = await fetch("http://localhost:8000/receive-data", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(exportData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to send data to backend");
-      }
-
-      // If the backend responds with a file, download it
-      // After the backend processes the data, download the .py file
-      /*const fileResponse = await fetch(
-        "http://localhost:8000/download-sample",
-        {
-          method: "GET",
-        }
-      );
-      console.log(fileResponse);
-      if (!fileResponse.ok) {
-        throw new Error("Failed to fetch the .py file");
-      }*/
-
-      /*const blob = await fileResponse.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "sample.py"; 
-      link.click();
-      window.URL.revokeObjectURL(url);*/
-    } catch (error) {
-      console.error("Download failed:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className="flex flex-row h-screen  ">
       <div
@@ -623,6 +550,7 @@ const FlowWithPathExtractor = () => {
           onDrop={onDrop}
           onDragOver={onDragOver}
           onSelectionChange={onSelectionChange}
+
           fitView
         >
           <Panel
@@ -640,56 +568,15 @@ const FlowWithPathExtractor = () => {
             </button>
             <button
               onClick={exportPathsAsJson}
-              //onClick={openModal}
               className="flex items-center gap-2 px-2 py-1 bg-black text-white rounded-lg hover:bg-violet-500 transition-colors"
             >
               <MdOutlineSaveAlt size={20} />
             </button>
-            <button
-              onClick={() => {
-                handleClick();
-                sendBackend();
-              }}
-              className="flex items-center gap-2 px-2 py-1 bg-black text-white rounded-lg hover:bg-green-600 transition-colors group"
-            >
-              <RiShareForwardLine size={20} />
-              <span className="invisible group-hover:visible absolute bg-gray-100 text-black p-2  text-xs mt-16 ml-6 rounded-md">
-                Host
-              </span>
-            </button>
           </Panel>
-
           <Controls />
           <MiniMap />
           <Background />
         </ReactFlow>
-        {isModalOpen && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white p-4 rounded-lg w-1/3">
-              <h1 className="text-lg font-semibold flex justify-center">
-                Hosting in Streamlit
-              </h1>
-              <div className="flex justify-center align-baseline space-x-2">
-                <MdOutlineDownloading size={26} className="" />
-                <p>Workflow is being processed</p>
-              </div>
-              <div className="flex justify-between">
-                <button
-                  className="mt-4 px-4 py-2 bg-red-500 hover:bg-red-400 text-white rounded"
-                  onClick={handleCloseModal}
-                >
-                  Close
-                </button>
-                <button
-                  onClick={handleHost}
-                  className="mt-4 px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded flex flex-row space-x-2"
-                >
-                  <p>Host</p> <SiStreamlit className="mt-1" />
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
         <Conditionals
           isOpen={showModal}
           edges={pendingEdges}

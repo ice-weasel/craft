@@ -40,11 +40,15 @@ import { IoIosArrowDown } from "react-icons/io";
 import { IoIosArrowBack } from "react-icons/io";
 import { FiUploadCloud } from "react-icons/fi";
 import Conditionals from "@/components/conditionals";
-import { adminauth, db } from "@/app/firebaseAdmin";
-import { collection, doc } from "firebase/firestore";
-import firebaseApp from "@/app/firebase";
+
+import { adminauth,db }  from "@/app/firebaseAdmin";
+import { addDoc, collection, doc, setDoc } from "firebase/firestore";
+import  firebaseApp  from "@/app/firebase";
 import { useRouter } from "next/router";
 import { json } from "stream/consumers";
+import { firedb } from "@/app/firebase";
+
+
 
 //Cookie verification
 
@@ -136,8 +140,11 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [saveModalOpen, setSaveModalOpen] = useState(false);
-  const [filename, setFileName] = useState("");
+
+  const [saveModalOpen,setSaveModalOpen] = useState(false)
+  const [filename,setFileName] = useState("");
+  const [ispublic,setIsPublic] = useState(true)
+
 
   const openSaveModal = () => setSaveModalOpen(true);
   const closeSaveModal = () => setSaveModalOpen(false);
@@ -158,21 +165,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   const [pendingEdges, setPendingEdges] = useState<Edge[]>([]);
   const [customtext, setCustomtext] = useState<string | null | undefined>(null);
 
-  useEffect(() => {
-    loadJsonData();
-  }, []);
-
-  const loadJsonData = async () => {
-    try {
-      const data = await import("../generated-jsons/test.json");
-      setJsonData(data.default);
-      setError("");
-    } catch (err) {
-      setError("Failed to load JSON file");
-      console.error("Error loading JSON:", err);
-    }
-  };
-
+ 
   const onConnect = useCallback(
     (params: Connection) => {
       if (!params.source || !params.target) {
@@ -387,13 +380,38 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
     URL.revokeObjectURL(url);
   };
 
-  const saveFile = (jsonData: any) => {
+
+    
+
+  const saveFile = async (jsonData: any, filename: string, ispublic: boolean) => {
     try {
+      // Get the current date and format it as "dd-month-yyyy"
+      const today = new Date();
+      const formattedDate = today.toLocaleString('default', { day: '2-digit', month: 'long', year: 'numeric' });
+  
+      // Reference to the "projects" subcollection under the current user
+      const fileDocRef = doc(collection(firedb, "Users", uid as string, "projects"));
+
+
+     
+  
+      // Prepare the data to be saved
+      const projectData = {
+        filename, // Project file name
+        isPublic: ispublic, // Visibility of the project
+        createdAt: formattedDate, // Formatted creation date
+        flow: JSON.stringify(jsonData), // Save flow as stringified JSON
+      };
+  
+      // Save the document to Firestore
+      await setDoc(fileDocRef, projectData);
+
       console.log("File saved successfully!");
     } catch (error) {
       console.error("Error saving file to Firestore:", error);
     }
   };
+  
   const handleDocTypeChange = (type: string | null) => {
     setOption(type);
   };
@@ -568,27 +586,39 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
                   : "No data loaded"}
               </pre>
             </div>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault(); // Prevent page reload
-                saveFile(jsonData); // Pass the latest jsonData value
-              }}
-            >
-              <input
+
+            <form  onSubmit={(e) => {
+    e.preventDefault(); // Prevent page reload
+    saveFile(jsonData,filename,ispublic); // Pass the latest jsonData value
+  }}>
+            <input
+
                 type="text"
                 onChange={(e) => setFileName(e.target.value)}
                 className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors"
                 required
                 placeholder="Enter File Name"
               />
-              <div className="flex justify-end gap-2">
-                <button
-                  type="submit"
-                  className="px-3 py-2 mt-3  bg-black text-white rounded-md hover:bg-neutral-700 transition-colors"
-                >
-                  Save
-                </button>
-              </div>
+
+              <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                name="isVerbose"
+                checked
+                onChange={(e) => setIsPublic(e.target.checked)}
+                className="active:bg-violet-500 focus:ring-violet-500"
+              />
+              <label className="font-medium ">Make your project public</label>
+            </div>
+                <div className="flex justify-end gap-2">
+              <button
+                type="submit"
+                className="px-3 py-2 mt-3  bg-black text-white rounded-md hover:bg-neutral-700 transition-colors"
+              >
+                Save
+              </button>
+            </div>
+
             </form>
           </div>
         </div>

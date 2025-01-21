@@ -32,9 +32,6 @@ export async function getServerSideProps(context: any) {
       },
     };
   }
-
-  
-
   try {
     // Verify the session cookie
     const decodedToken = await adminauth.verifySessionCookie(sessionCookie, true);
@@ -69,18 +66,20 @@ export async function getServerSideProps(context: any) {
     
     const projects = projectData.docs.map((doc) => ({
       id: doc.id,
-      Name: doc.data().Name || "Unnamed Project",
-      template: doc.data().template || "default-template",
+      filename: doc.data().filename || "Unnamed Project",
+      isPublic : doc.data().isPublic || false,
+      
     }));
     
     projects.forEach((project) => {
-      console.log(`Project Name: ${project.Name}, Template: ${project.template}`);
+      console.log(`Project Name: ${project.filename}`);
     });
     
     
     return {
       props: {
         user: JSON.parse(JSON.stringify(user)),
+        projects
       },
     };
   } catch (error) {
@@ -106,7 +105,6 @@ const mont = Montserrat({
 const Dashboard =({ user,projects }: { user: any,projects:any }) => {
   const [userName, setUserName] = useState(user?.Name || "User");
   const [showProf,setshowProf] = useState(false);
-  const [projectList,setProjectList] = useState([])
   const router = useRouter()
 
   const openProfdraw = () => setshowProf(!showProf)
@@ -114,14 +112,15 @@ const Dashboard =({ user,projects }: { user: any,projects:any }) => {
   useEffect(() => {
     if (user) {
       setUserName(user.Name || "User");
+     
     }
 
-    if (projects) {
-      //do this pinne
-    }
+    
+
+  }, [user]);
 
 
-  }, [projects,user]);
+ 
 
   const auth = getAuth(firebaseApp);
 
@@ -246,10 +245,11 @@ const Dashboard =({ user,projects }: { user: any,projects:any }) => {
         </div>
       </div>
       <div className="md:h-1/2 md:pb-0 pb-4">
-        <Tabs />
+        <Tabs   />
       </div>
     </div>
   );
 };
 
 export default Dashboard;
+

@@ -1,6 +1,8 @@
-// firebase.ts (for client-side only)
-import { initializeApp, getApps } from "firebase/app";
-import { getAuth } from "firebase/auth";
+
+import { getFirestore } from 'firebase/firestore';
+import { initializeApp, getApps } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_API_KEY,
@@ -16,5 +18,8 @@ const firebaseApp = initializeApp(firebaseConfig);
 
 const auth = getAuth(firebaseApp);
 
-export { auth };
+const firedb = getFirestore(firebaseApp)
+
+export { auth,firedb };
 export default firebaseApp;
+

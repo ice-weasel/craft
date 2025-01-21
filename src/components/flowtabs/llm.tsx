@@ -11,7 +11,7 @@ type LLMProps = {
 };
 
 export default function LLMs({ onLLMSelected }: LLMProps) {
-  const options = ["Groq", "Gemini", "OpenAI"];
+  const options = ["Groq", "Gemini", "OpenAI","Groq-Vision"];
 
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
 

@@ -22,7 +22,7 @@ const RTools = ({ onRToolsChange }: RToolsProps) => {
   return (
     <>
       <div className="flex flex-col space-y-3">
-        {["Basic", "Self-Query", "Multi-Query"].map((type) => (
+        {["Basic", "Self_Query", "Multi_Query"].map((type) => (
           <label key={type} className="flex items-center cursor-pointer group">
             <div className="relative">
               <input

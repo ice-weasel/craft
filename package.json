@@ -24,6 +24,7 @@
     "framer-motion": "^11.5.5",
     "localforage": "^1.10.0",
     "lucide-react": "^0.454.0",
+    "net": "^1.0.2",
     "next": "^14.2.13",
     "ngrok": "^5.0.0-beta.2",
     "react": "^18",

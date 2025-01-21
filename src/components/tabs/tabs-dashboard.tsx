@@ -198,12 +198,12 @@ const Tabs = () => {
                   <h1 className={pops.className}>Self-Reflection RAG</h1>
                 </div>
                 <div className="text-neutral-600 md:text-sm text-xs text-center">
-                  Effortlessly solve complex math problems with the Math Engine
-                  template, designed to simplify calculations and <br /> handle
-                  mathematical operations.
+                Discover deeper insights about yourself with the Self-Reflection RAG template, 
+                crafted to guide introspection and <br/> foster personal growth through reflective analysis.
                 </div>
               </div>
               <div className="">
+                <Link href = "/Flow/self_rag">
                 <button className="flex flex-row justify-between w-full bg-violet-300 md:p-3 p-2 rounded-full hover:bg-violet-200">
                   <div className="md:text-md text-sm font-semibold pl-4">
                     Continue
@@ -212,6 +212,7 @@ const Tabs = () => {
                     <MdEdit size={20} />
                   </div>
                 </button>
+                </Link>
               </div>
             </div>
             <div className="md:w-1/3 w-full bg-violet-100  rounded-lg flex flex-col md:space-y-0 space-y-4 justify-between p-6">
@@ -220,10 +221,8 @@ const Tabs = () => {
                   <h1 className={pops.className}>Wikipedia Search</h1>
                 </div>
                 <div className="text-neutral-600 md:text-sm text-xs text-center">
-                  Automate content creation with the AI-powered Technical Writer
-                  template, crafted to generate clear, accurate, and engaging
-                  <br />
-                  technical documentations effortlessly.
+                Quickly explore vast knowledge with the Wikipedia Search template, 
+                designed to provide accurate and <br /> comprehensive information at your fingertips.
                 </div>
               </div>
               <div className="">
@@ -243,13 +242,12 @@ const Tabs = () => {
                   <h1 className={pops.className}>Image Search</h1>
                 </div>
                 <div className="text-neutral-600 md:text-sm text-xs text-center">
-                  Generate and optimize database queries with ease with the{" "}
-                  <br />
-                  SQL Query Engine template, designed to simplify
-                  <br /> data retrieval and management.
+                Effortlessly find the visuals you need with the Image Search template, 
+                tailored to deliver relevant and <br /> high-quality images in seconds.
                 </div>
               </div>
               <div className="">
+                <Link href="/Flow/image_search">
                 <button className="flex flex-row justify-between w-full bg-violet-300 md:p-3 p-2 rounded-full hover:bg-violet-200">
                   <div className="md:text-md text-sm font-semibold pl-4">
                     Continue
@@ -258,6 +256,7 @@ const Tabs = () => {
                     <MdEdit size={20} />
                   </div>
                 </button>
+                </Link>
               </div>
             </div>
           </div>

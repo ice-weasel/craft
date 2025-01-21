@@ -7,7 +7,6 @@ type DocuTypeProps = {
 export default function DocuType({ onDocTypeChange }: DocuTypeProps) {
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const options = ["PPT", "PDF", "CSV", "XLSX", "JSON"];
 
   
 
@@ -24,7 +23,7 @@ export default function DocuType({ onDocTypeChange }: DocuTypeProps) {
         className="p-1 overflow-y-auto bg-white rounded-md w-full"
         onChange={handleRadioChange}
       >
-        {["PDF","PPT", "CSV", "XLSX", "JSON"].map((type) => (
+        {["PDF","PPT", "CSV", "XLSX", "JSON","IMGS"].map((type) => (
           <option key={type} value={type}>
             {type}
           </option>

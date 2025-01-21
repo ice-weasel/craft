@@ -22,6 +22,7 @@
     "firebase": "^10.13.1",
     "firebase-admin": "^12.5.0",
     "framer-motion": "^11.5.5",
+    "localforage": "^1.10.0",
     "lucide-react": "^0.454.0",
     "next": "^14.2.13",
     "ngrok": "^5.0.0-beta.2",

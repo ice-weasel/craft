@@ -39,7 +39,6 @@ import { IoIosArrowForward } from "react-icons/io";
 import { MdOutlineSaveAlt } from "react-icons/md";
 import { IoIosArrowDown } from "react-icons/io";
 import { IoIosArrowBack } from "react-icons/io";
-import { initialEdges, initialNodes } from "@/components/templates/self-rag";
 import { useRouter } from "next/router";
 import Conditionals from "@/components/conditionals";
 import { RiShareForwardLine } from "react-icons/ri";
@@ -113,6 +112,11 @@ const FlowWithPathExtractor = () => {
           setnonDeleteableEdges(nonDeletableEdges);
           setfirstGroup(group1);
           setSecondGroup(group2);
+
+          if(template == "image_search") {
+            setOption("IMGS")
+          }
+
         } catch (error) {
           console.error("Error loading template:", error);
         }

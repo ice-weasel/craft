@@ -39,7 +39,7 @@ import { IoIosArrowForward } from "react-icons/io";
 import { MdOutlineSaveAlt } from "react-icons/md";
 import { IoIosArrowDown } from "react-icons/io";
 import { IoIosArrowBack } from "react-icons/io";
-import { initialEdges, initialNodes } from "@/components/templates/self-rag";
+import { initialEdges, initialNodes } from "@/components/templates/self_rag";
 import { useRouter } from "next/router";
 import Conditionals from "@/components/conditionals";
 import { RiShareForwardLine } from "react-icons/ri";
@@ -369,8 +369,8 @@ const FlowWithPathExtractor = () => {
         config: {
           apiKey: apiKey || "23423452342",
           temperature: temperature || "0.3",
-          isVerbose: isVerbose || "false"
-        }
+          isVerbose: isVerbose || "false",
+        },
       },
       doc_type: option || "pdf_type",
       embeddings: embeddings || "hugging_face_type_embeddings",
@@ -511,24 +511,17 @@ const FlowWithPathExtractor = () => {
     const { template } = router.query;
     // Include other relevant fields
     const exportData = {
-      llm: selectedLLM
-        ? {
-            [selectedLLM]: {
-              apiKey: apiKey || "23423452342",
-              temperature: temperature || "0.3",
-              isVerbose: isVerbose || "false",
-            },
-          }
-        : {
-            groq_model: {
-              apiKey: apiKey || "23423452342",
-              temperature: temperature || "0.3",
-              isVerbose: isVerbose || "false",
-            },
-          },
-      doc_type: option || "pdf_type",
-      embeddings: embeddings || "hugging_face_type_embeddings",
-      retriever_tools: rtools || "multi-query",
+      llm: {
+        llm_name: selectedLLM || "groq",
+        config: {
+          apiKey: apiKey || "23423452342",
+          temperature: temperature || "0.3",
+          isVerbose: isVerbose || "false",
+        },
+      },
+      doc_type: option || "pdf",
+      embeddings: embeddings || "hugging_face",
+      retriever_tools: rtools || "basic",
       vector_stores: vstools || "chroma_store",
       prompts: prompts || "default",
       customtext: customtext || null,

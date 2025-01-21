@@ -40,16 +40,13 @@ import { IoIosArrowDown } from "react-icons/io";
 import { IoIosArrowBack } from "react-icons/io";
 import { FiUploadCloud } from "react-icons/fi";
 import Conditionals from "@/components/conditionals";
-import { adminauth,db }  from "@/app/firebaseAdmin";
+import { adminauth, db } from "@/app/firebaseAdmin";
 import { collection, doc } from "firebase/firestore";
 import firebaseApp from "@/app/firebase";
 import { useRouter } from "next/router";
 import { json } from "stream/consumers";
-import { getFirestore } from "firebase-admin/firestore";
 
 //Cookie verification
-
-
 
 export async function getServerSideProps(context: any) {
   const { req } = context;
@@ -66,8 +63,11 @@ export async function getServerSideProps(context: any) {
   }
   try {
     // Verify the session cookie
-    const decodedToken = await adminauth.verifySessionCookie(sessionCookie, true);
-     const { uid } = decodedToken;
+    const decodedToken = await adminauth.verifySessionCookie(
+      sessionCookie,
+      true
+    );
+    const { uid } = decodedToken;
 
     console.log("Decoded UID:", uid);
 
@@ -76,7 +76,6 @@ export async function getServerSideProps(context: any) {
 
     if (!userDoc.exists) {
       console.log(`No user document found for UID: ${uid}`);
-      
     }
 
     const firestoreData = userDoc.data();
@@ -86,12 +85,11 @@ export async function getServerSideProps(context: any) {
       uid,
       ...firestoreData,
       Name: firestoreData?.Name || "User",
-    
-    }; 
+    };
     return {
       props: {
         user: JSON.parse(JSON.stringify(user)),
-        uid
+        uid,
       },
     };
   } catch (error) {
@@ -104,8 +102,6 @@ export async function getServerSideProps(context: any) {
     };
   }
 }
-
-
 
 const getId = (() => {
   let id = 0;
@@ -140,10 +136,10 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [saveModalOpen,setSaveModalOpen] = useState(false)
-  const [filename,setFileName] = useState("");
+  const [saveModalOpen, setSaveModalOpen] = useState(false);
+  const [filename, setFileName] = useState("");
 
-  const openSaveModal = () => setSaveModalOpen(true)
+  const openSaveModal = () => setSaveModalOpen(true);
   const closeSaveModal = () => setSaveModalOpen(false);
 
   const [option, setOption] = useState<string | null>(null);
@@ -160,7 +156,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   const closeModal = () => setIsOpen(false);
   const [showModal, setShowModal] = useState(false);
   const [pendingEdges, setPendingEdges] = useState<Edge[]>([]);
-   const [customtext, setCustomtext] = useState<string | null | undefined>(null);
+  const [customtext, setCustomtext] = useState<string | null | undefined>(null);
 
   useEffect(() => {
     loadJsonData();
@@ -265,10 +261,10 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
     },
     [reactFlowInstance, setNodes]
   );
-  
+
   const router = useRouter();
 
-const extractPaths = useCallback(() => {
+  const extractPaths = useCallback(() => {
     const paths: any = {};
     const visited = new Set();
 
@@ -343,8 +339,8 @@ const extractPaths = useCallback(() => {
         config: {
           apiKey: apiKey || "23423452342",
           temperature: temperature || "0.3",
-          isVerbose: isVerbose || "false"
-        }
+          isVerbose: isVerbose || "false",
+        },
       },
       doc_type: option || "pdf_type",
       embeddings: embeddings || "hugging_face_type_embeddings",
@@ -360,7 +356,7 @@ const extractPaths = useCallback(() => {
 
     setJsonData(exportData);
 
-    console.log("json string", jsonString)
+    console.log("json string", jsonString);
 
     openModal(jsonString);
     console.log("Exported workflow configuration:", exportData);
@@ -375,8 +371,8 @@ const extractPaths = useCallback(() => {
     embeddings,
     rtools,
     vstools,
-  ]); 
- 
+  ]);
+
   const downloadJson = () => {
     const blob = new Blob([jsonData], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -392,10 +388,7 @@ const extractPaths = useCallback(() => {
   };
 
   const saveFile = (jsonData: any) => {
-   
     try {
-    
-     
       console.log("File saved successfully!");
     } catch (error) {
       console.error("Error saving file to Firestore:", error);
@@ -414,8 +407,6 @@ const extractPaths = useCallback(() => {
         : [...prev, index]
     );
   };
-
-  
 
   const contentRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -440,7 +431,7 @@ const extractPaths = useCallback(() => {
     llm: string | null,
     temperature: string,
     isVerbose: boolean,
-    apiKey:string
+    apiKey: string
   ) => {
     setSelectedLLM(llm);
     setTemperature(temperature);
@@ -509,8 +500,8 @@ const extractPaths = useCallback(() => {
             >
               <MdOutlineSaveAlt size={20} />
             </button>
-            <button onClick=
-              {() => {
+            <button
+              onClick={() => {
                 exportPathsAsJson();
                 openSaveModal();
               }}
@@ -559,7 +550,7 @@ const extractPaths = useCallback(() => {
           </div>
         </div>
       )}
-       {saveModalOpen && (
+      {saveModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white rounded-lg p-6 w-full max-w-md relative">
             <button
@@ -577,28 +568,28 @@ const extractPaths = useCallback(() => {
                   : "No data loaded"}
               </pre>
             </div>
-            <form  onSubmit={(e) => {
-    e.preventDefault(); // Prevent page reload
-    saveFile(jsonData); // Pass the latest jsonData value
-  }}>
-            <input
+            <form
+              onSubmit={(e) => {
+                e.preventDefault(); // Prevent page reload
+                saveFile(jsonData); // Pass the latest jsonData value
+              }}
+            >
+              <input
                 type="text"
                 onChange={(e) => setFileName(e.target.value)}
                 className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors"
                 required
                 placeholder="Enter File Name"
               />
-                <div className="flex justify-end gap-2">
-              <button
-                type="submit"
-                className="px-3 py-2 mt-3  bg-black text-white rounded-md hover:bg-neutral-700 transition-colors"
-              >
-                Save
-              </button>
-            </div>
+              <div className="flex justify-end gap-2">
+                <button
+                  type="submit"
+                  className="px-3 py-2 mt-3  bg-black text-white rounded-md hover:bg-neutral-700 transition-colors"
+                >
+                  Save
+                </button>
+              </div>
             </form>
-           
-          
           </div>
         </div>
       )}
@@ -664,9 +655,9 @@ const extractPaths = useCallback(() => {
   );
 };
 
-const FlowApp = ({user}:any) => (
+const FlowApp = ({ user }: any) => (
   <ReactFlowProvider>
-    <FlowWithPathExtractor user={user} uid = {user.uid} />
+    <FlowWithPathExtractor user={user} uid={user.uid} />
   </ReactFlowProvider>
 );
 

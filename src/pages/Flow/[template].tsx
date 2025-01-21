@@ -369,14 +369,6 @@ const FlowWithPathExtractor = () => {
     };
     const jsonString = JSON.stringify(exportData, null, 2);
 
-    // const response = await fetch("/api/sendjson", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body:jsonString,
-    // });
-
     setJsonData(exportData);
 
     openModal(jsonString);

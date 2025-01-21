@@ -380,6 +380,8 @@ const extractPaths = useCallback(() => {
     URL.revokeObjectURL(url);
   };
 
+    
+
   const saveFile = async (jsonData: any, filename: string, ispublic: boolean) => {
     try {
       // Get the current date and format it as "dd-month-yyyy"
@@ -388,6 +390,9 @@ const extractPaths = useCallback(() => {
   
       // Reference to the "projects" subcollection under the current user
       const fileDocRef = doc(collection(firedb, "Users", uid as string, "projects"));
+
+
+     
   
       // Prepare the data to be saved
       const projectData = {

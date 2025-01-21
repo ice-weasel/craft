@@ -43,6 +43,7 @@ import { collectionGroup, getDocs, query, where } from "firebase/firestore";
 import { useRouter } from "next/router";
 import Conditionals from "@/components/conditionals";
 import { firedb } from "@/app/firebase";
+import localforage from 'localforage'
 
 const getId = (() => {
   let id = 0;
@@ -67,6 +68,8 @@ const FlowWithPathExtractor = () => {
   /*Right Tab requisites*/
   const [jsonData, setJsonData] = useState<any>(null);
   const [isOpen, setIsOpen] = useState(false);
+
+  
   const openModal = (jsonString: string) => setIsOpen(true);
   const closeModal = () => setIsOpen(false);
   const [option, setOption] = useState<string | null>(null);
@@ -218,6 +221,8 @@ const FlowWithPathExtractor = () => {
   const onInit = useCallback((instance: any) => {
     setReactFlowInstance(instance);
   }, []);
+
+
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
@@ -545,6 +550,7 @@ const FlowWithPathExtractor = () => {
           onDrop={onDrop}
           onDragOver={onDragOver}
           onSelectionChange={onSelectionChange}
+
           fitView
         >
           <Panel

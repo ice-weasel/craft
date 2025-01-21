@@ -131,7 +131,7 @@ export default function Login() {
                     required
                     autoComplete="true"
                     onChange={(e) => setEmail(e.target.value)}
-                    className="peer h-full w-full focus:border-b-2 border-b px-4 focus:px-1 pt-4 pb-1.5 font-sans text-lg font-normal text-grey outline outline-0 transition-all focus:border-violet-500 focus:outline-0 disabled:border-0 disabled:bg-blue-gray-50"
+                    className="peer h-full w-full focus:border-b-2  border-b px-4 focus:px-1 pt-4 pb-1.5 font-sans text-lg font-normal text-grey outline outline-0 transition-all focus:border-violet-500 focus:outline-0 disabled:border-0 disabled:bg-blue-gray-50"
                   />
                   <div className="left-0 bottom-0 w-full h-px bg-violet-300 origin-center scale-x-0 transition-transform duration-300 peer-focus:scale-x-100" />
                 </div>

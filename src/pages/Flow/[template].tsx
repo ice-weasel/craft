@@ -3,6 +3,7 @@ import { FaRegTrashAlt } from "react-icons/fa";
 import { useCallback, useRef, useState } from "react";
 import { X } from "lucide-react";
 import "tailwindcss/tailwind.css";
+import { SiStreamlit } from "react-icons/si";
 import ReactFlow, {
   useNodesState,
   useEdgesState,
@@ -41,6 +42,8 @@ import { IoIosArrowBack } from "react-icons/io";
 import { initialEdges, initialNodes } from "@/components/templates/self-rag";
 import { useRouter } from "next/router";
 import Conditionals from "@/components/conditionals";
+import { RiShareForwardLine } from "react-icons/ri";
+import { MdOutlineDownloading } from "react-icons/md";
 
 const getId = (() => {
   let id = 0;
@@ -65,8 +68,7 @@ const FlowWithPathExtractor = () => {
   /*Right Tab requisites*/
   const [jsonData, setJsonData] = useState<any>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const openModal = (jsonString: string) => setIsOpen(true);
-  const closeModal = () => setIsOpen(false);
+
   const [option, setOption] = useState<string | null>(null);
   const [prompts, setPrompts] = useState<string | null>(null);
   const [customtext, setCustomtext] = useState<string | null | undefined>(null);
@@ -77,6 +79,18 @@ const FlowWithPathExtractor = () => {
   const [embeddings, setEmbedding] = useState<string | null>(null);
   const [rtools, setRTools] = useState<string | null>(null);
   const [vstools, setVSTools] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+  const [successMessage, setSuccessMessage] = useState<string>("");
+
+  /*useEffect(() => {
+    console.log("jsondata updated:", jsonData);
+  }, [jsonData]);*/
+  /*
+  useEffect(() => {
+    exportPathsAsJson();
+  }, [jsonData]);*/
 
   const router = useRouter();
   useEffect(() => {
@@ -369,9 +383,12 @@ const FlowWithPathExtractor = () => {
     };
     const jsonString = JSON.stringify(exportData, null, 2);
 
+    console.log("Export data : ", exportData);
+
+
     setJsonData(exportData);
 
-    openModal(jsonString);
+    openModal();
 
     // Create and trigger download
   }, [
@@ -442,7 +459,7 @@ const FlowWithPathExtractor = () => {
     llm: string | null,
     temperature: string,
     isVerbose: boolean,
-    apiKey:string
+    apiKey: string
   ) => {
     setSelectedLLM(llm);
     setTemperature(temperature);
@@ -462,6 +479,120 @@ const FlowWithPathExtractor = () => {
   //sidebar
   const [isExpanded1, setIsExpanded1] = useState(true);
   const [isExpanded2, setIsExpanded2] = useState(true);
+
+  const handleHost = () => {
+    // Navigate to the specified link (localhost:8501)
+    window.location.href = "http://localhost:8501";
+  };
+
+  const openModal = () => {
+    setIsOpen(true);
+  };
+  const closeModal = () => {
+    setIsOpen(false);
+  };
+  //send to backend
+  const handleClick = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const sendBackend = async () => {
+    //exportPathsAsJson();
+    const pathData = extractPaths();
+    const { template } = router.query;
+    // Include other relevant fields
+    const exportData = {
+      llm: selectedLLM
+        ? {
+            [selectedLLM]: {
+              apiKey: apiKey || "23423452342",
+              temperature: temperature || "0.3",
+              isVerbose: isVerbose || "false",
+            },
+          }
+        : {
+            groq_model: {
+              apiKey: apiKey || "23423452342",
+              temperature: temperature || "0.3",
+              isVerbose: isVerbose || "false",
+            },
+          },
+      doc_type: option || "pdf_type",
+      embeddings: embeddings || "hugging_face_type_embeddings",
+      retriever_tools: rtools || "multi-query",
+      vector_stores: vstools || "chroma_store",
+      prompts: prompts || "default",
+      customtext: customtext || null,
+      template: template || "custom-template",
+      flowPaths: pathData, // Inject extracted paths here
+    };
+    const jsonString = JSON.stringify(exportData, null, 2);
+    console.log("Export data : ", exportData);
+    // const response = await fetch("/api/sendjson", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body:jsonString,
+    // });
+
+    setJsonData(exportData);
+
+    //export end
+    console.log("json data after: ", jsonData);
+    if (!exportData) {
+      setError("No data to send");
+      return;
+    }
+    setIsLoading(true);
+    setError("");
+    setSuccessMessage("");
+    console.log("typeof : ", exportData);
+    try {
+      // Send JSON data to the backend
+      const response = await fetch("http://localhost:8000/receive-data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(exportData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to send data to backend");
+      }
+
+      // If the backend responds with a file, download it
+      // After the backend processes the data, download the .py file
+      /*const fileResponse = await fetch(
+        "http://localhost:8000/download-sample",
+        {
+          method: "GET",
+        }
+      );
+      console.log(fileResponse);
+      if (!fileResponse.ok) {
+        throw new Error("Failed to fetch the .py file");
+      }*/
+
+      /*const blob = await fileResponse.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "sample.py"; 
+      link.click();
+      window.URL.revokeObjectURL(url);*/
+    } catch (error) {
+      console.error("Download failed:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="flex flex-row h-screen  ">
       <div
@@ -508,15 +639,56 @@ const FlowWithPathExtractor = () => {
             </button>
             <button
               onClick={exportPathsAsJson}
+              //onClick={openModal}
               className="flex items-center gap-2 px-2 py-1 bg-black text-white rounded-lg hover:bg-violet-500 transition-colors"
             >
               <MdOutlineSaveAlt size={20} />
             </button>
+            <button
+              onClick={() => {
+                handleClick();
+                sendBackend();
+              }}
+              className="flex items-center gap-2 px-2 py-1 bg-black text-white rounded-lg hover:bg-green-600 transition-colors group"
+            >
+              <RiShareForwardLine size={20} />
+              <span className="invisible group-hover:visible absolute bg-gray-100 text-black p-2  text-xs mt-16 ml-6 rounded-md">
+                Host
+              </span>
+            </button>
           </Panel>
+
           <Controls />
           <MiniMap />
           <Background />
         </ReactFlow>
+        {isModalOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white p-4 rounded-lg w-1/3">
+              <h1 className="text-lg font-semibold flex justify-center">
+                Hosting in Streamlit
+              </h1>
+              <div className="flex justify-center align-baseline space-x-2">
+                <MdOutlineDownloading size={26} className="" />
+                <p>Workflow is being processed</p>
+              </div>
+              <div className="flex justify-between">
+                <button
+                  className="mt-4 px-4 py-2 bg-red-500 hover:bg-red-400 text-white rounded"
+                  onClick={handleCloseModal}
+                >
+                  Close
+                </button>
+                <button
+                  onClick={handleHost}
+                  className="mt-4 px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded flex flex-row space-x-2"
+                >
+                  <p>Host</p> <SiStreamlit className="mt-1" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         <Conditionals
           isOpen={showModal}
           edges={pendingEdges}

@@ -62,7 +62,7 @@ const Tabs = () => {
           }`}
           onClick={() => setActiveTab(0)}
         >
-          Templates
+           Your work
         </button>
         <button
           className={`px-4 py-2 text-md transition ${
@@ -72,7 +72,7 @@ const Tabs = () => {
           }`}
           onClick={() => setActiveTab(1)}
         >
-          Your work
+          Templates
         </button>
         <button
           className={`px-4 py-2 text-md transition ${
@@ -263,7 +263,7 @@ const Tabs = () => {
           </div>
         )}
        {activeTab === 2 && (
-          <div className="h-full flex flex-col md:flex-row md:space-y-0 md:space-x-3 space-x-0 space-y-4 justify-between">
+          <div className="h-full flex flex-col md:flex-row md:space-y-0 md:space-x-3 space-x-0 space-y-4 ">
             {loading ? (
               <div>Loading projects...</div>
             ) : (
@@ -299,7 +299,7 @@ const Tabs = () => {
                       </button>
                     </div>
                     <div>
-                      <Link href={`/Flow/${project.id}`}>
+                      <Link href={`/Fork/${project.filename}`}>
                         <button className="flex flex-row justify-between w-full bg-violet-300 md:p-3 p-1 rounded-full hover:bg-violet-200">
                           <div className="md:text-md text-sm font-semibold pl-4">
                             Edit

@@ -44,6 +44,8 @@ const SelfTab = () => {
           console.error('Error loading template:', error);
         }
       } else {
+
+        
         // Load a generic or empty template if no template is selected
         const basic  = ["Nodes","Checkers"];
         const advanced = ["Advanced"];

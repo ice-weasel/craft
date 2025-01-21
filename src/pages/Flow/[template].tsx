@@ -45,6 +45,7 @@ import Conditionals from "@/components/conditionals";
 import { RiShareForwardLine } from "react-icons/ri";
 import { MdOutlineDownloading } from "react-icons/md";
 
+
 const getId = (() => {
   let id = 0;
   return () => `dndnode_${id++}`;
@@ -115,14 +116,14 @@ const FlowWithPathExtractor = () => {
         } catch (error) {
           console.error("Error loading template:", error);
         }
-      } else {
-        // Load a generic or empty template if no template is selected
-        setNodes([]);
-        setEdges([]);
-        setnonDeleteableNodes([]);
-        setnonDeleteableEdges([]);
-        setfirstGroup([]);
-        setSecondGroup([]);
+      }  else {
+            // If no project is found, clear the state or load default values
+            setNodes([]);
+            setEdges([]);
+            setnonDeleteableNodes([]);
+            setnonDeleteableEdges([]);
+            setfirstGroup([]);
+            setSecondGroup([]);
       }
     };
 

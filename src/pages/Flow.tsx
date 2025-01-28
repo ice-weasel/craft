@@ -46,13 +46,10 @@ import  firebaseApp  from "@/app/firebase";
 import { useRouter } from "next/router";
 import { json } from "stream/consumers";
 import { firedb } from "@/app/firebase";
-
+import { ReactFlowInstance } from "reactflow";
 
 
 //Cookie verification
-
-
-
 export async function getServerSideProps(context: any) {
   const { req } = context;
   const sessionCookie = req.cookies["session"];
@@ -134,7 +131,8 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   const [jsonData, setJsonData] = useState<any>(null);
   const [error, setError] = useState<string>("");
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
+  const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | any>(null);
+  
   const [selectedElements, setSelectedElements] = useState<{
     nodes: Node[];
     edges: Edge[];
@@ -163,7 +161,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   const closeModal = () => setIsOpen(false);
   const [showModal, setShowModal] = useState(false);
   const [pendingEdges, setPendingEdges] = useState<Edge[]>([]);
-   const [customtext, setCustomtext] = useState<string | null | undefined>(null);
+  const [customtext, setCustomtext] = useState<string | null | undefined>(null);
 
  
   const onConnect = useCallback(
@@ -218,7 +216,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
     setSelectedElements({ nodes: elements.nodes, edges: elements.edges });
   }, []);
 
-  const onInit = useCallback((instance: any) => {
+  const onInit = useCallback((instance: ReactFlowInstance) => {
     setReactFlowInstance(instance);
   }, []);
 
@@ -321,7 +319,11 @@ const extractPaths = useCallback(() => {
     return paths;
   }, [nodes, edges]);
 
+
+  
+
   const exportPathsAsJson = useCallback(() => {
+
     // Only export at specific tab
     const pathData = extractPaths();
     const { template } = router.query;
@@ -349,10 +351,9 @@ const extractPaths = useCallback(() => {
 
     setJsonData(exportData);
 
-    console.log("json string", jsonString)
 
     openModal(jsonString);
-    console.log("Exported workflow configuration:", exportData);
+    
   }, [
     extractPaths,
     option,
@@ -367,6 +368,7 @@ const extractPaths = useCallback(() => {
   ]); 
  
   const downloadJson = () => {
+
     const blob = new Blob([jsonData], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -385,27 +387,44 @@ const extractPaths = useCallback(() => {
   const saveFile = async (jsonData: any, filename: string, ispublic: boolean) => {
     try {
       // Get the current date and format it as "dd-month-yyyy"
+
+      const flow = reactFlowInstance.toObject()
+      console.log("This is toFlow",flow)
+  
+
       const today = new Date();
       const formattedDate = today.toLocaleString('default', { day: '2-digit', month: 'long', year: 'numeric' });
   
       // Reference to the "projects" subcollection under the current user
       const fileDocRef = doc(collection(firedb, "Users", uid as string, "projects"));
 
-
-     
-  
       // Prepare the data to be saved
       const projectData = {
         filename, // Project file name
         isPublic: ispublic, // Visibility of the project
         createdAt: formattedDate, // Formatted creation date
-        flow: JSON.stringify(jsonData), // Save flow as stringified JSON
+        llm: {                                
+          llm_name: selectedLLM || "groq",
+          config: {
+            apiKey: apiKey || "23423452342",
+            temperature: temperature || "0.3",
+            isVerbose: isVerbose || "false"
+          }
+        },
+        doc_type: option || "pdf_type",
+        embeddings: embeddings || "hugging_face_type_embeddings",
+        retriever_tools: rtools || "multi-query",
+        vector_stores: vstools || "chroma_store",
+        prompts: prompts || "default",
+        customtext: customtext || null,
+        flow: flow, // Save flow as stringified JSON
       };
   
       // Save the document to Firestore
       await setDoc(fileDocRef, projectData);
   
       console.log("File saved successfully!");
+      closeSaveModal();
     } catch (error) {
       console.error("Error saving file to Firestore:", error);
     }
@@ -601,7 +620,7 @@ const extractPaths = useCallback(() => {
               <div className="flex items-center gap-2">
               <input
                 type="checkbox"
-                name="isVerbose"
+                name="isPublic"
                 checked
                 onChange={(e) => setIsPublic(e.target.checked)}
                 className="active:bg-violet-500 focus:ring-violet-500"

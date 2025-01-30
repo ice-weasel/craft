@@ -298,7 +298,7 @@ const Tabs = () => {
                       </button>
                     </div>
                     <div>
-                      <Link href={`/Fork/${project.filename}`}>
+                      <Link href={`/Flow/${project.username}/${project.filename}`}>
                         <button className="flex flex-row justify-between w-full bg-violet-300 md:p-3 p-1 rounded-full hover:bg-violet-200">
                           <div className="md:text-md text-sm font-semibold pl-4">
                             Edit

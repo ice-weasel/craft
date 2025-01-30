@@ -3,8 +3,6 @@ import Navbar from "@/components/navbar";
 import { useState,useEffect, ReactEventHandler } from "react";
 import "tailwindcss/tailwind.css";
 import { useRouter } from "next/navigation";
-import { NextApiRequest } from "next";
-import CircularProgress from "@/components/circluarProgress";
 import Image from "next/image";
 import { Montserrat } from "next/font/google";
 import Tabs from "@/components/tabs/tabs-dashboard";
@@ -12,89 +10,13 @@ import { GoArrowUpRight } from "react-icons/go";
 import Link from "next/link";
 import { getAuth, signInWithCredential } from "firebase/auth";
 import firebaseApp from "@/app/firebase";
-import { adminauth,db }  from "@/app/firebaseAdmin";
-import { signOut } from "firebase/auth";
-
-
+import { getUserData } from "@/utils/authUtils";
 
 
 //Cookie verification
 export async function getServerSideProps(context: any) {
-  const { req } = context;
-  const sessionCookie = req.cookies["session"];
-
-  if (!sessionCookie) {
-    console.log("No session cookie found.");
-    return {
-      redirect: {
-        destination: "/Login",
-        permanent: false,
-      },
-    };
-  }
-  try {
-    // Verify the session cookie
-    const decodedToken = await adminauth.verifySessionCookie(sessionCookie, true);
-    const { uid } = decodedToken;
-
-    console.log("Decoded UID:", uid);
-
-    // Fetch user data from Firestore
-    const userDoc = await db.collection("Users").doc(uid).get();
-
-    if (!userDoc.exists) {
-      console.log(`No user document found for UID: ${uid}`);
-      
-    }
-
-    const firestoreData = userDoc.data();
-    console.log("Fetched Firestore Data:", firestoreData);
-
-    const user = {
-      uid,
-      ...firestoreData,
-      Name: firestoreData?.Name || "User",
-    
-    };
-
-    const projectData = await db.collection("Users").doc(uid).collection("projects").get();
-
-    if(!projectData.empty)
-    {
-      console.log("No projects done");
-    }
-    
-    const projects = projectData.docs.map((doc) => ({
-      id: doc.id,
-      filename: doc.data().filename || "Unnamed Project",
-      isPublic : doc.data().isPublic || false,
-      
-    }));
-    
-    projects.forEach((project) => {
-      console.log(`Project Name: ${project.filename}`);
-    });
-    
-    
-    return {
-      props: {
-        user: JSON.parse(JSON.stringify(user)),
-        projects
-      },
-    };
-  } catch (error) {
-    console.error("Error in getServerSideProps:", error);
-    return {
-      redirect: {
-        destination: "/Login",
-        permanent: false,
-      },
-    };
-  }
+ return getUserData(context);
 }
-
-
-
 
 
 const mont = Montserrat({
@@ -114,9 +36,6 @@ const Dashboard =({ user,projects }: { user: any,projects:any }) => {
       setUserName(user.Name || "User");
      
     }
-
-    
-
   }, [user]);
 
 

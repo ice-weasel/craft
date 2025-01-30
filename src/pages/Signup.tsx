@@ -25,6 +25,7 @@ export default function Signup() {
   const [isLoading, setisLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [name,setName] = useState("");
+  const [username,setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [cpass,setCpass] = useState("");
   const router = useRouter();
@@ -58,7 +59,10 @@ export default function Signup() {
       const userCollectionRef = doc(db, "Users", uid);
       console.log("Firestore Path:", userCollectionRef.path);
   
-      const userData = { Name: name };
+      const userData = { 
+        Name: name,
+        username:username
+       };
   
       try {
         await setDoc(userCollectionRef, userData);
@@ -150,6 +154,18 @@ export default function Signup() {
                   />
                   <div className="left-0 bottom-0 w-full h-px bg-violet-300 origin-center scale-x-0 transition-transform duration-300 peer-focus:scale-x-100" />
                   </div>
+                  <div className="relative w-full">
+                  <input
+                    type="name"
+                    placeholder="username"
+                    value={username}
+                    required
+                    autoComplete="true"
+                    onChange={(e) => setUserName(e.target.value)}
+                    className="peer h-full w-full focus:border-b-2 border-b px-4 focus:px-1 pt-4 pb-1.5 font-sans text-lg font-normal text-grey outline outline-0 transition-all focus:border-violet-500 focus:outline-0 disabled:border-0 disabled:bg-blue-gray-50"
+                  />
+                  <div className="left-0 bottom-0 w-full h-px bg-violet-300 origin-center scale-x-0 transition-transform duration-300 peer-focus:scale-x-100" />
+                </div>
                 <div className="relative w-full">
                   <input
                     type="email"
@@ -162,6 +178,7 @@ export default function Signup() {
                   />
                   <div className="left-0 bottom-0 w-full h-px bg-violet-300 origin-center scale-x-0 transition-transform duration-300 peer-focus:scale-x-100" />
                 </div>
+
                 <div className="relative w-full">
                   <input
                     type="password"

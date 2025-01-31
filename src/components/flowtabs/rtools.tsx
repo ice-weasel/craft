@@ -1,18 +1,27 @@
 // RTools.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 type RToolsProps = {
   onRToolsChange: (type: string | null) => void;
+  currentrtools : string | null;
 };
 
-const RTools = ({ onRToolsChange }: RToolsProps) => {
-  const [option, setOption] = useState<string | null>("Basic");
+const RTools = ({ onRToolsChange,currentrtools }: RToolsProps) => {
+  const [option, setOption] = useState<string | null>("Self_Query");
   // Handle radio button change
+
+  useEffect(() => {
+    if(currentrtools) {
+      setOption(currentrtools)
+      console.log("Updating option to:", currentrtools);
+    }
+  },[currentrtools])
+
   const handleRadioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setOption(newValue);
     onRToolsChange(newValue); // Call the prop function
-    console.log(`Selected document type2: ${newValue}`);
+    console.log("Radio selected:", newValue); // Debugging log console.log("Radio selected:", newValue); // Debugging log
   };
   const dynamicText: { [key: string]: string } = {
     Basic: "You have selected the Basic option.",

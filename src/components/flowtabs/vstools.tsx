@@ -1,12 +1,19 @@
 // Tools.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 type VSToolsProp = {
   onVSToolsChange: (type: string | null) => void;
+  currentvstools : string | null;
 };
 
-const VSTools = ({ onVSToolsChange }: VSToolsProp) => {
-  const [option, setOption] = useState<string | null>("Chroma_store");
+const VSTools = ({ onVSToolsChange,currentvstools }: VSToolsProp) => {
+  const [option, setOption] = useState<string | null>("");
+
+  useEffect(() => {
+    if(currentvstools) {
+      setOption(currentvstools)
+    }
+  },[currentvstools])
 
   const handleRadioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;

@@ -1,5 +1,5 @@
 import e from "express";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 type LLMProps = {
   onLLMSelected: (
@@ -7,10 +7,14 @@ type LLMProps = {
     temperature: string,
     isVerbose: boolean,
     apiKey: string
-  ) => void;
+  ) => void,
+
+  currentllm:string | null,
+  currenttemp: string | null,
+  currentVerbose : boolean | null,
 };
 
-export default function LLMs({ onLLMSelected }: LLMProps) {
+export default function LLMs({ onLLMSelected,currentllm,currenttemp,currentVerbose }: LLMProps) {
   const options = ["Groq", "Gemini", "OpenAI","Groq-Vision"];
 
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
@@ -21,6 +25,19 @@ export default function LLMs({ onLLMSelected }: LLMProps) {
     isVerbose: false,
   });
   const [showDropdown, setShowDropdown] = useState(false);
+
+  useEffect(() => {
+    const allProps = [currentllm,currenttemp,currentVerbose].every((value) => value!==null)
+
+    if(allProps) {
+      setSelectedOption(currentllm)
+      setDropdownData({
+        apiKey: "",
+        temperature: currenttemp as string,
+        isVerbose: currentVerbose as boolean
+      })
+    }
+  },[currentllm,currenttemp,currentVerbose])
 
   const handleRadioChange = (option: string) => {
     setSelectedOption(option);

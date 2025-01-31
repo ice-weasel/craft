@@ -7,7 +7,7 @@ type VSToolsProp = {
 };
 
 const VSTools = ({ onVSToolsChange,currentvstools }: VSToolsProp) => {
-  const [option, setOption] = useState<string | null>("");
+  const [option, setOption] = useState<string | null>("Chroma_store");
 
   useEffect(() => {
     if(currentvstools) {

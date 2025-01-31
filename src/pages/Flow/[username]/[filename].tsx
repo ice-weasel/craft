@@ -28,6 +28,7 @@ import {
   updateDoc,  
   setDoc,
   where,
+  getDoc,
 } from "firebase/firestore";
 import { firedb } from "@/app/firebase";
 import RTools from "@/components/flowtabs/rtools";
@@ -45,7 +46,7 @@ import { X } from "lucide-react";
 import Toast from "@/components/toast";
 
 export async function getServerSideProps(context: any) {
-  return getUserData(context);
+  return getUserData(context,true);
 }
 
 const getId = (() => {
@@ -75,6 +76,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   const [saveModalOpen, setSaveModalOpen] = useState(false);
   const [projectname ,setProjectname] = useState("");
   const [filename, setFileName] = useState(projectname);
+  const [isExistingProject, setIsExistingProject] = useState(false);
 
   /*Right Tab requisites*/
   const [jsonData, setJsonData] = useState<any>(null);
@@ -106,9 +108,9 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
     const loadTemplate = async () => {
       const { username, filename } = router.query;
 
-      if (!router.isReady || !uid || !user.username || !filename) return;
+      if (!router.isReady || !filename) return;
 
-      if (username == user.username) {
+      if (username == user?.username) {
         try {
           setisCompLoaded(true);
           const projectsRef = collection(
@@ -224,6 +226,17 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
 
     setFileName(projectname)
 
+    const checkIfProjectExists = async () => {
+      if (!uid || !filename) return;
+      
+      const fileDocRef = doc(firedb, "Users", uid, "projects", filename);
+      const docSnap = await getDoc(fileDocRef);
+      
+      setIsExistingProject(docSnap.exists()); // true if project exists, false otherwise
+    };
+  
+    checkIfProjectExists(); 
+
   }, [
     option,
     embeddings,
@@ -233,7 +246,8 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
     selectedLLM,
     isVerbose,
     temperature,
-    projectname
+    projectname,
+    uid, filename
   ]);
 
   const [showModal, setShowModal] = useState(false);
@@ -530,11 +544,20 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
       });
 
       // Reference to the "projects" subcollection under the current user
-      const fileDocRef = doc(
-        collection(firedb, "Users", uid as string, "projects")
-      );
+      if (!uid) {
+        return <Toast message="Create an account to save your flow" />;
+      }
+      
+      // Ensure filename is valid (prevent empty strings or special characters)
+      if (!filename || filename.trim() === "") {
+        return <Toast message="Filename cannot be empty!" />;
+      }
+      
+      // Use filename as the document ID
+      const fileDocRef = doc(firedb, "Users", uid as string, "projects", filename);
 
-      // Prepare the data to be saved
+      const docSnap = await getDoc(fileDocRef);
+      //Prepare the data to be saved
       const projectData = {
         username: user.username,
         filename, // Project file name
@@ -558,14 +581,21 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
       };
 
       // Save the document to Firestore
-      if(user.name==username && filename==projectname) {
-        await updateDoc(fileDocRef,projectData)
-      }else {
-        await setDoc(fileDocRef, projectData);
-      }
-      
 
-      console.log("File saved successfully!");
+      if(uid==null) {
+        <Toast message="Create an account to save your flow" />
+      }
+
+      if (docSnap.exists()) {
+        // Update existing project
+        await updateDoc(fileDocRef, projectData);
+        console.log("Project updated successfully!");
+      } else {
+        // Create new project (No duplicates allowed since filename is the ID)
+        await setDoc(fileDocRef, projectData);
+        console.log("Project created successfully!");
+      }
+  
       closeModal();
       closeSaveModal();
     } catch (error) {
@@ -786,7 +816,6 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
                      saveFile(jsonData, filename, ispublic); // Pass the latest jsonData value
                    }}
                  >
-                  
                    <input
                      type="text"
                      onChange={(e) => setFileName(e.target.value)}
@@ -810,7 +839,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
                        type="submit"
                        className="px-3 py-2 mt-3  bg-black text-white rounded-md hover:bg-neutral-700 transition-colors"
                      >
-                      { username == user.username && filename == projectname  ? "Save" : "Create" }
+                    {isExistingProject ? "Save" : "Create"}
                      </button>
                    </div>
                  </form>
@@ -880,7 +909,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
 
 const FlowApp = ({ user }: any) => (
   <ReactFlowProvider>
-    <FlowWithPathExtractor user={user} uid={user.uid} />
+    <FlowWithPathExtractor user={user} uid={user?.uid} />
   </ReactFlowProvider>
 );
 

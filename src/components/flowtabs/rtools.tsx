@@ -7,7 +7,7 @@ type RToolsProps = {
 };
 
 const RTools = ({ onRToolsChange,currentrtools }: RToolsProps) => {
-  const [option, setOption] = useState<string | null>("Self_Query");
+  const [option, setOption] = useState<string | null>("Basic");
   // Handle radio button change
 
   useEffect(() => {

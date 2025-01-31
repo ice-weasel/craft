@@ -475,12 +475,12 @@ const FlowWithPathExtractor = () => {
   };
 
   const components = {
-    "Document Type": <DocuType onDocTypeChange={handleDocTypeChange} />,
-    Prompts: <Prompts onpromptsChange={handlePromptsChange} />,
-    Embeddings: <Embeddings onEmbeddingsChange={embeddingsChange} />,
-    "Retriever Techniques": <RTools onRToolsChange={rtoolsChange} />,
-    "Vector Store": <VSTools onVSToolsChange={vsToolsChange} />,
-    LLMs: <LLMs onLLMSelected={handleLLMSelected} />,
+    "Document Type": <DocuType onDocTypeChange={handleDocTypeChange} currentValue={option} />,
+    Prompts: <Prompts onpromptsChange={handlePromptsChange} currentprompts={prompts} />,
+    Embeddings: <Embeddings onEmbeddingsChange={embeddingsChange} currentembeddings={embeddings} />,
+    "Retriever Techniques": <RTools onRToolsChange={rtoolsChange} currentrtools={rtools} />,
+    "Vector Store": <VSTools onVSToolsChange={vsToolsChange} currentvstools={vstools} />,
+    LLMs: <LLMs onLLMSelected={handleLLMSelected} currentllm={selectedLLM} currenttemp={temperature} currentVerbose={isVerbose}/>,
   };
 
   //sidebar

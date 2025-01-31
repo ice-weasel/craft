@@ -7,7 +7,7 @@ type EmbeddingsProps = {
 };
 
 const Embeddings = ({ onEmbeddingsChange,currentembeddings }: EmbeddingsProps) => {
-  const [option, setOption] = useState<string | null>("");
+  const [option, setOption] = useState<string | null>("hugging_face");
   // Handle radio button change
 
   useEffect(() => {

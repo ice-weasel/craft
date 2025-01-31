@@ -351,6 +351,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
       await setDoc(fileDocRef, projectData);
 
       console.log("File saved successfully!");
+      closeModal()
       closeSaveModal();
     } catch (error) {
       console.error("Error saving file to Firestore:", error);

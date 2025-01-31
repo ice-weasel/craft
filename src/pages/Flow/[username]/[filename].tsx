@@ -1,7 +1,5 @@
-import React, { startTransition, useEffect } from "react";
-import { FaRegTrashAlt } from "react-icons/fa";
-import { useCallback, useRef, useState } from "react";
-import { X } from "lucide-react";
+import React, { startTransition, useEffect,useCallback, useRef, useState } from "react";
+import { useRouter } from "next/router";
 import "tailwindcss/tailwind.css";
 import ReactFlow, {
   useNodesState,
@@ -17,32 +15,33 @@ import ReactFlow, {
   OnSelectionChangeParams,
   useReactFlow,
 } from "reactflow";
-import "reactflow/dist/style.css";
-import RTools from "@/components/flowtabs/rtools";
-import Prompts from "@/components/flowtabs/prompts";
-import LLMs from "@/components/flowtabs/llm";
-import DocuType from "@/components/flowtabs/documentype";
-import VSTools from "@/components/flowtabs/vstools";
-import Embeddings from "@/components/flowtabs/embeddings";
 import { Panel } from "reactflow";
-import SelfTab from "@/components/templates/self-reflex/self-tab";
-import Link from "next/link";
-import { IoIosArrowForward } from "react-icons/io";
+import "reactflow/dist/style.css";
 import { MdOutlineSaveAlt } from "react-icons/md";
-import { IoIosArrowDown } from "react-icons/io";
-import { IoIosArrowBack } from "react-icons/io";
+import { IoIosArrowDown,IoIosArrowForward,IoIosArrowBack } from "react-icons/io";
 import {
   collection,
   collectionGroup,
   doc,
   getDocs,
   query,
+  updateDoc,  
+  setDoc,
   where,
 } from "firebase/firestore";
-import { useRouter } from "next/router";
-import Conditionals from "@/components/conditionals";
 import { firedb } from "@/app/firebase";
+import RTools from "@/components/flowtabs/rtools";
+import Prompts from "@/components/flowtabs/prompts";
+import LLMs from "@/components/flowtabs/llm";
+import DocuType from "@/components/flowtabs/documentype";
+import VSTools from "@/components/flowtabs/vstools";
+import Embeddings from "@/components/flowtabs/embeddings";
+import Conditionals from "@/components/conditionals";
+import SelfTab from "@/components/templates/self-reflex/self-tab";
+import { FaRegTrashAlt } from "react-icons/fa";
 import { getUserData } from "@/utils/authUtils";
+import { FiUploadCloud } from "react-icons/fi";
+import { X } from "lucide-react";
 
 export async function getServerSideProps(context: any) {
   return getUserData(context);
@@ -55,7 +54,7 @@ const getId = (() => {
 
 const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [compLoaded,setisCompLoaded] = useState(false);
+  const [compLoaded, setisCompLoaded] = useState(false);
   /*React Flow requisities*/
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
@@ -70,12 +69,21 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   const [group1, setfirstGroup] = useState([]);
   const [group2, setSecondGroup] = useState([]);
 
+  const [isExpanded1, setIsExpanded1] = useState(true);
+  const [isExpanded2, setIsExpanded2] = useState(true);
+  const [saveModalOpen, setSaveModalOpen] = useState(false);
+  const [projectname ,setProjectname] = useState("");
+  const [filename, setFileName] = useState(projectname);
+
   /*Right Tab requisites*/
   const [jsonData, setJsonData] = useState<any>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [ispublic, setIsPublic] = useState(false);
 
   const openModal = (jsonString: string) => setIsOpen(true);
   const closeModal = () => setIsOpen(false);
+  const openSaveModal = () => setSaveModalOpen(true);
+  const closeSaveModal = () => setSaveModalOpen(false);
   const [option, setOption] = useState<string | null>(null);
   const [prompts, setPrompts] = useState<string | null>(null);
   const [customtext, setCustomtext] = useState<string | null | undefined>(null);
@@ -88,11 +96,12 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   const [vstools, setVSTools] = useState<string | null>(null);
 
   const { setViewport } = useReactFlow();
-  
 
   const router = useRouter();
+
+  const { username } = router.query;
+
   useEffect(() => {
-    
     const loadTemplate = async () => {
       const { username, filename } = router.query;
 
@@ -100,7 +109,6 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
 
       if (username == user.username) {
         try {
-
           setisCompLoaded(true);
           const projectsRef = collection(
             firedb,
@@ -108,14 +116,19 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
             uid as string,
             "projects"
           );
+
+          
+
           const q = query(projectsRef, where("filename", "==", filename));
           const querySnapshot = await getDocs(q);
 
           if (!querySnapshot.empty) {
             const project = querySnapshot.docs[0].data();
+            setProjectname(project.filename)
+            setIsPublic(project.isPublic)
             const flow = project.flow;
 
-            startTransition (() => {         
+            startTransition(() => {
               if (flow) {
                 const { x = 0, y = 0, zoom = 1 } = flow.viewport;
                 setNodes(flow.nodes || []);
@@ -128,51 +141,48 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
               setRTools(project.retriever_tools);
               setVSTools(project.vector_stores);
               setSelectedLLM(project.llm.llm_name);
-            
+
               setIsVerbose(project.llm.config.isVerbose);
               setTemperature(project.llm.config.temperature);
-            })
+            });
 
-              console.log("State updated:", {
-                doc_type: option,
-                embeddings: embeddings,
-                prompts: prompts,
-                retriever_tools: rtools,
-                vector_stores: vstools,
-                llm: selectedLLM,
-                
-                isVerbose: isVerbose,
-                temperature: temperature,
-              });         
+            console.log("State updated:", {
+              doc_type: option,
+              embeddings: embeddings,
+              prompts: prompts,
+              retriever_tools: rtools,
+              vector_stores: vstools,
+              llm: selectedLLM,
+
+              isVerbose: isVerbose,
+              temperature: temperature,
+            });
           }
         } catch (error) {
           console.error("Error loading template:", error);
         } finally {
           setIsLoading(false);
-         
         }
-      }
-      else {
+      } else {
         try {
-          
-          const usersRef = collectionGroup(firedb,"projects");
-          const q = query(usersRef,where("username","==",username));
+          const usersRef = collectionGroup(firedb, "projects");
+          const q = query(usersRef, where("username", "==", username));
           const querySnapshot = await getDocs(q);
-          
 
-          if(!querySnapshot.empty) {
+          if (!querySnapshot.empty) {
             const project = querySnapshot.docs[0].data();
-          
+            setProjectname(project.filename)
+            setIsPublic(project.isPublic)
             const flow = project.flow;
-         
+
             setisCompLoaded(true);
-            
-              if (flow) {
-                const { x = 0, y = 0, zoom = 1 } = flow.viewport;
-                setNodes(flow.nodes || []);
-                setEdges(flow.edges || []);
-                setViewport({ x, y, zoom });
-              }
+
+            if (flow) {
+              const { x = 0, y = 0, zoom = 1 } = flow.viewport;
+              setNodes(flow.nodes || []);
+              setEdges(flow.edges || []);
+              setViewport({ x, y, zoom });
+            }
 
             setOption(project.doc_type || null);
             setEmbedding(project.embeddings || null);
@@ -182,40 +192,48 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
             setSelectedLLM(project.llm?.llm_name || null);
             setIsVerbose(project.llm?.config?.isVerbose ?? null);
             setTemperature(project.llm?.config?.temperature ?? null);
-              
-           
           }
-        }catch(error) 
-        {
-          console.log("Error fetching request",error)
-        } finally{
-          setIsLoading(false)
-          
+        } catch (error) {
+          console.log("Error fetching request", error);
+        } finally {
+          setIsLoading(false);
         }
       }
     };
 
     loadTemplate();
-  }, [
-    router.query,
-    router.isReady,
-  ]);
-
-  console.log
+  }, [router.query, router.isReady]);
 
 
   useEffect(() => {
-    const allLoaded = [option, embeddings, prompts, rtools, vstools, selectedLLM, isVerbose, temperature].every(
-      (value) => value !== null
-    );
-  
-    if (allLoaded) {
-     setisCompLoaded(false);
-      console.log("State now:", { option, embeddings, prompts, rtools, vstools, selectedLLM, isVerbose, temperature });
-    }
-  }, [option, embeddings, prompts, rtools, vstools, selectedLLM, isVerbose, temperature]);
-  
+    const allLoaded = [
+      option,
+      embeddings,
+      prompts,
+      rtools,
+      vstools,
+      selectedLLM,
+      isVerbose,
+      temperature,
+    ].every((value) => value !== null);
 
+    if (allLoaded) {
+      setisCompLoaded(false);
+    }
+
+    setFileName(projectname)
+
+  }, [
+    option,
+    embeddings,
+    prompts,
+    rtools,
+    vstools,
+    selectedLLM,
+    isVerbose,
+    temperature,
+    projectname
+  ]);
 
   const [showModal, setShowModal] = useState(false);
   const [pendingEdges, setPendingEdges] = useState<Edge[]>([]);
@@ -280,24 +298,27 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   const typedGroup2 = group2 as string[];
 
   const handleDelete = useCallback(() => {
-    // Nodes: hallucination-checker, answer-checker, rewrite-node (9th)
-
     const deletableNodes = selectedElements.nodes.filter((node) =>
       canDeleteNode(node.id)
     );
     const deletableEdges = selectedElements.edges.filter((edge) =>
       canDeleteEdge(edge.id)
     );
-
+  
     const deletableNodeIds = deletableNodes.map((node) => node.id);
-    const newEdges = [...edges];
-
-    // Check for Group 1 deletion
+  
+    // Filter out deletable nodes and edges
+    setNodes((nds) =>
+      nds.filter((node) => !deletableNodeIds.includes(node.id))
+    );
+  
+    setEdges((eds) =>
+      eds.filter((edge) => !deletableEdges.map((e) => e.id).includes(edge.id))
+    );
+  
+    // Handle Group 1 deletion
     if (typedGroup1.some((id) => deletableNodeIds.includes(id))) {
-      // Remove Group 1 nodes
       setNodes((nds) => nds.filter((node) => !typedGroup1.includes(node.id)));
-
-      // Remove edges related to Group 1
       setEdges((eds) =>
         eds.filter(
           (edge) =>
@@ -305,17 +326,16 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
             !typedGroup1.includes(edge.target)
         )
       );
-
-      // Add a direct connection between Retrieve (id: '2') and Generate (id: '5')
-      newEdges.push({ id: "2-5", source: "2", target: "5" });
+  
+      // Avoid duplicate edges
+      setEdges((eds) =>
+        eds.some((e) => e.id === "2-5") ? eds : [...eds, { id: "2-5", source: "2", target: "5" }]
+      );
     }
-
-    // Check for Group 2 deletion
+  
+    // Handle Group 2 deletion
     if (typedGroup2.some((id) => deletableNodeIds.includes(id))) {
-      // Remove Group 2 nodes
       setNodes((nds) => nds.filter((node) => !typedGroup2.includes(node.id)));
-
-      // Remove edges related to Group 2
       setEdges((eds) =>
         eds.filter(
           (edge) =>
@@ -323,26 +343,13 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
             !typedGroup2.includes(edge.target)
         )
       );
-
-      // Add a direct connection between Generate (id: '5') and Stop (id: '10')
-      newEdges.push({ id: "5-10", source: "5", target: "10" });
-    }
-
-    // Handle regular deletable nodes and edges
-    if (deletableNodes.length > 0 || deletableEdges.length > 0) {
-      setNodes((nds) =>
-        nds.filter((node) => !deletableNodeIds.includes(node.id))
-      );
-
+  
       setEdges((eds) =>
-        eds.filter((edge) => !deletableEdges.map((e) => e.id).includes(edge.id))
+        eds.some((e) => e.id === "5-10") ? eds : [...eds, { id: "5-10", source: "5", target: "10" }]
       );
     }
-
-    // Update the edges with the new connections
-    setEdges((eds) => [...eds, ...newEdges]);
-
-    // Reset selected elements
+  
+    // Reset selection
     setSelectedElements({ nodes: [], edges: [] });
   }, [
     canDeleteNode,
@@ -352,10 +359,8 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
     selectedElements,
     setNodes,
     setEdges,
-    edges,
   ]);
-
-
+  
   const onDrop = useCallback(
     (event: React.DragEvent) => {
       event.preventDefault();
@@ -505,6 +510,68 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
     URL.revokeObjectURL(url);
   };
 
+  const saveFile = async (
+    jsonData: any,
+    filename: string,
+    ispublic: boolean
+  ) => {
+    try {
+      // Get the current date and format it as "dd-month-yyyy"
+
+      const flow = reactFlowInstance.toObject();
+      console.log("This is toFlow", flow);
+
+      const today = new Date();
+      const formattedDate = today.toLocaleString("default", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+      });
+
+      // Reference to the "projects" subcollection under the current user
+      const fileDocRef = doc(
+        collection(firedb, "Users", uid as string, "projects")
+      );
+
+      // Prepare the data to be saved
+      const projectData = {
+        username: user.username,
+        filename, // Project file name
+        isPublic: ispublic, // Visibility of the project
+        createdAt: formattedDate, // Formatted creation date
+        llm: {
+          llm_name: selectedLLM || "groq",
+          config: {
+            apiKey: apiKey || "23423452342",
+            temperature: temperature || "0.3",
+            isVerbose: isVerbose || "false",
+          },
+        },
+        doc_type: option || "pdf_type",
+        embeddings: embeddings || "hugging_face_type_embeddings",
+        retriever_tools: rtools || "multi-query",
+        vector_stores: vstools || "chroma_store",
+        prompts: prompts || "default",
+        customtext: customtext || null,
+        flow: flow, // Save flow as stringified JSON
+      };
+
+      // Save the document to Firestore
+      if(user.name==username && filename==projectname) {
+        await updateDoc(fileDocRef,projectData)
+      }else {
+        await setDoc(fileDocRef, projectData);
+      }
+      
+
+      console.log("File saved successfully!");
+      closeModal();
+      closeSaveModal();
+    } catch (error) {
+      console.error("Error saving file to Firestore:", error);
+    }
+  };
+
   const handleDocTypeChange = async (type: string | null) => {
     console.log("Document Type changed:", type);
     setOption(type);
@@ -555,17 +622,36 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   };
 
   const components = {
-    "Document Type": <DocuType onDocTypeChange={handleDocTypeChange} currentValue={option} />,
-    Prompts: <Prompts onpromptsChange={handlePromptsChange} currentprompts={prompts} />,
-    Embeddings: <Embeddings onEmbeddingsChange={embeddingsChange} currentembeddings={embeddings} />,
-    "Retriever Techniques": <RTools onRToolsChange={rtoolsChange} currentrtools={rtools} />,
-    "Vector Store": <VSTools onVSToolsChange={vsToolsChange} currentvstools={vstools} />,
-    LLMs: <LLMs onLLMSelected={handleLLMSelected} currentllm={selectedLLM} currenttemp={temperature} currentVerbose={isVerbose}/>,
+    "Document Type": (
+      <DocuType onDocTypeChange={handleDocTypeChange} currentValue={option} />
+    ),
+    Prompts: (
+      <Prompts onpromptsChange={handlePromptsChange} currentprompts={prompts} />
+    ),
+    Embeddings: (
+      <Embeddings
+        onEmbeddingsChange={embeddingsChange}
+        currentembeddings={embeddings}
+      />
+    ),
+    "Retriever Techniques": (
+      <RTools onRToolsChange={rtoolsChange} currentrtools={rtools} />
+    ),
+    "Vector Store": (
+      <VSTools onVSToolsChange={vsToolsChange} currentvstools={vstools} />
+    ),
+    LLMs: (
+      <LLMs
+        onLLMSelected={handleLLMSelected}
+        currentllm={selectedLLM}
+        currenttemp={temperature}
+        currentVerbose={isVerbose}
+      />
+    ),
   };
 
   //sidebar
-  const [isExpanded1, setIsExpanded1] = useState(true);
-  const [isExpanded2, setIsExpanded2] = useState(true);
+
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -621,6 +707,15 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
             >
               <MdOutlineSaveAlt size={20} />
             </button>
+          
+                <button
+              onClick={() => {
+                  exportPathsAsJson();
+                  openSaveModal();
+              }}
+               className="flex items-center gap-2 px-2 py-1 bg-black text-white rounded-lg hover:bg-violet-500 transition-colors">
+               <FiUploadCloud size={20} />
+             </button>
           </Panel>
           <Controls />
           <MiniMap />
@@ -662,6 +757,61 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
           </div>
         </div>
       )}
+      {saveModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md relative">
+            <button
+              onClick={closeSaveModal}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            >
+              <X size={24} />
+            </button>
+
+            <h2 className="text-xl font-bold mb-4">Preview: </h2>
+            <div className="mb-6">
+              <pre className="bg-gray-100 p-4 rounded-md overflow-auto max-h-60">
+                {jsonData
+                  ? JSON.stringify(jsonData, null, 2)
+                  : "No data loaded"}
+              </pre>
+            </div>
+                   <form
+                   onSubmit={(e) => {
+                     e.preventDefault(); // Prevent page reload
+                     saveFile(jsonData, filename, ispublic); // Pass the latest jsonData value
+                   }}
+                 >
+                  
+                   <input
+                     type="text"
+                     onChange={(e) => setFileName(e.target.value)}
+                     className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors"
+                     required
+                     value={projectname}
+                     placeholder="Enter File Name"
+                   />
+                   <div className="flex items-center gap-2">
+                     <input
+                       type="checkbox"
+                       name="isPublic"
+                       checked={ispublic}
+                       onChange={(e) => setIsPublic(e.target.checked)}
+                       className="active:bg-violet-500 focus:ring-violet-500"
+                     />
+                     <label className="font-medium ">Make your project public</label>
+                   </div>
+                   <div className="flex justify-end gap-2">
+                     <button
+                       type="submit"
+                       className="px-3 py-2 mt-3  bg-black text-white rounded-md hover:bg-neutral-700 transition-colors"
+                     >
+                      { username == user.username && filename == projectname  ? "Save" : "Create" }
+                     </button>
+                   </div>
+                 </form>
+          </div>
+        </div>
+      )}
 
       <div
         className={` w-1/5  bg-neutral flex flex-col shadow-xl border-1 border-black  transition-all duration-600 ease-in-out ${
@@ -676,39 +826,40 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
               <hr className="h-[1.5px] my-3 bg-black border-0 " />
             </div>
             <div className="p-5 flex flex-col space-y-2 transition-transform duration-600 overflow-y-auto">
-  {compLoaded ? ( // Show loader while data is being fetched
-    <div className="flex justify-center items-center h-40">
-      <span className="text-gray-600">Loading components...</span>
-    </div>
-  ) : (
-    Object.entries(components).map(([type, component], index) => (
-      <div key={type} className="border-b rounded-md p-3 bg-violet-200">
-        <button
-          onClick={() => toggleAccordion(index)}
-          className="w-full flex justify-between flex-row transition-transform duration-60 font-semibold text-black"
-        >
-          <div>{type}</div>
-          <div>
-            <IoIosArrowDown />
-          </div>
-        </button>
-        <div
-          ref={(el: any) => (contentRefs.current[index] = el)}
-          style={{
-            height: openIndices.includes(index)
-              ? contentRefs.current[index]?.scrollHeight
-              : 0,
-          }}
-          className="overflow-y-auto transition-[height] bg-violet-200 rounded-md duration-300 ease-in-out"
-        >
-          <div className="py-3">{component}</div>
-        </div>
-      </div>
-    ))
-  )}
-</div>
-
-          
+              {compLoaded ? ( // Show loader while data is being fetched
+                <div className="flex justify-center items-center h-40">
+                  <span className="text-gray-600">Loading components...</span>
+                </div>
+              ) : (
+                Object.entries(components).map(([type, component], index) => (
+                  <div
+                    key={type}
+                    className="border-b rounded-md p-3 bg-violet-200"
+                  >
+                    <button
+                      onClick={() => toggleAccordion(index)}
+                      className="w-full flex justify-between flex-row transition-transform duration-60 font-semibold text-black"
+                    >
+                      <div>{type}</div>
+                      <div>
+                        <IoIosArrowDown />
+                      </div>
+                    </button>
+                    <div
+                      ref={(el: any) => (contentRefs.current[index] = el)}
+                      style={{
+                        height: openIndices.includes(index)
+                          ? contentRefs.current[index]?.scrollHeight
+                          : 0,
+                      }}
+                      className="overflow-y-auto transition-[height] bg-violet-200 rounded-md duration-300 ease-in-out"
+                    >
+                      <div className="py-3">{component}</div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         )}
         <button

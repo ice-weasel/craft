@@ -5,6 +5,7 @@ import { X } from "lucide-react";
 
 type PromptsProps = {
   onpromptsChange: (type: string | null, customContent?: string) => void;
+  currentprompts : string | null
 };
 
 const selfprompt = "tempcontent";
@@ -41,11 +42,17 @@ const initialOptions = [
     content: "This is the prompt for rewriting.",
   },
 ];
-export default function Prompts({ onpromptsChange }: PromptsProps) {
+export default function Prompts({ onpromptsChange,currentprompts }: PromptsProps) {
   const [selectedOption, setSelectedOption] = useState<string>("default"); // Radio button state
   const [customText, setCustomText] = useState<string>(); // Toast text state
   const [selectedDropdown, setSelectedDropdown] = useState<string>(""); // Dropdown state
   const forceUpdate = useState(false)[1];
+
+  useEffect (() => {
+    if(currentprompts!=="default"){
+      setSelectedDropdown(currentprompts as string)
+    }
+  },[currentprompts])
 
   const handlePromptsChange = (
     selectedDropdown: string,

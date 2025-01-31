@@ -1,13 +1,21 @@
 // Tools.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 type EmbeddingsProps = {
   onEmbeddingsChange: (type: string | null) => void;
+  currentembeddings : string | null;
 };
 
-const Embeddings = ({ onEmbeddingsChange }: EmbeddingsProps) => {
+const Embeddings = ({ onEmbeddingsChange,currentembeddings }: EmbeddingsProps) => {
   const [option, setOption] = useState<string | null>("");
   // Handle radio button change
+
+  useEffect(() => {
+    if(currentembeddings) {
+      setOption(currentembeddings);
+    }
+  },[currentembeddings])
+
   const handleRadioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setOption(newValue);

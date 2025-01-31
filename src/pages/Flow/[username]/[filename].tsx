@@ -55,7 +55,7 @@ const getId = (() => {
 
 const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   const [isLoading, setIsLoading] = useState(true);
-
+  const [compLoaded,setisCompLoaded] = useState(false);
   /*React Flow requisities*/
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
@@ -80,17 +80,19 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   const [prompts, setPrompts] = useState<string | null>(null);
   const [customtext, setCustomtext] = useState<string | null | undefined>(null);
   const [isVerbose, setIsVerbose] = useState(false);
-  const [temperature, setTemperature] = useState("");
+  const [temperature, setTemperature] = useState<string | null>(null);
   const [selectedLLM, setSelectedLLM] = useState<string | null>(null);
-  const [apiKey, setApiKey] = useState("");
+  const [apiKey, setApiKey] = useState<string | null>(null);
   const [embeddings, setEmbedding] = useState<string | null>(null);
   const [rtools, setRTools] = useState<string | null>(null);
   const [vstools, setVSTools] = useState<string | null>(null);
 
   const { setViewport } = useReactFlow();
+  
 
   const router = useRouter();
   useEffect(() => {
+    
     const loadTemplate = async () => {
       const { username, filename } = router.query;
 
@@ -98,6 +100,8 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
 
       if (username == user.username) {
         try {
+
+          setisCompLoaded(true);
           const projectsRef = collection(
             firedb,
             "Users",
@@ -111,7 +115,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
             const project = querySnapshot.docs[0].data();
             const flow = project.flow;
 
-            
+            startTransition (() => {         
               if (flow) {
                 const { x = 0, y = 0, zoom = 1 } = flow.viewport;
                 setNodes(flow.nodes || []);
@@ -124,18 +128,30 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
               setRTools(project.retriever_tools);
               setVSTools(project.vector_stores);
               setSelectedLLM(project.llm.llm_name);
-              setApiKey(project.llm.config.apiKey);
+            
               setIsVerbose(project.llm.config.isVerbose);
               setTemperature(project.llm.config.temperature);
-           
+            })
+
+              console.log("State updated:", {
+                doc_type: option,
+                embeddings: embeddings,
+                prompts: prompts,
+                retriever_tools: rtools,
+                vector_stores: vstools,
+                llm: selectedLLM,
+                
+                isVerbose: isVerbose,
+                temperature: temperature,
+              });         
           }
         } catch (error) {
           console.error("Error loading template:", error);
         } finally {
           setIsLoading(false);
+         
         }
       }
-
       else {
         try {
           
@@ -149,8 +165,8 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
           
             const flow = project.flow;
          
-
-           
+            setisCompLoaded(true);
+            
               if (flow) {
                 const { x = 0, y = 0, zoom = 1 } = flow.viewport;
                 setNodes(flow.nodes || []);
@@ -158,15 +174,15 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
                 setViewport({ x, y, zoom });
               }
 
-              setOption(project.doc_type);
-              setEmbedding(project.embeddings);
-              setPrompts(project.prompts);
-              setRTools(project.retriever_tools);
-              setVSTools(project.vector_stores);
-              setSelectedLLM(project.llm.llm_name);
-              setApiKey(project.llm.config.apiKey);
-              setIsVerbose(project.llm.config.isVerbose);
-              setTemperature(project.llm.config.temperature);
+            setOption(project.doc_type || null);
+            setEmbedding(project.embeddings || null);
+            setPrompts(project.prompts || null);
+            setRTools(project.retriever_tools || null);
+            setVSTools(project.vector_stores || null);
+            setSelectedLLM(project.llm?.llm_name || null);
+            setIsVerbose(project.llm?.config?.isVerbose ?? null);
+            setTemperature(project.llm?.config?.temperature ?? null);
+              
            
           }
         }catch(error) 
@@ -174,6 +190,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
           console.log("Error fetching request",error)
         } finally{
           setIsLoading(false)
+          
         }
       }
     };
@@ -182,21 +199,23 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   }, [
     router.query,
     router.isReady,
-    setEdges,
-    setNodes,
-    setViewport,
-    uid,
-    user.username,
-    option,
-    embeddings,
-    prompts,
-    rtools,
-    vstools,
-    selectedLLM,
-    apiKey,
-    isVerbose,
-    temperature
   ]);
+
+  console.log
+
+
+  useEffect(() => {
+    const allLoaded = [option, embeddings, prompts, rtools, vstools, selectedLLM, isVerbose, temperature].every(
+      (value) => value !== null
+    );
+  
+    if (allLoaded) {
+     setisCompLoaded(false);
+      console.log("State now:", { option, embeddings, prompts, rtools, vstools, selectedLLM, isVerbose, temperature });
+    }
+  }, [option, embeddings, prompts, rtools, vstools, selectedLLM, isVerbose, temperature]);
+  
+
 
   const [showModal, setShowModal] = useState(false);
   const [pendingEdges, setPendingEdges] = useState<Edge[]>([]);
@@ -335,9 +354,6 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
     setEdges,
     edges,
   ]);
-
-  const [forceUpdate, setForceUpdate] = useState(false);
-
 
 
   const onDrop = useCallback(
@@ -489,7 +505,8 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
     URL.revokeObjectURL(url);
   };
 
-  const handleDocTypeChange = (type: string | null) => {
+  const handleDocTypeChange = async (type: string | null) => {
+    console.log("Document Type changed:", type);
     setOption(type);
   };
 
@@ -505,7 +522,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
 
   const contentRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  const handlePromptsChange = (
+  const handlePromptsChange = async (
     prompts: string | null,
     customContent?: string | null
   ) => {
@@ -513,19 +530,19 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
     setCustomtext(customContent);
   };
 
-  const rtoolsChange = (rtools: string | null) => {
+  const rtoolsChange = async (rtools: string | null) => {
     setRTools(rtools);
   };
 
-  const vsToolsChange = (vstools: string | null) => {
+  const vsToolsChange = async (vstools: string | null) => {
     setVSTools(vstools);
   };
 
-  const embeddingsChange = (embeds: string | null) => {
+  const embeddingsChange = async (embeds: string | null) => {
     setEmbedding(embeds);
   };
 
-  const handleLLMSelected = (
+  const handleLLMSelected = async (
     llm: string | null,
     temperature: string,
     isVerbose: boolean,
@@ -538,12 +555,12 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   };
 
   const components = {
-    "Document Type": <DocuType onDocTypeChange={handleDocTypeChange} />,
-    Prompts: <Prompts onpromptsChange={handlePromptsChange} />,
-    Embeddings: <Embeddings onEmbeddingsChange={embeddingsChange} />,
-    "Retriever Techniques": <RTools onRToolsChange={rtoolsChange} />,
-    "Vector Store": <VSTools onVSToolsChange={vsToolsChange} />,
-    LLMs: <LLMs onLLMSelected={handleLLMSelected} />,
+    "Document Type": <DocuType onDocTypeChange={handleDocTypeChange} currentValue={option} />,
+    Prompts: <Prompts onpromptsChange={handlePromptsChange} currentprompts={prompts} />,
+    Embeddings: <Embeddings onEmbeddingsChange={embeddingsChange} currentembeddings={embeddings} />,
+    "Retriever Techniques": <RTools onRToolsChange={rtoolsChange} currentrtools={rtools} />,
+    "Vector Store": <VSTools onVSToolsChange={vsToolsChange} currentvstools={vstools} />,
+    LLMs: <LLMs onLLMSelected={handleLLMSelected} currentllm={selectedLLM} currenttemp={temperature} currentVerbose={isVerbose}/>,
   };
 
   //sidebar
@@ -659,41 +676,39 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
               <hr className="h-[1.5px] my-3 bg-black border-0 " />
             </div>
             <div className="p-5 flex flex-col space-y-2 transition-transform duration-600 overflow-y-auto">
-              {Object.entries(components).map(([type, component], index) => (
-                <div
-                  key={type}
-                  className="border-b rounded-md p-3 bg-violet-200 "
-                >
-                  <button
-                    onClick={() => toggleAccordion(index)}
-                    className="w-full flex justify-between flex-row transition-transform duration-60 font-semibold text-black"
-                  >
-                    <div>{type}</div>
-                    <div>
-                      <IoIosArrowDown />
-                    </div>
-                    {/* <span
-                  id={`icon-${index}`}
-                  className="transition-transform duration-300"
-                  dangerouslySetInnerHTML={{
-                    __html: openIndices.includes(index) ? minusSVG : plusSVG,
-                  }}
-                />*/}
-                  </button>
-                  <div
-                    ref={(el: any) => (contentRefs.current[index] = el)}
-                    style={{
-                      height: openIndices.includes(index)
-                        ? contentRefs.current[index]?.scrollHeight
-                        : 0,
-                    }}
-                    className="overflow-y-auto transition-[height] bg-violet-200 rounded-md duration-300 ease-in-out"
-                  >
-                    <div className="py-3">{component}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
+  {compLoaded ? ( // Show loader while data is being fetched
+    <div className="flex justify-center items-center h-40">
+      <span className="text-gray-600">Loading components...</span>
+    </div>
+  ) : (
+    Object.entries(components).map(([type, component], index) => (
+      <div key={type} className="border-b rounded-md p-3 bg-violet-200">
+        <button
+          onClick={() => toggleAccordion(index)}
+          className="w-full flex justify-between flex-row transition-transform duration-60 font-semibold text-black"
+        >
+          <div>{type}</div>
+          <div>
+            <IoIosArrowDown />
+          </div>
+        </button>
+        <div
+          ref={(el: any) => (contentRefs.current[index] = el)}
+          style={{
+            height: openIndices.includes(index)
+              ? contentRefs.current[index]?.scrollHeight
+              : 0,
+          }}
+          className="overflow-y-auto transition-[height] bg-violet-200 rounded-md duration-300 ease-in-out"
+        >
+          <div className="py-3">{component}</div>
+        </div>
+      </div>
+    ))
+  )}
+</div>
+
+          
           </div>
         )}
         <button

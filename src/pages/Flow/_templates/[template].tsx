@@ -24,36 +24,42 @@ import "reactflow/dist/style.css";
 import RTools from "@/components/flowtabs/rtools";
 import Prompts from "@/components/flowtabs/prompts";
 import LLMs from "@/components/flowtabs/llm";
-import { ChevronRight } from "lucide-react";
-import Image from "next/image";
 import DocuType from "@/components/flowtabs/documentype";
 import VSTools from "@/components/flowtabs/vstools";
-import GTools from "@/components/flowtabs/embeddings";
-import Nodes from "@/components/templates/self-reflex/nodes";
-import Checkers from "@/components/templates/self-reflex/checkers";
 import Embeddings from "@/components/flowtabs/embeddings";
 import { Panel } from "reactflow";
 import SelfTab from "@/components/templates/self-reflex/self-tab";
-import Link from "next/link";
 import { IoIosArrowForward } from "react-icons/io";
 import { MdOutlineSaveAlt } from "react-icons/md";
-import { IoIosArrowDown } from "react-icons/io";
-import { IoIosArrowBack } from "react-icons/io";
+import { IoIosArrowDown,IoIosArrowBack } from "react-icons/io";
 import { useRouter } from "next/router";
 import Conditionals from "@/components/conditionals";
 import { RiShareForwardLine } from "react-icons/ri";
 import { MdOutlineDownloading } from "react-icons/md";
+import { getUserData } from "@/utils/authUtils";
+import { collection, doc, setDoc } from "firebase/firestore";
+import { firedb } from "@/app/firebase";
+import { FiUploadCloud } from "react-icons/fi";
 
+export async function getServerSideProps(context: any) {
+ return getUserData(context);
+}
 
 const getId = (() => {
   let id = 0;
   return () => `dndnode_${id++}`;
 })();
 
-const FlowWithPathExtractor = () => {
+const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   /*React Flow requisities*/
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
+  const [saveModalOpen, setSaveModalOpen] = useState(false);
+  const [filename, setFileName] = useState("");
+  const [ispublic, setIsPublic] = useState(true);
+  const openSaveModal = () => setSaveModalOpen(true);
+  const closeSaveModal = () => setSaveModalOpen(false);
+
   const [selectedElements, setSelectedElements] = useState<{
     nodes: Node[];
     edges: Edge[];
@@ -426,6 +432,63 @@ const FlowWithPathExtractor = () => {
     URL.revokeObjectURL(url);
   };
 
+const saveFile = async (
+    jsonData: any,
+    filename: string,
+    ispublic: boolean
+  ) => {
+    try {
+      // Get the current date and format it as "dd-month-yyyy"
+
+      const flow = reactFlowInstance.toObject();
+      console.log("This is toFlow", flow);
+
+      const today = new Date();
+      const formattedDate = today.toLocaleString("default", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+      });
+
+      // Reference to the "projects" subcollection under the current user
+      const fileDocRef = doc(
+        collection(firedb, "Users", uid as string, "projects")
+      );
+
+      // Prepare the data to be saved
+      const projectData = {
+        username:user.username,
+        filename, // Project file name
+        isPublic: ispublic, // Visibility of the project
+        createdAt: formattedDate, // Formatted creation date
+        llm: {
+          llm_name: selectedLLM || "groq",
+          config: {
+            apiKey: apiKey || "23423452342",
+            temperature: temperature || "0.3",
+            isVerbose: isVerbose || "false",
+          },
+        },
+        doc_type: option || "pdf_type",
+        embeddings: embeddings || "hugging_face_type_embeddings",
+        retriever_tools: rtools || "multi-query",
+        vector_stores: vstools || "chroma_store",
+        prompts: prompts || "default",
+        customtext: customtext || null,
+        flow: flow, // Save flow as stringified JSON
+      };
+
+      // Save the document to Firestore
+      await setDoc(fileDocRef, projectData);
+
+      console.log("File saved successfully!");
+      closeModal()
+      closeSaveModal();
+    } catch (error) {
+      console.error("Error saving file to Firestore:", error);
+    }
+  };
+
   const handleDocTypeChange = (type: string | null) => {
     setOption(type);
   };
@@ -651,6 +714,15 @@ const FlowWithPathExtractor = () => {
             >
               <MdOutlineSaveAlt size={20} />
             </button>
+              <button
+               onClick={() => {
+                exportPathsAsJson();
+                openSaveModal();
+                }}
+                className="flex items-center gap-2 px-2 py-1 bg-black text-white rounded-lg hover:bg-violet-500 transition-colors"
+                >
+                <FiUploadCloud size={20} />
+                </button>
             <button
               onClick={() => {
                 handleClick();
@@ -669,6 +741,12 @@ const FlowWithPathExtractor = () => {
           <MiniMap />
           <Background />
         </ReactFlow>
+        <Conditionals
+          isOpen={showModal}
+          edges={pendingEdges}
+          onClose={() => setShowModal(false)}
+          onSave={handleEdgeLabels}
+        />
         {isModalOpen && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white p-4 rounded-lg w-1/3">
@@ -696,12 +774,62 @@ const FlowWithPathExtractor = () => {
             </div>
           </div>
         )}
-        <Conditionals
-          isOpen={showModal}
-          edges={pendingEdges}
-          onClose={() => setShowModal(false)}
-          onSave={handleEdgeLabels}
-        />
+
+        {saveModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                  <div className="bg-white rounded-lg p-6 w-full max-w-md relative">
+                    <button
+                      onClick={() => {closeModal();closeSaveModal()}}
+                      className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+                    >
+                      <X size={24} />
+                    </button>
+        
+                    <h2 className="text-xl font-bold mb-4">Preview: </h2>
+                    <div className="mb-6">
+                      <pre className="bg-gray-100 p-4 rounded-md overflow-auto max-h-60">
+                        {jsonData
+                          ? JSON.stringify(jsonData, null, 2)
+                          : "No data loaded"}
+                      </pre>
+                    </div>
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault(); // Prevent page reload
+                        saveFile(jsonData, filename, ispublic); // Pass the latest jsonData value
+                      }}
+                    >
+                      <input
+                        type="text"
+                        onChange={(e) => setFileName(e.target.value)}
+                        className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors"
+                        required
+                        placeholder="Enter File Name"
+                      />
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          name="isPublic"
+                          checked
+                          onChange={(e) => setIsPublic(e.target.checked)}
+                          className="active:bg-violet-500 focus:ring-violet-500"
+                        />
+                        <label className="font-medium ">Make your project public</label>
+                      </div>
+                      <div className="flex justify-end gap-2">
+                        <button
+                          type="submit"
+                          className="px-3 py-2 mt-3  bg-black text-white rounded-md hover:bg-neutral-700 transition-colors"
+                        >
+                          Save
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              )}
+              
+        
       </div>
       {isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center h-screen">
@@ -794,9 +922,9 @@ const FlowWithPathExtractor = () => {
   );
 };
 
-const FlowApp = () => (
+const FlowApp = ({ user }: any) => (
   <ReactFlowProvider>
-    <FlowWithPathExtractor />
+    <FlowWithPathExtractor  user={user} uid={user.uid}/>
   </ReactFlowProvider>
 );
 

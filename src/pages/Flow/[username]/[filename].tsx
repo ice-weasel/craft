@@ -46,6 +46,7 @@ import { FiUploadCloud } from "react-icons/fi";
 import { X } from "lucide-react";
 import Toast from "@/components/toast";
 import CustomNode from "@/components/darkreactflow";
+import '@/styles/styles.css'
 
 export async function getServerSideProps(context: any) {
   return getUserData(context,true);
@@ -61,8 +62,10 @@ const getId = (() => {
 })();
 
 const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
+  const [flowRestored,setFlowRestored] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [compLoaded, setisCompLoaded] = useState(false);
+  
   /*React Flow requisities*/
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
@@ -146,6 +149,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
                 setNodes(flow.nodes || []);
                 setEdges(flow.edges || []);
                 setViewport({ x, y, zoom });
+                setFlowRestored(true);
               }
               setOption(project.doc_type);
               setEmbedding(project.embeddings);
@@ -194,6 +198,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
               setNodes(flow.nodes || []);
               setEdges(flow.edges || []);
               setViewport({ x, y, zoom });
+              setFlowRestored(true);
             }
 
             setOption(project.doc_type || null);
@@ -235,6 +240,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
 
     setFileName(projectname)
 
+    
     const checkIfProjectExists = async () => {
       if (!uid || !filename) return;
       
@@ -243,9 +249,8 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
       
       setIsExistingProject(docSnap.exists()); // true if project exists, false otherwise
     };
-  
-    checkIfProjectExists(); 
 
+    checkIfProjectExists(); 
   }, [
     option,
     embeddings,
@@ -258,6 +263,8 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
     projectname,
     uid, filename
   ]);
+
+ 
 
   const [showModal, setShowModal] = useState(false);
   const [pendingEdges, setPendingEdges] = useState<Edge[]>([]);
@@ -718,6 +725,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
 
       <div className="flex-1" ref={reactFlowWrapper}>
         <ReactFlow
+          className={flowRestored ? "custom-node" : ""}
           nodes={nodes}
           edges={edges}
           onNodesChange={onNodesChange}
@@ -728,6 +736,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
           onDragOver={onDragOver}
           onSelectionChange={onSelectionChange}
           nodeTypes={nodeTypes}
+          
           fitView
         >
           <Panel

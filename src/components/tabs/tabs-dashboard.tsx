@@ -7,6 +7,7 @@ import { FaLockOpen } from "react-icons/fa";
 import { collectionGroup, getDocs, query, where } from "firebase/firestore";
 import Link from "next/link";
 import { firedb } from "@/app/firebase";
+import { getUserData } from "@/utils/authUtils";
 
 
 
@@ -14,7 +15,7 @@ const pops = Poppins({
   weight: "500",
   subsets: ["latin"],
 });
-const Tabs = () => {
+const Tabs = ({user,uid}:any) => {
   const [activeTab, setActiveTab] = useState<number>(0);
   const [projects, setProjects] = useState<any[]>([]); // Store the fetched projects
   const [loading, setLoading] = useState<boolean>(true); // Track loading state
@@ -283,13 +284,15 @@ const Tabs = () => {
                         </div>
                        
                       </div>
-                      <div className="md:text-4xl text-xl font-semibold pb-5">
+                      <div className="md:text-4xl text-xl font-semibold space-y-2 pb-5">
                         <h1 className={pops.className}>{project.filename}</h1>
+                        <h1 className="text-base font-normal">By: {project.username}</h1>
                       </div>
                      
                     </div>
                     <div>
                       <Link href={`/Flow/${project.username}/${project.filename}`}>
+
                         <button className="flex flex-row justify-between w-full bg-violet-300 md:p-3 p-1 rounded-full hover:bg-violet-200">
                           <div className="md:text-md text-sm font-semibold pl-4">
                             Edit

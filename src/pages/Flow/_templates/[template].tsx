@@ -40,10 +40,8 @@ import { getUserData } from "@/utils/authUtils";
 import { collection, doc, setDoc } from "firebase/firestore";
 import { firedb } from "@/app/firebase";
 import { FiUploadCloud } from "react-icons/fi";
+import '@/styles/styles.css'
 
-export async function getServerSideProps(context: any) {
- return getUserData(context);
-}
 
 const getId = (() => {
   let id = 0;
@@ -298,7 +296,8 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         id: getId(),
         type,
         position,
-        data, // Applying the custom data to the node
+        data,
+        className:'custom-node'
       };
 
       setNodes((nds) => nds.concat(newNode));
@@ -667,15 +666,15 @@ const saveFile = async (
     <div className="flex flex-row h-screen  ">
       <div
         className={`
-          w-1/5  bg-neutral flex flex-col shadow-xl border-1 border-black  transition-all duration-600 ease-in-out h-full
-          ${isExpanded1 ? "w-1/5" : "w-14 bg-indigo-100"}
+          w-1/5  bg-zinc-900 flex flex-col shadow-xl border-2   border-black  transition-all duration-600 ease-in-out h-full
+          ${isExpanded1 ? "w-1/5" : "w-14 bg-slate-950"}
         `}
       >
         {/* I want to do freaky shit on template change so that when it loads up correct thingy on selftab */}
         {isExpanded1 && <SelfTab />}
         <button
           onClick={() => setIsExpanded1(!isExpanded1)}
-          className="absolute bottom-5 left-2 p-2 rounded-full hover:bg-gray-200 transition-transform duration-300 ease-in-out"
+          className="absolute bottom-5 left-2 p-2 rounded-full bg-indigo-500 hover:bg-gray-200 transition-transform duration-300 ease-in-out"
         >
           {isExpanded1 ? <IoIosArrowBack /> : <IoIosArrowForward />}
         </button>
@@ -696,7 +695,7 @@ const saveFile = async (
         >
           <Panel
             position="top-center"
-            className="bg-white shadow-md rounded-lg p-1 m-2 flex gap-3"
+            className="bg-zinc-900 shadow-md rounded-lg p-1.5 m-2 flex gap-3"
           >
             <button
               onClick={handleDelete}
@@ -710,7 +709,7 @@ const saveFile = async (
             <button
               onClick={exportPathsAsJson}
               //onClick={openModal}
-              className="flex items-center gap-2 px-2 py-1 bg-black text-white rounded-lg hover:bg-violet-500 transition-colors"
+              className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-indigo-400 transition-colors"
             >
               <MdOutlineSaveAlt size={20} />
             </button>
@@ -719,7 +718,7 @@ const saveFile = async (
                 exportPathsAsJson();
                 openSaveModal();
                 }}
-                className="flex items-center gap-2 px-2 py-1 bg-black text-white rounded-lg hover:bg-violet-500 transition-colors"
+                className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-indigo-400 transition-colors"
                 >
                 <FiUploadCloud size={20} />
                 </button>
@@ -728,7 +727,7 @@ const saveFile = async (
                 handleClick();
                 sendBackend();
               }}
-              className="flex items-center gap-2 px-2 py-1 bg-black text-white rounded-lg hover:bg-green-600 transition-colors group"
+              className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-green-600 transition-colors group"
             >
               <RiShareForwardLine size={20} />
               <span className="invisible group-hover:visible absolute bg-gray-100 text-black p-2  text-xs mt-16 ml-6 rounded-md">
@@ -738,8 +737,7 @@ const saveFile = async (
           </Panel>
 
           <Controls />
-          <MiniMap />
-          <Background />
+          <Background className="bg-zinc-800" />
         </ReactFlow>
         <Conditionals
           isOpen={showModal}
@@ -862,22 +860,22 @@ const saveFile = async (
       )}
 
       <div
-        className={` w-1/5  bg-neutral flex flex-col shadow-xl border-1 border-black  transition-all duration-600 ease-in-out ${
+        className={` w-1/5  bg-zinc-900 flex flex-col shadow-xl border-1 border-black  transition-all duration-600 ease-in-out ${
           isExpanded2 ? "w-1/5" : "w-14 bg-violet-200"
         }`}
       >
         {isExpanded2 && (
-          <div>
+          <div className="p-5">
             {" "}
-            <div className="p-5">
-              <h1 className="text-lg font-semibold text-right">Components</h1>
-              <hr className="h-[1.5px] my-3 bg-black border-0 " />
+            <div className=" bg-zinc-900 p-5">
+              <h1 className="text-lg  text-white font-semibold text-right">Components</h1>
+              <hr className="h-[1.5px] my-3 bg-indigo-500 border-0 " />
             </div>
-            <div className="p-5 flex flex-col space-y-2 transition-transform duration-600 overflow-y-auto">
+            <div className="p-5 flex flex-col bg-zinc-800 rounded-lg space-y-3 transition-transform duration-600 overflow-y-auto max-h-[90vh]">
               {Object.entries(components).map(([type, component], index) => (
                 <div
                   key={type}
-                  className="border-b rounded-md p-3 bg-violet-200 "
+                  className="border-1 border-indigo-300 rounded-md p-3 bg-indigo-300 "
                 >
                   <button
                     onClick={() => toggleAccordion(index)}
@@ -902,7 +900,7 @@ const saveFile = async (
                         ? contentRefs.current[index]?.scrollHeight
                         : 0,
                     }}
-                    className="overflow-y-auto transition-[height] bg-violet-200 rounded-md duration-300 ease-in-out"
+                    className="overflow-y-auto transition-[height] bg-indigo-300 rounded-md duration-300 ease-in-out"
                   >
                     <div className="py-3">{component}</div>
                   </div>
@@ -913,7 +911,7 @@ const saveFile = async (
         )}
         <button
           onClick={() => setIsExpanded2(!isExpanded2)}
-          className="absolute bottom-5 right-2 p-2 rounded-full hover:bg-gray-200 transition-transform duration-300 ease-in-out"
+          className="absolute bottom-5 right-2 p-2 rounded-full bg-indigo-500 hover:bg-gray-200 transition-transform duration-300 ease-in-out"
         >
           {isExpanded2 ? <IoIosArrowForward /> : <IoIosArrowBack />}
         </button>
@@ -924,7 +922,7 @@ const saveFile = async (
 
 const FlowApp = ({ user }: any) => (
   <ReactFlowProvider>
-    <FlowWithPathExtractor  user={user} uid={user.uid}/>
+    <FlowWithPathExtractor  user={user} uid={user?.uid}/>
   </ReactFlowProvider>
 );
 

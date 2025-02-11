@@ -7,6 +7,7 @@ import { FaLockOpen } from "react-icons/fa";
 import { collectionGroup, getDocs, query, where } from "firebase/firestore";
 import Link from "next/link";
 import { firedb } from "@/app/firebase";
+import { getUserData } from "@/utils/authUtils";
 
 
 
@@ -14,7 +15,7 @@ const pops = Poppins({
   weight: "500",
   subsets: ["latin"],
 });
-const Tabs = () => {
+const Tabs = ({user,uid}:any) => {
   const [activeTab, setActiveTab] = useState<number>(0);
   const [projects, setProjects] = useState<any[]>([]); // Store the fetched projects
   const [loading, setLoading] = useState<boolean>(true); // Track loading state
@@ -262,7 +263,7 @@ const Tabs = () => {
           </div>
         )}
        {activeTab === 2 && (
-          <div className="h-full flex flex-col md:flex-row md:space-y-0 md:space-x-3 space-x-0 space-y-4 ">
+          <div className="h-full flex flex-row w-full   flex-wrap justify-center mb-5 ">
             {loading ? (
               <div>Loading projects...</div>
             ) : (
@@ -270,7 +271,7 @@ const Tabs = () => {
                 projects.map((project, index) => (
                   <div
                     key={index}
-                    className="md:w-1/3 w-full bg-violet-100 rounded-lg flex flex-col justify-between md:space-y-0 space-y-4 p-6"
+                    className="w-1/4 h-full  bg-violet-100 rounded-lg flex flex-col justify-between space-y-0  p-6 mb-2 ml-2"
                   >
                     <div className="flex flex-col">
                       <div className="flex flex-row justify-between">
@@ -281,24 +282,17 @@ const Tabs = () => {
                             year: "numeric",
                           })}
                         </div>
-                        <button className="rounded-lg bg-neutral-100 hover:bg-red-200 md:p-2 p-1">
-                          <MdDelete className="hidden md:block" size={20} />
-                          <MdDelete className="block md:hidden" size={14} />
-                        </button>
+                       
                       </div>
-                      <div className="md:text-4xl text-xl font-semibold">
+                      <div className="md:text-4xl text-xl font-semibold space-y-2 pb-5">
                         <h1 className={pops.className}>{project.filename}</h1>
+                        <h1 className="text-base font-normal">By: {project.username}</h1>
                       </div>
-                      <button className="mt-2 border-2 rounded-full p-2 border-black md:h-6 h-4 w-1/6 text-sm text-center items-center flex justify-center">
-                        {project.isPublic ? (
-                          <FaLockOpen className="block " size={20} />
-                        ) : (
-                          <FaLock className="block md:hidden" size={10} />
-                        )}
-                      </button>
+                     
                     </div>
                     <div>
                       <Link href={`/Flow/${project.username}/${project.filename}`}>
+
                         <button className="flex flex-row justify-between w-full bg-violet-300 md:p-3 p-1 rounded-full hover:bg-violet-200">
                           <div className="md:text-md text-sm font-semibold pl-4">
                             Edit

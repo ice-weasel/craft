@@ -8,6 +8,8 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
+import '../../styles/styles.css'
+
 
 const initialNodes = [
   {
@@ -15,6 +17,8 @@ const initialNodes = [
     type: "input",
     data: { label: "Start" },
     position: { x: 250, y: 25 },
+    className:'custom-node'
+
   },
   {
     id: "2",
@@ -22,54 +26,63 @@ const initialNodes = [
     data: { label: "Retrieve" },
     size: { height: 100, width: 100 },
     position: { x: 250, y: 100 },
+    className: 'custom-node'
   },
  
   {
     id: "3",
     type: "default",
     data: { label : "grade-documents"},
-    position: { x:250, y:175 }
+    position: { x:250, y:175 },
+    className:'custom-node'
   },
   {
     id: "4",
     type: "conditional",
     data: { label: "relevancy-checker" },
     position: { x:250, y:250 },
+    className:'custom-node'
   },{
     id:"5",
     type:"default",
     data: { label: "Generate" },
     position: { x:250, y:325 },
+    className:'custom-node'
    },
   {
     id: "6",
     type: "default",
     data: { label: "hallucination-checker" },
     position: { x: 250, y: 400 },
+    className:'custom-node'
   },
   {
     id: "7",
     type:"default",
     data: { label: "answer-checker" },
-    position: {x: 250, y:475}
+    position: {x: 250, y:475},
+    className:'custom-node'
   },
   {
     id:"8",
     type:"default",
     data : { label: "rewrite-node" },
-    position: { x:50, y:250 }
+    position: { x:50, y:250 },
+    className:'custom-node'
   },
   {
     id: "9",
     type:"default",
     data: { label: "rewrite-node" },
-    position: { x:500,y:250 }
+    position: { x:500,y:250 },
+    className:'custom-node'
   },
   {
     id:"10",
     type:"output",
     data: { label: "Stop" },
-    position: { x:250,y:550 }
+    position: { x:250,y:550 },
+    className:'custom-node'
   }
   ];
 

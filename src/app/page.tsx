@@ -1,6 +1,7 @@
 
 import Dashboard from "@/pages/dashBoard";
 import Login from "@/pages/Login";
+import './globals.css'
 
 export default function Default()
 {

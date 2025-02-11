@@ -1,47 +1,45 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-html,
-body {
-  @apply h-full;
-}
+@tailwind components;
+@tailwind utilities;
 
 .reactflow-wrapper {
-  width: 100%;
-  height: 100%;
-}
-
-.react-flow__node {
-  cursor: grab;
-}
-
-.react-flow__node.dragging {
-  cursor: grabbing;
-}
+    width: 100%;
+    height: 100%;
+  }
+  
+  .react-flow__node {
+    cursor: grab;
+  }
+  
+  .react-flow__node.dragging {
+    cursor: grabbing;
+  }
 
 /* App.css */
 .custom-node {
   background: linear-gradient(145deg, #18181b, #09090b);
   color: white;
-  width: 100px;
+  width: 150px;
   border-radius: 8px;
   border: 2px solid #09090b;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  transition: all 0.2s ease-in-out;
+  
   padding: 12px;
   text-align: center;
 }
 
 .custom-node:hover {
-  transform: scale(1.05);
+  
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 .custom-node.selected {
-  border: 2px solid #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+  border: 2px solid #6366f1; /* indigo-500 */
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5); /* indigo-500 with 50% opacity */
 }
 
 .custom-node:active {
-  box-shadow: 0 0 10px 3px rgba(59, 130, 246, 0.7);
+  box-shadow: 0 0 10px 3px rgba(99, 102, 241, 0.7); /* indigo-500 with 70% opacity */
 }

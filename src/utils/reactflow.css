@@ -1,0 +1,8 @@
+/* App.css */
+.custom-node {
+    background-color: #1e293b; /* bg-slate-800 */
+    color: white;
+    border: 1px solid #374151; /* border-gray-700 */
+    border-radius: 0.5rem; /* rounded-lg */
+    padding: 0.5rem; /* p-2 */
+  }

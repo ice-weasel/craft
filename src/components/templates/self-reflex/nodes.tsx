@@ -11,11 +11,11 @@ export default function Nodes() {
 
   return (
     <>
-      <div className="flex flex-col ">
-        <p className=" text-black  rounded-lg font-semibold px-3 mt-3">Nodes</p>
+      <div className="flex border-2 rounded-xl bg-zinc-800 shadow-xl p-5 border-zinc-800 flex-col ">
+        <p className=" text-zinc-200  text-lg rounded-lg font-bold px-3 mt-3">Nodes</p>
         <div className="w-full flex flex-col p-3">
           <div
-            className="p-2  text-center flex gap-3 items-center text-blue  font-semibold hover:text-black bg-indigo-100 hover:bg-indigo-200 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
+            className="p-2  text-center flex gap-3 items-center text-blue  font-semibold hover:text-black bg-indigo-300 hover:bg-indigo-400 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
             onDragStart={(e) =>
               onDragStart(e, "default", {
                 label: "grade-documents",
@@ -30,7 +30,7 @@ export default function Nodes() {
             <p>Grade Documents</p>
           </div>
           <div
-            className="p-2  text-center flex gap-3 items-center text-blue  font-semibold hover:text-black bg-indigo-100 hover:bg-indigo-200 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
+            className="p-2  text-center flex gap-3 items-center text-blue  font-semibold hover:text-black bg-indigo-300 hover:bg-indigo-400 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
             onDragStart={(e) =>
               onDragStart(e, "default", {
                 label: "rewrite-node",

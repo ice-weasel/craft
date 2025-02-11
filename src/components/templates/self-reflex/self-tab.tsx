@@ -1,4 +1,4 @@
-import React, { useState ,useEffect,lazy, Suspense } from "react";
+import React, { useState, useEffect, lazy, Suspense } from "react";
 import Nodes from "./nodes";
 import Checkers from "./checkers";
 import Advanced from "./advanced";
@@ -9,80 +9,95 @@ import { useRouter } from "next/router";
 //   (basicTools:string | null,advancedTools:string | null) => void
 // }
 
-
 const SelfTab = () => {
-
   const [activeTab, setActiveTab] = useState<number>(0);
   const [basicComponents, setBasicComponents] = useState<JSX.Element[]>([]);
-  const [advancedComponents, setAdvancedComponents] = useState<JSX.Element[]>([]);
+  const [advancedComponents, setAdvancedComponents] = useState<JSX.Element[]>(
+    []
+  );
   const router = useRouter();
- useEffect(() => {
+  useEffect(() => {
     const loadTemplate = async () => {
       const { template } = router.query; // Assume `template` is the template name
       if (template) {
         try {
-          const {basic,advanced} = await import(`@/components/templates/${template}.js`);
-        
+          const { basic, advanced } = await import(
+            `@/components/templates/${template}.js`
+          );
 
           const basicImports = await Promise.all(
-            basic.map(async (comp:any) => {
-              const Component = (await import(`@/components/templates/self-reflex/${comp.toLowerCase()}`)).default;
+            basic.map(async (comp: any) => {
+              const Component = (
+                await import(
+                  `@/components/templates/self-reflex/${comp.toLowerCase()}`
+                )
+              ).default;
               return <Component key={comp} />;
             })
           );
           setBasicComponents(basicImports);
 
           const advancedImports = await Promise.all(
-            advanced.map(async (comp:any) => {
-              const Component = (await import(`@/components/templates/self-reflex/${comp.toLowerCase()}`)).default;
+            advanced.map(async (comp: any) => {
+              const Component = (
+                await import(
+                  `@/components/templates/self-reflex/${comp.toLowerCase()}`
+                )
+              ).default;
               return <Component key={comp} />;
             })
           );
           setAdvancedComponents(advancedImports);
-
         } catch (error) {
-          console.error('Error loading template:', error);
+          console.error("Error loading template:", error);
         }
       } else {
-
-        
         // Load a generic or empty template if no template is selected
-        const basic  = ["Nodes","Checkers"];
+        const basic = ["Nodes", "Checkers"];
         const advanced = ["Advanced"];
 
         const basicImports = await Promise.all(
-          basic.map(async (comp:any) => {
-            const Component = (await import(`@/components/templates/self-reflex/${comp.toLowerCase()}`)).default;
+          basic.map(async (comp: any) => {
+            const Component = (
+              await import(
+                `@/components/templates/self-reflex/${comp.toLowerCase()}`
+              )
+            ).default;
             return <Component key={comp} />;
           })
         );
         setBasicComponents(basicImports);
 
         const advancedImports = await Promise.all(
-          advanced.map(async (comp:any) => {
-            const Component = (await import(`@/components/templates/self-reflex/${comp.toLowerCase()}`)).default;
+          advanced.map(async (comp: any) => {
+            const Component = (
+              await import(
+                `@/components/templates/self-reflex/${comp.toLowerCase()}`
+              )
+            ).default;
             return <Component key={comp} />;
           })
         );
         setAdvancedComponents(advancedImports);
-    
       }
     };
 
     loadTemplate();
-  },[router.query]);
-  
+  }, [router.query]);
 
   return (
-    <div className="p-5">
-      <h1 className="text-lg font-semibold">Tool Box</h1>
-      <hr className="h-[1.5px] my-3 bg-black border-0 " />
-      <div className="flex space-x-4 border-b border-gray-200 text-left ">
+    <div className="p-5 ">
+      <div className="">
+        <h1 className="text-lg  text-white font-semibold">Tool Box</h1>
+        <hr className="h-[1.5px] my-3 bg-indigo-500 border-0 " />
+      </div>
+
+      <div className="flex space-x-4  border-b border-gray-200 text-left ">
         <button
           className={`px-4 py-2 text-md text-left transition ${
             activeTab === 0
-              ? "text-black border-b-2 border-black font-semibold"
-              : "text-gray-500"
+              ? "text-indigo-400 border-b-2 border-indigo-300 font-bold"
+              : "text-white"
           }`}
           onClick={() => setActiveTab(0)}
         >
@@ -91,17 +106,17 @@ const SelfTab = () => {
         <button
           className={`px-4 py-2 text-md transition ${
             activeTab === 1
-              ? "text-black border-b-2 border-black font-semibold"
-              : "text-gray-500"
+              ? "text-indigo-400 border-b-2 border-indigo-300 font-bold"
+              : "text-white"
           }`}
           onClick={() => setActiveTab(1)}
         >
           Advanced
         </button>
       </div>
-      <Suspense fallback={<div>Loading...</div>}>
-        {activeTab === 0 && <div>{basicComponents}</div>}
-        {activeTab === 1 && <div>{advancedComponents}</div>}
+      <Suspense  fallback={<div>Loading...</div>}>
+        {activeTab === 0 && <div className="flex flex-col  gap-5 h-full justify-center  ">{basicComponents}</div>}
+        {activeTab === 1 && <div className="flex flex-col  gap-5 h-full justify-center  ">{advancedComponents}</div>}
       </Suspense>
     </div>
   );

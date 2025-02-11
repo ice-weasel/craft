@@ -25,14 +25,14 @@ const RTools = ({ onRToolsChange,currentrtools }: RToolsProps) => {
   };
   const dynamicText: { [key: string]: string } = {
     Basic: "You have selected the Basic option.",
-    "Self-Query": "The Self-Query option is selected for personalized queries.",
-    "Multi-Query": "Multi-Query allows multiple queries to be processed.",
+    "Self_Query": "The Self-Query option is selected for personalized queries.",
+    "Multi_Query": "Multi-Query allows multiple queries to be processed.",
   };
   return (
     <>
       <div className="flex flex-col space-y-3">
         {["Basic", "Self_Query", "Multi_Query"].map((type) => (
-          <label key={type} className="flex items-center cursor-pointer group">
+          <label key={type} className="flex items-center font-bold cursor-pointer group">
             <div className="relative">
               <input
                 type="radio"
@@ -42,11 +42,11 @@ const RTools = ({ onRToolsChange,currentrtools }: RToolsProps) => {
                 onChange={handleRadioChange}
                 className="sr-only" // Hide default radio but keep it accessible
               />
-              <div className="w-5 h-5 border-2 border-violet-400 rounded-full group-hover:border-violet-600 transition-colors">
+              <div className="w-5 h-5 border-2  border-indigo-500 rounded-full group-hover:border-indigo-600 transition-colors">
                 <div
                   className={`
             absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
-            w-3 h-3 rounded-full bg-violet-500 
+            w-3 h-3 rounded-full bg-indigo-800 
             transition-transform duration-200 ease-in-out
             ${option === type ? "scale-100" : "scale-0"}
           `}

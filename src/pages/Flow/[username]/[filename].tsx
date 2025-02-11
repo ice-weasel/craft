@@ -1,4 +1,4 @@
-import React, { startTransition, useEffect,useCallback, useRef, useState } from "react";
+import React, { startTransition, useEffect,useCallback, useRef, useState, ChangeEventHandler } from "react";
 import { useRouter } from "next/router";
 import "tailwindcss/tailwind.css";
 import ReactFlow, {
@@ -14,8 +14,9 @@ import ReactFlow, {
   Node,
   OnSelectionChangeParams,
   useReactFlow,
+  Panel
 } from "reactflow";
-import { Panel } from "reactflow";
+import { ColorMode } from '@xyflow/react'
 import "reactflow/dist/style.css";
 import { MdOutlineSaveAlt } from "react-icons/md";
 import { IoIosArrowDown,IoIosArrowForward,IoIosArrowBack } from "react-icons/io";
@@ -44,10 +45,15 @@ import { getUserData } from "@/utils/authUtils";
 import { FiUploadCloud } from "react-icons/fi";
 import { X } from "lucide-react";
 import Toast from "@/components/toast";
+import CustomNode from "@/components/darkreactflow";
 
 export async function getServerSideProps(context: any) {
   return getUserData(context,true);
 }
+
+const nodeTypes = {
+  custom: CustomNode,
+};
 
 const getId = (() => {
   let id = 0;
@@ -60,12 +66,14 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   /*React Flow requisities*/
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
+  const [colorMode, setColorMode] = useState<ColorMode>('dark');
   const [selectedElements, setSelectedElements] = useState<{
     nodes: Node[];
     edges: Edge[];
   }>({ nodes: [], edges: [] });
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  
   const [nonDeletableNodes, setnonDeleteableNodes] = useState([]);
   const [nonDeletableEdges, setnonDeleteableEdges] = useState([]);
   const [group1, setfirstGroup] = useState([]);
@@ -97,6 +105,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   const [embeddings, setEmbedding] = useState<string | null>(null);
   const [rtools, setRTools] = useState<string | null>(null);
   const [vstools, setVSTools] = useState<string | null>(null);
+
 
   const { setViewport } = useReactFlow();
 
@@ -404,6 +413,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
     [reactFlowInstance, setNodes]
   );
 
+ 
   const extractPaths = useCallback(() => {
     const paths: any = {};
     const visited = new Set();
@@ -564,17 +574,17 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         isPublic: ispublic, // Visibility of the project
         createdAt: formattedDate, // Formatted creation date
         llm: {
-          llm_name: selectedLLM || "groq",
+          llm_name: selectedLLM || "Groq",
           config: {
             apiKey: apiKey || "23423452342",
             temperature: temperature || "0.3",
             isVerbose: isVerbose || "false",
           },
         },
-        doc_type: option || "pdf_type",
-        embeddings: embeddings || "hugging_face_type_embeddings",
-        retriever_tools: rtools || "multi-query",
-        vector_stores: vstools || "chroma_store",
+        doc_type: option || "PDF",
+        embeddings: embeddings || "hugging_face",
+        retriever_tools: rtools || "Multi_Query",
+        vector_stores: vstools || "Chroma_store",
         prompts: prompts || "default",
         customtext: customtext || null,
         flow: flow, // Save flow as stringified JSON
@@ -692,7 +702,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
     <div className="flex flex-row h-screen  ">
       <div
         className={`
-          w-1/5  bg-neutral flex flex-col shadow-xl border-1 border-black  transition-all duration-600 ease-in-out h-full
+          w-1/5  bg-zinc-900  flex flex-col shadow-xl border-1 border-black  transition-all duration-600 ease-in-out h-full
           ${isExpanded1 ? "w-1/5" : "w-14 bg-indigo-100"}
         `}
       >
@@ -700,7 +710,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         {isExpanded1 && <SelfTab />}
         <button
           onClick={() => setIsExpanded1(!isExpanded1)}
-          className="absolute bottom-5 left-2 p-2 rounded-full hover:bg-gray-200 transition-transform duration-300 ease-in-out"
+          className="absolute bottom-5 left-2 p-2 rounded-full bg-indigo-500 hover:bg-gray-200 transition-transform duration-300 ease-in-out"
         >
           {isExpanded1 ? <IoIosArrowBack /> : <IoIosArrowForward />}
         </button>
@@ -717,11 +727,12 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
           onDrop={onDrop}
           onDragOver={onDragOver}
           onSelectionChange={onSelectionChange}
+          nodeTypes={nodeTypes}
           fitView
         >
           <Panel
             position="top-center"
-            className="bg-white shadow-md rounded-lg p-1 m-2 flex gap-3"
+            className="bg-zinc-900 shadow-md rounded-lg p-1 m-2 flex gap-3"
           >
             <button
               onClick={handleDelete}
@@ -734,7 +745,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
             </button>
             <button
               onClick={exportPathsAsJson}
-              className="flex items-center gap-2 px-2 py-1 bg-black text-white rounded-lg hover:bg-violet-500 transition-colors"
+              className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-violet-500 transition-colors"
             >
               <MdOutlineSaveAlt size={20} />
             </button>
@@ -744,13 +755,13 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
                   exportPathsAsJson();
                   openSaveModal();
               }}
-               className="flex items-center gap-2 px-2 py-1 bg-black text-white rounded-lg hover:bg-violet-500 transition-colors">
+               className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-violet-500 transition-colors">
                <FiUploadCloud size={20} />
              </button>
+         
           </Panel>
           <Controls />
-          <MiniMap />
-          <Background />
+          <Background className="bg-zinc-800"/>
           <Toast message={"Hello"}/>
         </ReactFlow>
         <Conditionals
@@ -848,18 +859,19 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
       )}
 
       <div
-        className={` w-1/5  bg-neutral flex flex-col shadow-xl border-1 border-black  transition-all duration-600 ease-in-out ${
+        className={` w-1/5  bg-zinc-900 flex flex-col shadow-xl border-1 border-black  transition-all duration-600 ease-in-out ${
           isExpanded2 ? "w-1/5" : "w-14 bg-violet-200"
         }`}
       >
         {isExpanded2 && (
-          <div>
+          <div className="max-h-screen p-5">
             {" "}
-            <div className="p-5">
-              <h1 className="text-lg font-semibold text-right">Components</h1>
-              <hr className="h-[1.5px] my-3 bg-black border-0 " />
+            <div className="">
+              <h1 className="text-lg text-white font-semibold text-right">Components</h1>
+              <hr className="h-[1.5px] my-3 bg-indigo-500 border-0 " />
             </div>
-            <div className="p-5 flex flex-col space-y-2 transition-transform duration-600 overflow-y-auto">
+            <div className="p-5 flex flex-col bg-zinc-800 rounded-lg space-y-3 transition-transform duration-600 overflow-y-auto max-h-[90vh]">
+
               {compLoaded ? ( // Show loader while data is being fetched
                 <div className="flex justify-center items-center h-40">
                   <span className="text-gray-600">Loading components...</span>
@@ -868,7 +880,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
                 Object.entries(components).map(([type, component], index) => (
                   <div
                     key={type}
-                    className="border-b rounded-md p-3 bg-violet-200"
+                    className="border-1 border-indigo-300 rounded-md p-3 bg-indigo-300"
                   >
                     <button
                       onClick={() => toggleAccordion(index)}
@@ -886,7 +898,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
                           ? contentRefs.current[index]?.scrollHeight
                           : 0,
                       }}
-                      className="overflow-y-auto transition-[height] bg-violet-200 rounded-md duration-300 ease-in-out"
+                      className="overflow-y-auto transition-[height] bg-indigo-300 rounded-md duration-300 ease-in-out"
                     >
                       <div className="py-3">{component}</div>
                     </div>
@@ -898,7 +910,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         )}
         <button
           onClick={() => setIsExpanded2(!isExpanded2)}
-          className="absolute bottom-5 right-2 p-2 rounded-full hover:bg-gray-200 transition-transform duration-300 ease-in-out"
+          className="absolute bottom-5 right-2 p-2 rounded-full bg-indigo-500 hover:bg-gray-200 transition-transform duration-300 ease-in-out"
         >
           {isExpanded2 ? <IoIosArrowForward /> : <IoIosArrowBack />}
         </button>

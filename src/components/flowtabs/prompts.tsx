@@ -133,19 +133,19 @@ export default function Prompts({ onpromptsChange,currentprompts }: PromptsProps
               onChange={() => handleChange("default")}
               className="sr-only"
             />
-            <div className="w-5 h-5 border-2 border-violet-400 rounded-full group-hover:border-violet-600 transition-colors">
+            <div className="w-5 h-5 border-2 border-indigo-500 rounded-full group-hover:border-indigo-600 transition-colors">
               {selectedOption === "default" && (
                 <div
                   className={`
                   absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
-                  w-3 h-3 rounded-full bg-violet-500 
+                  w-3 h-3 rounded-full bg-indigo-800 
                   transition-transform duration-200 ease-in-out
                 `}
                 ></div>
               )}
             </div>
           </div>
-          <span className="pl-3 text-gray-700 capitalize">
+          <span className="pl-3 text-gray-700 font-bold capitalize">
             Default Template
           </span>
         </label>
@@ -160,19 +160,19 @@ export default function Prompts({ onpromptsChange,currentprompts }: PromptsProps
               onChange={() => handleChange("custom")}
               className="sr-only"
             />
-            <div className="w-5 h-5 border-2 border-violet-400 rounded-full group-hover:border-violet-600 transition-colors">
+            <div className="w-5 h-5 border-2  border-indigo-500 rounded-full group-hover:border-indigo-600 transition-colors">
               {selectedOption === "custom" && (
                 <div
                   className={`
                   absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
-                  w-3 h-3 rounded-full bg-violet-500 
+                  w-3 h-3 rounded-full bg-indigo-800 
                   transition-transform duration-200 ease-in-out
                 `}
                 ></div>
               )}
             </div>
           </div>
-          <span className="pl-3 text-gray-700 capitalize">Custom Template</span>
+          <span className="pl-3 text-gray-700 font-bold capitalize">Custom Template</span>
         </label>
       </div>
 

@@ -13,7 +13,6 @@ import VSTools from "@/components/flowtabs/vstools";
 import Embeddings from "@/components/flowtabs/embeddings";
 import { Panel } from "reactflow";
 import SelfTab from "@/components/templates/self-reflex/self-tab";
-import Link from "next/link";
 import { IoIosArrowForward } from "react-icons/io";
 import { MdOutlineSaveAlt } from "react-icons/md";
 import { IoIosArrowDown } from "react-icons/io";
@@ -42,12 +41,23 @@ const initialNodes = [
     type: "input",
     data: { label: "Start" },
     position: { x: 250, y: 25 },
+    style: {
+      background: '#3f3f46', // zinc-700
+      color: 'black',
+      border: '1px solid #52525b' // zinc-600
+    }
   },
   {
     id: "10",
     type: "output",
     data: { label: "Stop" },
     position: { x: 250, y: 175 },
+    style: {
+      background: '#3f3f46', // zinc-700
+      color: 'black',
+      border: '1px solid #52525b' // zinc-600
+    }
+    
   },
 ];
 
@@ -326,26 +336,27 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
 
       // Prepare the data to be saved
       const projectData = {
-        username:user.username,
+        username: user.username,
         filename, // Project file name
         isPublic: ispublic, // Visibility of the project
         createdAt: formattedDate, // Formatted creation date
         llm: {
-          llm_name: selectedLLM || "groq",
+          llm_name: selectedLLM || "Groq",
           config: {
             apiKey: apiKey || "23423452342",
             temperature: temperature || "0.3",
             isVerbose: isVerbose || "false",
           },
         },
-        doc_type: option || "pdf_type",
-        embeddings: embeddings || "hugging_face_type_embeddings",
-        retriever_tools: rtools || "multi-query",
-        vector_stores: vstools || "chroma_store",
+        doc_type: option || "PDF",
+        embeddings: embeddings || "hugging_face",
+        retriever_tools: rtools || "Multi_Query",
+        vector_stores: vstools || "Chroma_store",
         prompts: prompts || "default",
         customtext: customtext || null,
         flow: flow, // Save flow as stringified JSON
       };
+
 
       // Save the document to Firestore
       await setDoc(fileDocRef, projectData);
@@ -419,14 +430,14 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
     <div className="flex flex-row h-screen  ">
       <div
         className={`
-          w-1/5  bg-neutral flex flex-col shadow-xl border-1 border-black  transition-all duration-600 ease-in-out
+          w-1/5  bg-zinc-900 flex flex-col shadow-xl border-1 border-black  transition-all duration-600 ease-in-out
           ${isExpanded1 ? "w-1/5" : "w-14 bg-indigo-100"}
         `}
       >
         {isExpanded1 && <SelfTab />}
         <button
           onClick={() => setIsExpanded1(!isExpanded1)}
-          className="absolute bottom-5 left-2 p-2 rounded-full hover:bg-gray-200 transition-transform duration-300 ease-in-out"
+          className="absolute bottom-5 left-2 p-2 rounded-full bg-indigo-500 hover:bg-gray-200 transition-transform duration-300 ease-in-out"
         >
           {isExpanded1 ? <IoIosArrowBack /> : <IoIosArrowForward />}
         </button>
@@ -577,14 +588,14 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
           <div className="h-screen">
             {" "}
             <div className="p-5">
-              <h1 className="text-lg font-semibold text-right">Components</h1>
-              <hr className="h-[1.5px] my-3 bg-black border-0 " />
+              <h1 className="text-lg text-white font-semibold text-right">Components</h1>
+              <hr className="h-[1.5px] my-3 bg-indigo-500 border-0 " />
             </div>
-            <div className="px-5 flex flex-col space-y-2 transition-transform duration-600 overflow-y-auto">
+            <div className="px-5 flex flex-col bg-zinc-800 space-y-2 transition-transform duration-600 overflow-y-auto">
               {Object.entries(components).map(([type, component], index) => (
                 <div
                   key={type}
-                  className="border-b rounded-md p-3 bg-violet-200 overflow-y-auto"
+                  className="border-b rounded-md p-3 bg-indigo-300 border-indigo-300 overflow-y-auto"
                 >
                   <button
                     onClick={() => toggleAccordion(index)}
@@ -609,7 +620,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
                         ? contentRefs.current[index]?.scrollHeight
                         : 0,
                     }}
-                    className="overflow-y-auto transition-[height] bg-violet-200 rounded-md duration-300 ease-in-out"
+                    className="overflow-y-auto transition-[height] bg-indigo-300 rounded-md duration-300 ease-in-out"
                   >
                     <div className="py-3">{component}</div>
                   </div>
@@ -620,7 +631,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         )}
         <button
           onClick={() => setIsExpanded2(!isExpanded2)}
-          className="absolute bottom-5 right-2 p-2 rounded-full hover:bg-gray-200 transition-transform duration-300 ease-in-out"
+          className="absolute bottom-5 right-2 p-2 rounded-full bg-indigo-500 hover:bg-gray-200 transition-transform duration-300 ease-in-out"
         >
           {isExpanded2 ? <IoIosArrowForward /> : <IoIosArrowBack />}
         </button>

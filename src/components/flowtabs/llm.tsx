@@ -85,7 +85,7 @@ export default function LLMs({ onLLMSelected,currentllm,currenttemp,currentVerbo
               value={option}
               checked={selectedOption === option}
               onChange={() => handleRadioChange(option)}
-              className="w-5 h-5 border border-violet-500 checked:bg-violet-500 checked:hover:bg-violet-500 checked:active:bg-violet-500 checked:focus:bg-violet-500 focus:bg-violet-500 focus:ring-violet-500"
+              className="w-5 h-5 border border-indigo-500 checked:bg-indigo-800 checked:hover:bg-indigo-500 checked:active:bg-indigo-500 checked:focus:bg-indigo-500 focus:bg-indigo-500 focus:ring-indigo-500"
             />
             {option}
           </label>
@@ -124,13 +124,13 @@ export default function LLMs({ onLLMSelected,currentllm,currenttemp,currentVerbo
                 name="isVerbose"
                 checked={dropdownData.isVerbose}
                 onChange={handleInputChange}
-                className="active:bg-violet-500 focus:ring-violet-500"
+                className="active:bg-indigo-500 focus:ring-indigo-600"
               />
               <label className="font-medium ">Is Verbose</label>
             </div>
             <button
               onClick={handleConfirm}
-              className="bg-violet-500 text-white px-4 py-2 rounded hover:bg-violet-400 checked:hover:bg-violet-500 checked:active:bg-violet-500 checked:focus:bg-violet-500 focus:bg-violet-500 focus:ring-violet-500"
+              className="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-400 "
             >
               Confirm
             </button>

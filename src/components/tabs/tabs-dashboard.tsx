@@ -262,7 +262,7 @@ const Tabs = () => {
           </div>
         )}
        {activeTab === 2 && (
-          <div className="h-full flex flex-col md:flex-row md:space-y-0 md:space-x-3 space-x-0 space-y-4 ">
+          <div className="h-full flex flex-row w-full   flex-wrap justify-center mb-5 ">
             {loading ? (
               <div>Loading projects...</div>
             ) : (
@@ -270,7 +270,7 @@ const Tabs = () => {
                 projects.map((project, index) => (
                   <div
                     key={index}
-                    className="md:w-1/3 w-full bg-violet-100 rounded-lg flex flex-col justify-between md:space-y-0 space-y-4 p-6"
+                    className="w-1/4 h-full  bg-violet-100 rounded-lg flex flex-col justify-between space-y-0  p-6 mb-2 ml-2"
                   >
                     <div className="flex flex-col">
                       <div className="flex flex-row justify-between">
@@ -281,21 +281,12 @@ const Tabs = () => {
                             year: "numeric",
                           })}
                         </div>
-                        <button className="rounded-lg bg-neutral-100 hover:bg-red-200 md:p-2 p-1">
-                          <MdDelete className="hidden md:block" size={20} />
-                          <MdDelete className="block md:hidden" size={14} />
-                        </button>
+                       
                       </div>
-                      <div className="md:text-4xl text-xl font-semibold">
+                      <div className="md:text-4xl text-xl font-semibold pb-5">
                         <h1 className={pops.className}>{project.filename}</h1>
                       </div>
-                      <button className="mt-2 border-2 rounded-full p-2 border-black md:h-6 h-4 w-1/6 text-sm text-center items-center flex justify-center">
-                        {project.isPublic ? (
-                          <FaLockOpen className="block " size={20} />
-                        ) : (
-                          <FaLock className="block md:hidden" size={10} />
-                        )}
-                      </button>
+                     
                     </div>
                     <div>
                       <Link href={`/Flow/${project.username}/${project.filename}`}>

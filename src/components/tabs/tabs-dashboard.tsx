@@ -54,8 +54,8 @@ const Tabs = ({username,user,uid}:TabsProps) => {
       }
     };
 
-  
-
+    
+    
     const fetchUserProjects = async () => {
         try{
           const projectsRef = collection(firedb, "Users", uid as string, "projects");

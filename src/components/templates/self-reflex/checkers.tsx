@@ -16,7 +16,7 @@ export default function Checkers() {
         </p>
         <div className="w-full flex flex-col p-3 ">
           <div
-            className="p-2 flex gap-3 items-center text-blue  font-semibold hover:text-black bg-indigo-300 hover:bg-indigo-400 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
+            className="p-2 flex gap-3 items-center text-blue  font-semibold hover:text-black bg-indigo-400 hover:bg-indigo-500 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
             onDragStart={(e) =>
               onDragStart(e, "default", {
                 label: "relevancy-checker",
@@ -31,7 +31,7 @@ export default function Checkers() {
             <p className="">Relevancy Checker</p>
           </div>
           <div
-            className="p-2 flex gap-3 items-center text-blue  font-semibold hover:text-black bg-indigo-300 hover:bg-indigo-400 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
+            className="p-2 flex gap-3 items-center text-blue  font-semibold hover:text-black bg-indigo-400 hover:bg-indigo-500 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
             onDragStart={(e) =>
               onDragStart(e, "default", {
                 label: "hallucination-checker",
@@ -46,7 +46,7 @@ export default function Checkers() {
             <p>Hallucination Checker</p>
           </div>
           <div
-            className="p-2  flex gap-3 items-center text-blue  font-semibold hover:text-black bg-indigo-300 hover:bg-indigo-400 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
+            className="p-2  flex gap-3 items-center text-blue  font-semibold hover:text-black bg-indigo-400 hover:bg-indigo-500 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
             onDragStart={(e) =>
               onDragStart(e, "default", {
                 label: "grounded-answer-checker",

@@ -398,7 +398,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
     setJsonData(exportData);
 
     //this is the thingy we win lesgo
-    openModal();
+    
 
     // Create and trigger download
   }, [
@@ -748,8 +748,9 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
 
             <button
               onClick={() => {
-                exportPathsAsJson();
                 openSaveModal();
+                exportPathsAsJson();
+                
               }}
               className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-indigo-400 transition-colors"
             >

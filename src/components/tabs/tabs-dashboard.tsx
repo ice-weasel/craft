@@ -24,6 +24,7 @@ const Tabs = ({username,user,uid}:TabsProps) => {
   const [projects,setProjects] = useState<any[]>([]);
   const [publicprojects, setPublicProjects] = useState<any[]>([]); // Store the fetched projects
   const [loading, setLoading] = useState<boolean>(true); // Track loading state
+  const [ispublic,setIsPublic] = useState<boolean>(true);
 
 
   useEffect(() => {
@@ -52,6 +53,8 @@ const Tabs = ({username,user,uid}:TabsProps) => {
         setLoading(false);
       }
     };
+
+  
 
     const fetchUserProjects = async () => {
         try{
@@ -136,9 +139,18 @@ const Tabs = ({username,user,uid}:TabsProps) => {
                   <h1 className={pops.className}>{project.filename}</h1>
                 </div>
                 <button className="mt-2 border-2 rounded-full p-2 border-black md:h-6 h-4 w-1/6 text-sm text-center items-center flex justify-center">
-                  <div>
-                    <FaLock className="block md:hidden" size={10} />
-                    <FaLock className="hidden md:block" size={16} />
+                <div>
+                    {project.isPublic ? (
+                      <>
+                        <FaLockOpen className="block md:hidden" size={10} />
+                        <FaLockOpen className="hidden md:block" size={16} />
+                      </>
+                    ) : (
+                      <>
+                        <FaLock className="block md:hidden" size={10} />
+                        <FaLock className="hidden md:block" size={16} />
+                      </>
+                    )}
                   </div>
                 </button>
               </div>
@@ -176,7 +188,7 @@ const Tabs = ({username,user,uid}:TabsProps) => {
                 </div>
               </div>
               <div className="">
-                <Link href = "/Flow/self_rag">
+                <Link href = "/Flow/_templates/self_rag">
                 <button className="flex flex-row justify-between w-full bg-violet-300 md:p-3 p-2 rounded-full hover:bg-violet-200">
                   <div className="md:text-md text-sm font-semibold pl-4">
                     Continue
@@ -220,7 +232,7 @@ const Tabs = ({username,user,uid}:TabsProps) => {
                 </div>
               </div>
               <div className="">
-                <Link href="/Flow/image_search">
+                <Link href="/Flow/_templates/image_search">
                 <button className="flex flex-row justify-between w-full bg-violet-300 md:p-3 p-2 rounded-full hover:bg-violet-200">
                   <div className="md:text-md text-sm font-semibold pl-4">
                     Continue

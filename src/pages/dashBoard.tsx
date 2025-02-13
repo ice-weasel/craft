@@ -153,7 +153,7 @@ const Dashboard =({ user,uid,projects }: { user: any,uid:any,projects:any }) => 
             />
             <button className="absolute z-10 md:bottom-8 bottom-4 md:left-8 left-4  md:w-2/5 w-2/3   p-2 pl-4 pr-4 md:h-1/6 h-8 text-black shadow-sm items-center rounded-full backdrop-blur-lg bg-white/30   hover:bg-transparent hover:shadow-md flex justify-between">
               {" "}
-              <Link href="" className="md:text-md text-sm">
+              <Link href="/Flow" className="md:text-md text-sm">
                 Create new workflows
               </Link>
               <div>

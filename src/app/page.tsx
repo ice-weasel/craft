@@ -6,6 +6,9 @@ import './globals.css'
 export default function Default()
 {
   return(
-    <Login/>
+    <div className="h-screen">
+      <Login/>
+    </div>
+    
   )
 }

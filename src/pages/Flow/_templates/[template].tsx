@@ -377,7 +377,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
       llm: {
         llm_name: selectedLLM || "groq",
         config: {
-          apiKey: apiKey || "23423452342",
+          apiKey: apiKey || "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",
           temperature: temperature || "0.3",
           isVerbose: isVerbose || "false"
         }
@@ -462,7 +462,7 @@ const saveFile = async (
         llm: {
           llm_name: selectedLLM || "Groq",
           config: {
-            apiKey: apiKey || "23423452342",
+            apiKey: apiKey || "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",
             temperature: temperature || "0.3",
             isVerbose: isVerbose || "false",
           },
@@ -578,7 +578,7 @@ const saveFile = async (
       llm: {
         llm_name: selectedLLM || "groq",
         config: {
-          apiKey: apiKey || "23423452342",
+          apiKey: apiKey || "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",
           temperature: temperature || "0.3",
           isVerbose: isVerbose || "false",
         },

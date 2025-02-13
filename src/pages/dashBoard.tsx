@@ -38,9 +38,6 @@ const Dashboard =({ user,uid,projects }: { user: any,uid:any,projects:any }) => 
     }
   }, [user]);
 
-
- 
-
   const auth = getAuth(firebaseApp);
 
   const handleLogout = async () => {

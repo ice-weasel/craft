@@ -706,9 +706,11 @@ const saveFile = async (
               <MdOutlineSaveAlt size={20} />
             </button>
               <button
-               onClick={() => {
+               onClick={() => { 
                 openSaveModal();
-                exportPathsAsJson();
+                  exportPathsAsJson();
+                
+                
                 }}
                 className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-indigo-400 transition-colors"
                 >

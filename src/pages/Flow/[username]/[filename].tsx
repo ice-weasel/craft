@@ -23,7 +23,9 @@ import ReactFlow, {
   useReactFlow,
   Panel,
 } from "reactflow";
+
 import { TbCameraDown } from "react-icons/tb";
+
 import { ColorMode } from "@xyflow/react";
 import "reactflow/dist/style.css";
 import html2canvas from "html2canvas";
@@ -59,10 +61,14 @@ import { FiUploadCloud } from "react-icons/fi";
 import { X } from "lucide-react";
 import Toast from "@/components/toast";
 import CustomNode from "@/components/darkreactflow";
+
 import { RiRobot3Line } from "react-icons/ri";
 import { RiShareForwardLine } from "react-icons/ri";
 import { MdOutlineDownloading } from "react-icons/md";
 import { SiStreamlit } from "react-icons/si";
+
+import "@/styles/styles.css";
+
 
 export async function getServerSideProps(context: any) {
   return getUserData(context, true);
@@ -78,8 +84,10 @@ const getId = (() => {
 })();
 
 const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
+  const [flowRestored, setFlowRestored] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [compLoaded, setisCompLoaded] = useState(false);
+
   /*React Flow requisities*/
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
@@ -157,7 +165,13 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
             startTransition(() => {
               if (flow) {
                 const { x = 0, y = 0, zoom = 1 } = flow.viewport;
-                setNodes(flow.nodes || []);
+
+                const restoredNodes = flow.nodes.map((node: any) => ({
+                  ...node,
+                  className: "custom-node", // Add the custom class here
+                }));
+
+                setNodes(restoredNodes || []);
                 setEdges(flow.edges || []);
                 setViewport({ x, y, zoom });
               }
@@ -187,6 +201,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         } catch (error) {
           console.error("Error loading template:", error);
         } finally {
+          setFlowRestored(true);
           setIsLoading(false);
         }
       } else {
@@ -205,7 +220,12 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
 
             if (flow) {
               const { x = 0, y = 0, zoom = 1 } = flow.viewport;
-              setNodes(flow.nodes || []);
+              const restoredNodes = flow.nodes.map((node: any) => ({
+                ...node,
+                className: "custom-node", // Add the custom class here
+              }));
+
+              setNodes(restoredNodes || []);
               setEdges(flow.edges || []);
               setViewport({ x, y, zoom });
             }
@@ -222,6 +242,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         } catch (error) {
           console.log("Error fetching request", error);
         } finally {
+          setFlowRestored(true);
           setIsLoading(false);
         }
       }
@@ -353,6 +374,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
       eds.filter((edge) => !deletableEdges.map((e) => e.id).includes(edge.id))
     );
 
+
     // Handle Group 1 deletion
     if (typedGroup1.some((id) => deletableNodeIds.includes(id))) {
       setNodes((nds) => nds.filter((node) => !typedGroup1.includes(node.id)));
@@ -390,6 +412,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
       );
     }
 
+
     // Reset selection
     setSelectedElements({ nodes: [], edges: [] });
   }, [
@@ -422,6 +445,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         id: getId(),
         type,
         position,
+        className: 'custom-node',
         data, // Applying the custom data to the node
       };
 
@@ -502,17 +526,16 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
       llm: {
         llm_name: selectedLLM || "groq",
         config: {
-          apiKey: apiKey || "23423452342",
+          apiKey: apiKey || "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",
           temperature: temperature || "0.3",
           isVerbose: isVerbose || "false",
         },
       },
-      doc_type: option || "pdf_type",
-      embeddings: embeddings || "hugging_face_type_embeddings",
-      retriever_tools: rtools || "multi-query",
-      vector_stores: vstools || "chroma_store",
+      doc_type: option || "PDF",
+      embeddings: embeddings || "hugging_face",
+      retriever_tools: rtools || "Multi_Query",
+      vector_stores: vstools || "Chroma_store",
       prompts: prompts || "default",
-      customtext: customtext || null,
       template: template || "custom-template",
       flowPaths: pathData, // Inject extracted paths here
     };
@@ -598,7 +621,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         llm: {
           llm_name: selectedLLM || "Groq",
           config: {
-            apiKey: apiKey || "23423452342",
+            apiKey: apiKey || "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",
             temperature: temperature || "0.3",
             isVerbose: isVerbose || "false",
           },
@@ -876,6 +899,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
                 View Json
               </span>
             </button>
+
             <button
               onClick={() => {
                 exportPathsAsJson();
@@ -908,6 +932,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
               <span className="invisible group-hover:visible absolute bg-gray-100 text-black p-2  text-xs mt-16 ml-6 rounded-md">
                 Screenshot
               </span>
+
             </button>
           </Panel>
           <Controls />

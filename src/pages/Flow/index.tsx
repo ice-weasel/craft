@@ -24,6 +24,8 @@ import { useRouter } from "next/router";
 import { firedb } from "@/app/firebase";
 import { ReactFlowInstance } from "reactflow";
 import { getUserData } from "@/utils/authUtils";
+import { RiShareForwardLine } from "react-icons/ri";
+import "@/styles/styles.css"
 
 //Cookie verification
 export async function getServerSideProps(context: any) {
@@ -41,22 +43,14 @@ const initialNodes = [
     type: "input",
     data: { label: "Start" },
     position: { x: 250, y: 25 },
-    style: {
-      background: '#3f3f46', // zinc-700
-      color: 'black',
-      border: '1px solid #52525b' // zinc-600
-    }
+    className:'custom-node'
   },
   {
     id: "10",
     type: "output",
     data: { label: "Stop" },
     position: { x: 250, y: 175 },
-    style: {
-      background: '#3f3f46', // zinc-700
-      color: 'black',
-      border: '1px solid #52525b' // zinc-600
-    }
+    className:'custom-node'
     
   },
 ];
@@ -181,6 +175,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         id: getId(),
         type,
         position,
+        className:'custom-node',
         data, // Applying the custom data to the node
       };
 
@@ -264,14 +259,14 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
       llm: {
         llm_name: selectedLLM || "groq",
         config: {
-          apiKey: apiKey || "23423452342",
+          apiKey: apiKey || "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",
           temperature: temperature || "0.3",
           isVerbose: isVerbose || "false",
         },
       },
       doc_type: option || "pdf_type",
-      embeddings: embeddings || "hugging_face_type_embeddings",
-      retriever_tools: rtools || "multi-query",
+      embeddings: embeddings || "hugging_face",
+      retriever_tools: rtools || "multi_query",
       vector_stores: vstools || "chroma_store",
       prompts: prompts || "default",
       customtext: customtext || null,
@@ -343,7 +338,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         llm: {
           llm_name: selectedLLM || "Groq",
           config: {
-            apiKey: apiKey || "23423452342",
+            apiKey: apiKey || "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",
             temperature: temperature || "0.3",
             isVerbose: isVerbose || "false",
           },
@@ -458,36 +453,46 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         >
           <Panel
             position="top-center"
-            className="bg-white shadow-md rounded-lg p-1 m-2 flex gap-3"
+           className="bg-zinc-900 shadow-md rounded-lg p-1.5 m-2 flex gap-3"
           >
             <button
-              onClick={handleDelete}
-              disabled={
-                !selectedElements.nodes.length && !selectedElements.edges.length
-              }
-              className="p-2 rounded-lg bg-red-500 text-white disabled:bg-gray-300 hover:bg-red-600 transition-colors"
-            >
-              <FaRegTrashAlt />
-            </button>
-            <button
-              onClick={exportPathsAsJson}
-              className="flex items-center gap-2 px-2 py-1 bg-black text-white rounded-lg hover:bg-violet-500 transition-colors"
-            >
-              <MdOutlineSaveAlt size={20} />
-            </button>
-            <button
-              onClick={() => {
-                exportPathsAsJson();
-                openSaveModal();
-              }}
-              className="flex items-center gap-2 px-2 py-1 bg-black text-white rounded-lg hover:bg-violet-500 transition-colors"
-            >
-              <FiUploadCloud size={20} />
-            </button>
+                         onClick={handleDelete}
+                         disabled={
+                           !selectedElements.nodes.length && !selectedElements.edges.length
+                         }
+                         className="p-2 rounded-lg bg-red-500 text-white disabled:bg-gray-300 hover:bg-red-600 transition-colors"
+                       >
+                         <FaRegTrashAlt />
+                       </button>
+                       <button
+                         onClick={exportPathsAsJson}
+                         //onClick={openModal}
+                         className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-indigo-400 transition-colors"
+                       >
+                         <MdOutlineSaveAlt size={20} />
+                       </button>
+                         <button
+                          onClick={() => {
+                           openSaveModal();
+                           exportPathsAsJson();
+                           }}
+                           className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-indigo-400 transition-colors"
+                           >
+                           <FiUploadCloud size={20} />
+                           </button>
+                       <button
+                        
+                         className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-green-600 transition-colors group"
+                       >
+                         <RiShareForwardLine size={20} />
+                         <span className="invisible group-hover:visible absolute bg-gray-100 text-black p-2  text-xs mt-16 ml-6 rounded-md">
+                           Host
+                         </span>
+                       </button>
           </Panel>
           <Controls />
-          <MiniMap />
-          <Background />
+        
+          <Background className="bg-zinc-800"/>
         </ReactFlow>
         <Conditionals
           isOpen={showModal}
@@ -580,55 +585,55 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
       )}
 
       <div
-        className={` w-1/5  bg-neutral flex flex-col shadow-xl border-1 border-black  transition-all duration-600 ease-in-out ${
+        className={` w-1/5  bg-zinc-900 flex flex-col shadow-xl border-1 border-black  transition-all duration-600 ease-in-out ${
           isExpanded2 ? "w-1/5" : "w-14 bg-violet-200"
         }`}
       >
         {isExpanded2 && (
-          <div className="h-screen">
-            {" "}
-            <div className="p-5">
-              <h1 className="text-lg text-white font-semibold text-right">Components</h1>
-              <hr className="h-[1.5px] my-3 bg-indigo-500 border-0 " />
-            </div>
-            <div className="px-5 flex flex-col bg-zinc-800 space-y-2 transition-transform duration-600 overflow-y-auto">
-              {Object.entries(components).map(([type, component], index) => (
-                <div
-                  key={type}
-                  className="border-b rounded-md p-3 bg-indigo-300 border-indigo-300 overflow-y-auto"
-                >
-                  <button
-                    onClick={() => toggleAccordion(index)}
-                    className="w-full flex justify-between flex-row transition-transform duration-60 font-semibold text-black "
-                  >
-                    <div>{type}</div>
-                    <div>
-                      <IoIosArrowDown />
+                  <div className="p-5">
+                    {" "}
+                    <div className=" bg-zinc-900 p-5">
+                      <h1 className="text-lg  text-white font-semibold text-right">Components</h1>
+                      <hr className="h-[1.5px] my-3 bg-indigo-500 border-0 " />
                     </div>
-                    {/* <span
-                  id={`icon-${index}`}
-                  className="transition-transform duration-300"
-                  dangerouslySetInnerHTML={{
-                    __html: openIndices.includes(index) ? minusSVG : plusSVG,
-                  }}
-                />*/}
-                  </button>
-                  <div
-                    ref={(el: any) => (contentRefs.current[index] = el)}
-                    style={{
-                      height: openIndices.includes(index)
-                        ? contentRefs.current[index]?.scrollHeight
-                        : 0,
-                    }}
-                    className="overflow-y-auto transition-[height] bg-indigo-300 rounded-md duration-300 ease-in-out"
-                  >
-                    <div className="py-3">{component}</div>
+                    <div className="p-5 flex flex-col bg-zinc-800 rounded-lg space-y-3 transition-transform duration-600 overflow-y-auto max-h-[90vh]">
+                      {Object.entries(components).map(([type, component], index) => (
+                        <div
+                          key={type}
+                          className="border-1 border-indigo-300 rounded-md p-3 bg-indigo-300 "
+                        >
+                          <button
+                            onClick={() => toggleAccordion(index)}
+                            className="w-full flex justify-between flex-row transition-transform duration-60 font-semibold text-black"
+                          >
+                            <div>{type}</div>
+                            <div>
+                              <IoIosArrowDown />
+                            </div>
+                            {/* <span
+                          id={`icon-${index}`}
+                          className="transition-transform duration-300"
+                          dangerouslySetInnerHTML={{
+                            __html: openIndices.includes(index) ? minusSVG : plusSVG,
+                          }}
+                        />*/}
+                          </button>
+                          <div
+                            ref={(el: any) => (contentRefs.current[index] = el)}
+                            style={{
+                              height: openIndices.includes(index)
+                                ? contentRefs.current[index]?.scrollHeight
+                                : 0,
+                            }}
+                            className="overflow-y-auto transition-[height] bg-indigo-300 rounded-md duration-300 ease-in-out"
+                          >
+                            <div className="py-3">{component}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+                )}
         <button
           onClick={() => setIsExpanded2(!isExpanded2)}
           className="absolute bottom-5 right-2 p-2 rounded-full bg-indigo-500 hover:bg-gray-200 transition-transform duration-300 ease-in-out"

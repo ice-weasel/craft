@@ -484,12 +484,11 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
           isVerbose: isVerbose || "false",
         },
       },
-      doc_type: option || "pdf_type",
-      embeddings: embeddings || "hugging_face_type_embeddings",
-      retriever_tools: rtools || "multi-query",
-      vector_stores: vstools || "chroma_store",
+      doc_type: option || "PDF",
+      embeddings: embeddings || "hugging_face",
+      retriever_tools: rtools || "Multi_Query",
+      vector_stores: vstools || "Chroma_store",
       prompts: prompts || "default",
-      customtext: customtext || null,
       template: template || "custom-template",
       flowPaths: pathData, // Inject extracted paths here
     };

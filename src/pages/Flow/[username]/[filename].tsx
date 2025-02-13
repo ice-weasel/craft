@@ -23,8 +23,12 @@ import ReactFlow, {
   useReactFlow,
   Panel,
 } from "reactflow";
+
+import { TbCameraDown } from "react-icons/tb";
+
 import { ColorMode } from "@xyflow/react";
 import "reactflow/dist/style.css";
+import html2canvas from "html2canvas";
 import { MdOutlineSaveAlt } from "react-icons/md";
 import {
   IoIosArrowDown,
@@ -57,7 +61,14 @@ import { FiUploadCloud } from "react-icons/fi";
 import { X } from "lucide-react";
 import Toast from "@/components/toast";
 import CustomNode from "@/components/darkreactflow";
+
+import { RiRobot3Line } from "react-icons/ri";
+import { RiShareForwardLine } from "react-icons/ri";
+import { MdOutlineDownloading } from "react-icons/md";
+import { SiStreamlit } from "react-icons/si";
+
 import "@/styles/styles.css";
+
 
 export async function getServerSideProps(context: any) {
   return getUserData(context, true);
@@ -92,14 +103,14 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   const [nonDeletableEdges, setnonDeleteableEdges] = useState([]);
   const [group1, setfirstGroup] = useState([]);
   const [group2, setSecondGroup] = useState([]);
-
+  const [successMessage, setSuccessMessage] = useState<string>("");
   const [isExpanded1, setIsExpanded1] = useState(true);
   const [isExpanded2, setIsExpanded2] = useState(true);
   const [saveModalOpen, setSaveModalOpen] = useState(false);
   const [projectname, setProjectname] = useState("");
   const [filename, setFileName] = useState(projectname);
   const [isExistingProject, setIsExistingProject] = useState(false);
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
   /*Right Tab requisites*/
   const [jsonData, setJsonData] = useState<any>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -119,7 +130,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   const [embeddings, setEmbedding] = useState<string | null>(null);
   const [rtools, setRTools] = useState<string | null>(null);
   const [vstools, setVSTools] = useState<string | null>(null);
-
+  const [error, setError] = useState<string>("");
   const { setViewport } = useReactFlow();
 
   const router = useRouter();
@@ -363,7 +374,43 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
       eds.filter((edge) => !deletableEdges.map((e) => e.id).includes(edge.id))
     );
 
-    
+
+    // Handle Group 1 deletion
+    if (typedGroup1.some((id) => deletableNodeIds.includes(id))) {
+      setNodes((nds) => nds.filter((node) => !typedGroup1.includes(node.id)));
+      setEdges((eds) =>
+        eds.filter(
+          (edge) =>
+            !typedGroup1.includes(edge.source) &&
+            !typedGroup1.includes(edge.target)
+        )
+      );
+
+      // Avoid duplicate edges
+      setEdges((eds) =>
+        eds.some((e) => e.id === "2-5")
+          ? eds
+          : [...eds, { id: "2-5", source: "2", target: "5" }]
+      );
+    }
+
+    // Handle Group 2 deletion
+    if (typedGroup2.some((id) => deletableNodeIds.includes(id))) {
+      setNodes((nds) => nds.filter((node) => !typedGroup2.includes(node.id)));
+      setEdges((eds) =>
+        eds.filter(
+          (edge) =>
+            !typedGroup2.includes(edge.source) &&
+            !typedGroup2.includes(edge.target)
+        )
+      );
+
+      setEdges((eds) =>
+        eds.some((e) => e.id === "5-10")
+          ? eds
+          : [...eds, { id: "5-10", source: "5", target: "10" }]
+      );
+    }
 
 
     // Reset selection
@@ -694,6 +741,105 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   if (isLoading) {
     return <div>Loading...</div>;
   }
+  //screenshot
+  const screenShot = async () => {
+    const element = document.getElementById("main-area"); // ID of the component
+    if (!element) return;
+
+    const canvas = await html2canvas(element);
+    const dataUrl = canvas.toDataURL("image/png");
+
+    const link = document.createElement("a");
+    link.href = dataUrl;
+    link.download = "screenshot.png";
+    link.click();
+    console.log("clicked");
+  };
+
+  //host modal
+  const handleClick = () => {
+    setIsModalOpen(true);
+  };
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  //send backend
+  const sendBackend = async () => {
+    //exportPathsAsJson();
+    const pathData = extractPaths();
+    const { template } = router.query;
+    // Include other relevant fields
+    const exportData = {
+      llm: selectedLLM
+        ? {
+            [selectedLLM]: {
+              apiKey: apiKey || "23423452342",
+              temperature: temperature || "0.3",
+              isVerbose: isVerbose || "false",
+            },
+          }
+        : {
+            groq_model: {
+              apiKey: apiKey || "23423452342",
+              temperature: temperature || "0.3",
+              isVerbose: isVerbose || "false",
+            },
+          },
+      doc_type: option || "pdf_type",
+      embeddings: embeddings || "hugging_face_type_embeddings",
+      retriever_tools: rtools || "multi-query",
+      vector_stores: vstools || "chroma_store",
+      prompts: prompts || "default",
+      customtext: customtext || null,
+      template: template || "custom-template",
+      flowPaths: pathData, // Inject extracted paths here
+    };
+    const jsonString = JSON.stringify(exportData, null, 2);
+    console.log("Export data : ", exportData);
+    // const response = await fetch("/api/sendjson", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body:jsonString,
+    // });
+
+    setJsonData(exportData);
+
+    //export end
+    console.log("json data after: ", jsonData);
+    if (!exportData) {
+      setError("No data to send");
+      return;
+    }
+    setIsLoading(true);
+    setError("");
+    setSuccessMessage("");
+    console.log("typeof : ", exportData);
+    try {
+      // Send JSON data to the backend
+      const response = await fetch("http://localhost:8000/receive-data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(exportData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to send data to backend");
+      }
+    } catch (error) {
+      console.error("Download failed:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  //check consistency
+
+  const checkConsistency = () => {};
 
   return (
     <div className="flex flex-row h-screen  ">
@@ -729,7 +875,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         >
           <Panel
             position="top-center"
-            className="bg-zinc-900 shadow-md rounded-lg p-1 m-2 flex gap-3"
+            className="bg-zinc-900 shadow-md rounded-lg p-1.5 m-2 flex gap-3"
           >
             <button
               onClick={handleDelete}
@@ -739,12 +885,19 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
               className="p-2 rounded-lg bg-red-500 text-white disabled:bg-gray-300 hover:bg-red-600 transition-colors"
             >
               <FaRegTrashAlt />
+              <span className="invisible group-hover:visible absolute bg-gray-100 text-black p-2  text-xs mt-16 ml-6 rounded-md">
+                Delete
+              </span>
             </button>
             <button
               onClick={exportPathsAsJson}
-              className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-violet-500 transition-colors"
+              //onClick={openModal}
+              className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-indigo-400 transition-colors"
             >
               <MdOutlineSaveAlt size={20} />
+              <span className="invisible group-hover:visible absolute bg-gray-100 text-black p-2  text-xs mt-16 ml-6 rounded-md">
+                View Json
+              </span>
             </button>
 
             <button
@@ -752,9 +905,34 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
                 exportPathsAsJson();
                 openSaveModal();
               }}
-              className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-violet-500 transition-colors"
+              className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-indigo-400 transition-colors"
             >
               <FiUploadCloud size={20} />
+              <span className="invisible group-hover:visible absolute bg-gray-100 text-black p-2  text-xs mt-16 ml-6 rounded-md">
+                Save
+              </span>
+            </button>
+            <button
+              onClick={() => {
+                handleClick();
+                sendBackend();
+              }}
+              className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-green-600 transition-colors group"
+            >
+              <RiShareForwardLine size={20} />
+              <span className="invisible group-hover:visible absolute bg-gray-100 text-black p-2  text-xs mt-16 ml-6 rounded-md">
+                Host
+              </span>
+            </button>
+            <button
+              onClick={screenShot}
+              className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-green-600 transition-colors group"
+            >
+              <TbCameraDown size={22} />
+              <span className="invisible group-hover:visible absolute bg-gray-100 text-black p-2  text-xs mt-16 ml-6 rounded-md">
+                Screenshot
+              </span>
+
             </button>
           </Panel>
           <Controls />
@@ -768,6 +946,41 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
           onSave={handleEdgeLabels}
         />
       </div>
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-4 rounded-lg w-1/3">
+            <h1 className="text-3xl font-semibold flex justify-center">
+              Hosting in Streamlit
+            </h1>
+            <div className="flex justify-center align-baseline space-x-2 p-2">
+              <MdOutlineDownloading size={26} className="" />
+              <p className="text-xs">
+                To start processing deployment, the consistency of the workflow
+                has to be checked. We are using gemma-9b model to check for
+                consistency in our local server,thus ensuring your data privacy.
+                Click on the CHECK button below to move forward with the
+                consistency check.
+              </p>
+            </div>
+            <div className="flex justify-between">
+              <button
+                className="mt-4 px-4 py-2 bg-red-500 hover:bg-red-400 text-white rounded"
+                onClick={handleCloseModal}
+              >
+                Close
+              </button>
+              <button
+                onClick={checkConsistency}
+                className="mt-4 px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded flex flex-row space-x-2"
+              >
+                <RiRobot3Line className="mt-1" size={20} />
+                <p>Check</p>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center h-screen">
           <div className="bg-white rounded-lg p-6 w-full max-w-md relative">

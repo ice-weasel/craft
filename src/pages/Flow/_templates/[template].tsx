@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from "react";
 import { X } from "lucide-react";
 import "tailwindcss/tailwind.css";
 import { SiStreamlit } from "react-icons/si";
+import html2canvas from "html2canvas";
 import ReactFlow, {
   useNodesState,
   useEdgesState,
@@ -20,6 +21,7 @@ import ReactFlow, {
   NodeResizer,
   NodeResizeControl,
 } from "reactflow";
+import { TbCameraDown } from "react-icons/tb";
 import "reactflow/dist/style.css";
 import RTools from "@/components/flowtabs/rtools";
 import Prompts from "@/components/flowtabs/prompts";
@@ -31,7 +33,7 @@ import { Panel } from "reactflow";
 import SelfTab from "@/components/templates/self-reflex/self-tab";
 import { IoIosArrowForward } from "react-icons/io";
 import { MdOutlineSaveAlt } from "react-icons/md";
-import { IoIosArrowDown,IoIosArrowBack } from "react-icons/io";
+import { IoIosArrowDown, IoIosArrowBack } from "react-icons/io";
 import { useRouter } from "next/router";
 import Conditionals from "@/components/conditionals";
 import { RiShareForwardLine } from "react-icons/ri";
@@ -40,8 +42,7 @@ import { getUserData } from "@/utils/authUtils";
 import { collection, doc, setDoc } from "firebase/firestore";
 import { firedb } from "@/app/firebase";
 import { FiUploadCloud } from "react-icons/fi";
-import '@/styles/styles.css'
-
+import "@/styles/styles.css";
 
 const getId = (() => {
   let id = 0;
@@ -117,21 +118,20 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
           setfirstGroup(group1);
           setSecondGroup(group2);
 
-          if(template == "image_search") {
-            setOption("IMGS")
+          if (template == "image_search") {
+            setOption("IMGS");
           }
-
         } catch (error) {
           console.error("Error loading template:", error);
         }
-      }  else {
-            // If no project is found, clear the state or load default values
-            setNodes([]);
-            setEdges([]);
-            setnonDeleteableNodes([]);
-            setnonDeleteableEdges([]);
-            setfirstGroup([]);
-            setSecondGroup([]);
+      } else {
+        // If no project is found, clear the state or load default values
+        setNodes([]);
+        setEdges([]);
+        setnonDeleteableNodes([]);
+        setnonDeleteableEdges([]);
+        setfirstGroup([]);
+        setSecondGroup([]);
       }
     };
 
@@ -297,7 +297,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         type,
         position,
         data,
-        className:'custom-node'
+        className: "custom-node",
       };
 
       setNodes((nds) => nds.concat(newNode));
@@ -379,8 +379,8 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         config: {
           apiKey: apiKey || "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",
           temperature: temperature || "0.3",
-          isVerbose: isVerbose || "false"
-        }
+          isVerbose: isVerbose || "false",
+        },
       },
       doc_type: option || "pdf_type",
       embeddings: embeddings || "hugging_face_type_embeddings",
@@ -394,7 +394,6 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
     const jsonString = JSON.stringify(exportData, null, 2);
 
     console.log("Export data : ", exportData);
-
 
     setJsonData(exportData);
 
@@ -430,7 +429,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
     URL.revokeObjectURL(url);
   };
 
-const saveFile = async (
+  const saveFile = async (
     jsonData: any,
     filename: string,
     ispublic: boolean
@@ -455,7 +454,7 @@ const saveFile = async (
 
       // Prepare the data to be saved
       const projectData = {
-        username:user.username,
+        username: user.username,
         filename, // Project file name
         isPublic: ispublic, // Visibility of the project
         createdAt: formattedDate, // Formatted creation date
@@ -480,7 +479,7 @@ const saveFile = async (
       await setDoc(fileDocRef, projectData);
 
       console.log("File saved successfully!");
-      closeModal()
+      closeModal();
       closeSaveModal();
     } catch (error) {
       console.error("Error saving file to Firestore:", error);
@@ -536,12 +535,32 @@ const saveFile = async (
   };
 
   const components = {
-    "Document Type": <DocuType onDocTypeChange={handleDocTypeChange} currentValue={option} />,
-    Prompts: <Prompts onpromptsChange={handlePromptsChange} currentprompts={prompts} />,
-    Embeddings: <Embeddings onEmbeddingsChange={embeddingsChange} currentembeddings={embeddings} />,
-    "Retriever Techniques": <RTools onRToolsChange={rtoolsChange} currentrtools={rtools} />,
-    "Vector Store": <VSTools onVSToolsChange={vsToolsChange} currentvstools={vstools} />,
-    LLMs: <LLMs onLLMSelected={handleLLMSelected} currentllm={selectedLLM} currenttemp={temperature} currentVerbose={isVerbose}/>,
+    "Document Type": (
+      <DocuType onDocTypeChange={handleDocTypeChange} currentValue={option} />
+    ),
+    Prompts: (
+      <Prompts onpromptsChange={handlePromptsChange} currentprompts={prompts} />
+    ),
+    Embeddings: (
+      <Embeddings
+        onEmbeddingsChange={embeddingsChange}
+        currentembeddings={embeddings}
+      />
+    ),
+    "Retriever Techniques": (
+      <RTools onRToolsChange={rtoolsChange} currentrtools={rtools} />
+    ),
+    "Vector Store": (
+      <VSTools onVSToolsChange={vsToolsChange} currentvstools={vstools} />
+    ),
+    LLMs: (
+      <LLMs
+        onLLMSelected={handleLLMSelected}
+        currentllm={selectedLLM}
+        currenttemp={temperature}
+        currentVerbose={isVerbose}
+      />
+    ),
   };
 
   //sidebar
@@ -654,6 +673,21 @@ const saveFile = async (
     }
   };
 
+  //screenshot
+  const screenShot = async () => {
+    const element = document.getElementById("main-area"); // ID of the component
+    if (!element) return;
+
+    const canvas = await html2canvas(element);
+    const dataUrl = canvas.toDataURL("image/png");
+
+    const link = document.createElement("a");
+    link.href = dataUrl;
+    link.download = "screenshot.png";
+    link.click();
+    console.log("clicked");
+  };
+
   return (
     <div className="flex flex-row h-screen  ">
       <div
@@ -672,7 +706,7 @@ const saveFile = async (
         </button>
       </div>
 
-      <div className="flex-1" ref={reactFlowWrapper}>
+      <div className="flex-1" ref={reactFlowWrapper} id="main-area">
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -697,6 +731,9 @@ const saveFile = async (
               className="p-2 rounded-lg bg-red-500 text-white disabled:bg-gray-300 hover:bg-red-600 transition-colors"
             >
               <FaRegTrashAlt />
+              <span className="invisible group-hover:visible absolute bg-gray-100 text-black p-2  text-xs mt-16 ml-6 rounded-md">
+                Delete
+              </span>
             </button>
             <button
               onClick={exportPathsAsJson}
@@ -704,18 +741,24 @@ const saveFile = async (
               className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-indigo-400 transition-colors"
             >
               <MdOutlineSaveAlt size={20} />
+              <span className="invisible group-hover:visible absolute bg-gray-100 text-black p-2  text-xs mt-16 ml-6 rounded-md">
+                View Json
+              </span>
             </button>
-              <button
-               onClick={() => { 
+
+            <button
+              onClick={() => {
+                exportPathsAsJson();
                 openSaveModal();
-                  exportPathsAsJson();
-                
-                
-                }}
-                className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-indigo-400 transition-colors"
-                >
-                <FiUploadCloud size={20} />
-                </button>
+              }}
+              className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-indigo-400 transition-colors"
+            >
+              <FiUploadCloud size={20} />
+              <span className="invisible group-hover:visible absolute bg-gray-100 text-black p-2  text-xs mt-16 ml-6 rounded-md">
+                Save
+              </span>
+            </button>
+
             <button
               onClick={() => {
                 handleClick();
@@ -728,9 +771,18 @@ const saveFile = async (
                 Host
               </span>
             </button>
+            <button
+              onClick={screenShot}
+              className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-green-600 transition-colors group"
+            >
+              <TbCameraDown size={22} />
+              <span className="invisible group-hover:visible absolute bg-gray-100 text-black p-2  text-xs mt-16 ml-6 rounded-md">
+                Screenshot
+              </span>
+            </button>
           </Panel>
-
           <Controls />
+
           <Background className="bg-zinc-800" />
         </ReactFlow>
         <Conditionals
@@ -768,60 +820,63 @@ const saveFile = async (
         )}
 
         {saveModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                  <div className="bg-white rounded-lg p-6 w-full max-w-md relative">
-                    <button
-                      onClick={() => {closeModal();closeSaveModal()}}
-                      className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-                    >
-                      <X size={24} />
-                    </button>
-        
-                    <h2 className="text-xl font-bold mb-4">Preview: </h2>
-                    <div className="mb-6">
-                      <pre className="bg-gray-100 p-4 rounded-md overflow-auto max-h-60">
-                        {jsonData
-                          ? JSON.stringify(jsonData, null, 2)
-                          : "No data loaded"}
-                      </pre>
-                    </div>
-                    <form
-                      onSubmit={(e) => {
-                        e.preventDefault(); // Prevent page reload
-                        saveFile(jsonData, filename, ispublic); // Pass the latest jsonData value
-                      }}
-                    >
-                      <input
-                        type="text"
-                        onChange={(e) => setFileName(e.target.value)}
-                        className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors"
-                        required
-                        placeholder="Enter File Name"
-                      />
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          name="isPublic"
-                          checked
-                          onChange={(e) => setIsPublic(e.target.checked)}
-                          className="active:bg-violet-500 focus:ring-violet-500"
-                        />
-                        <label className="font-medium ">Make your project public</label>
-                      </div>
-                      <div className="flex justify-end gap-2">
-                        <button
-                          type="submit"
-                          className="px-3 py-2 mt-3  bg-black text-white rounded-md hover:bg-neutral-700 transition-colors"
-                        >
-                          Save
-                        </button>
-                      </div>
-                    </form>
-                  </div>
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md relative">
+              <button
+                onClick={() => {
+                  closeModal();
+                  closeSaveModal();
+                }}
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+              >
+                <X size={24} />
+              </button>
+
+              <h2 className="text-xl font-bold mb-4">Preview: </h2>
+              <div className="mb-6">
+                <pre className="bg-gray-100 p-4 rounded-md overflow-auto max-h-60">
+                  {jsonData
+                    ? JSON.stringify(jsonData, null, 2)
+                    : "No data loaded"}
+                </pre>
+              </div>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault(); // Prevent page reload
+                  saveFile(jsonData, filename, ispublic); // Pass the latest jsonData value
+                }}
+              >
+                <input
+                  type="text"
+                  onChange={(e) => setFileName(e.target.value)}
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors"
+                  required
+                  placeholder="Enter File Name"
+                />
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    name="isPublic"
+                    checked
+                    onChange={(e) => setIsPublic(e.target.checked)}
+                    className="active:bg-violet-500 focus:ring-violet-500"
+                  />
+                  <label className="font-medium ">
+                    Make your project public
+                  </label>
                 </div>
-              )}
-              
-        
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="submit"
+                    className="px-3 py-2 mt-3  bg-black text-white rounded-md hover:bg-neutral-700 transition-colors"
+                  >
+                    Save
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
       {isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center h-screen">
@@ -862,14 +917,16 @@ const saveFile = async (
           <div className="p-5">
             {" "}
             <div className=" bg-zinc-900 p-5">
-              <h1 className="text-lg  text-white font-semibold text-right">Components</h1>
+              <h1 className="text-lg  text-white font-semibold text-right">
+                Components
+              </h1>
               <hr className="h-[1.5px] my-3 bg-indigo-500 border-0 " />
             </div>
             <div className="p-5 flex flex-col bg-zinc-800 rounded-lg space-y-3 transition-transform duration-600 overflow-y-auto max-h-[90vh]">
               {Object.entries(components).map(([type, component], index) => (
                 <div
                   key={type}
-                  className="border-1 border-indigo-300 rounded-md p-3 bg-indigo-300 "
+                  className="border-1 border-indigo-300 rounded-md p-3 bg-indigo-400 "
                 >
                   <button
                     onClick={() => toggleAccordion(index)}
@@ -916,7 +973,7 @@ const saveFile = async (
 
 const FlowApp = ({ user }: any) => (
   <ReactFlowProvider>
-    <FlowWithPathExtractor  user={user} uid={user?.uid}/>
+    <FlowWithPathExtractor user={user} uid={user?.uid} />
   </ReactFlowProvider>
 );
 

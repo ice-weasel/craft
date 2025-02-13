@@ -377,7 +377,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
       llm: {
         llm_name: selectedLLM || "groq",
         config: {
-          apiKey: apiKey || "23423452342",
+          apiKey: apiKey || "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",
           temperature: temperature || "0.3",
           isVerbose: isVerbose || "false"
         }
@@ -399,7 +399,6 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
     setJsonData(exportData);
 
     //this is the thingy we win lesgo
-
     openModal();
 
     // Create and trigger download
@@ -461,17 +460,17 @@ const saveFile = async (
         isPublic: ispublic, // Visibility of the project
         createdAt: formattedDate, // Formatted creation date
         llm: {
-          llm_name: selectedLLM || "groq",
+          llm_name: selectedLLM || "Groq",
           config: {
-            apiKey: apiKey || "23423452342",
+            apiKey: apiKey || "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",
             temperature: temperature || "0.3",
             isVerbose: isVerbose || "false",
           },
         },
-        doc_type: option || "pdf_type",
-        embeddings: embeddings || "hugging_face_type_embeddings",
-        retriever_tools: rtools || "multi-query",
-        vector_stores: vstools || "chroma_store",
+        doc_type: option || "PDF",
+        embeddings: embeddings || "hugging_face",
+        retriever_tools: rtools || "Multi_Query",
+        vector_stores: vstools || "Chroma_store",
         prompts: prompts || "default",
         customtext: customtext || null,
         flow: flow, // Save flow as stringified JSON
@@ -575,28 +574,21 @@ const saveFile = async (
     const { template } = router.query;
     // Include other relevant fields
     const exportData = {
-      llm: selectedLLM
-        ? {
-            [selectedLLM]: {
-              apiKey: apiKey || "23423452342",
-              temperature: temperature || "0.3",
-              isVerbose: isVerbose || "false",
-            },
-          }
-        : {
-            groq_model: {
-              apiKey: apiKey || "23423452342",
-              temperature: temperature || "0.3",
-              isVerbose: isVerbose || "false",
-            },
-          },
+      template: template || "custom-template",
+      llm: {
+        llm_name: selectedLLM || "groq",
+        config: {
+          apiKey: apiKey || "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",
+          temperature: temperature || "0.3",
+          isVerbose: isVerbose || "false",
+        },
+      },
       doc_type: option || "pdf_type",
-      embeddings: embeddings || "hugging_face_type_embeddings",
-      retriever_tools: rtools || "multi-query",
+      embeddings: embeddings || "hugging_face",
+      retriever_tools: rtools || "multi_query",
       vector_stores: vstools || "chroma_store",
       prompts: prompts || "default",
       customtext: customtext || null,
-      template: template || "custom-template",
       flowPaths: pathData, // Inject extracted paths here
     };
     const jsonString = JSON.stringify(exportData, null, 2);
@@ -715,8 +707,8 @@ const saveFile = async (
             </button>
               <button
                onClick={() => {
-                exportPathsAsJson();
                 openSaveModal();
+                exportPathsAsJson();
                 }}
                 className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-indigo-400 transition-colors"
                 >

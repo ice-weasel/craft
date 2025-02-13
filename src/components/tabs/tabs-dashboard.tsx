@@ -4,20 +4,25 @@ import { MdDelete } from "react-icons/md";
 import { MdEdit } from "react-icons/md";
 import { FaLock } from "react-icons/fa";
 import { FaLockOpen } from "react-icons/fa";
-import { collectionGroup, getDocs, query, where } from "firebase/firestore";
+import { collection, collectionGroup, getDocs, limit, orderBy, query, where } from "firebase/firestore";
 import Link from "next/link";
 import { firedb } from "@/app/firebase";
 import { getUserData } from "@/utils/authUtils";
 
-
+type TabsProps = {
+  username: string|null,
+  user:string|null,
+  uid:string|null
+}
 
 const pops = Poppins({
   weight: "500",
   subsets: ["latin"],
 });
-const Tabs = ({user,uid}:any) => {
+const Tabs = ({username,user,uid}:TabsProps) => {
   const [activeTab, setActiveTab] = useState<number>(0);
-  const [projects, setProjects] = useState<any[]>([]); // Store the fetched projects
+  const [projects,setProjects] = useState<any[]>([]);
+  const [publicprojects, setPublicProjects] = useState<any[]>([]); // Store the fetched projects
   const [loading, setLoading] = useState<boolean>(true); // Track loading state
 
 
@@ -40,7 +45,7 @@ const Tabs = ({user,uid}:any) => {
         }));
 
         // Update the state with the fetched projects
-        setProjects(fetchedProjects);
+        setPublicProjects(fetchedProjects);
       } catch (error) {
         console.error("Error fetching projects: ", error);
       } finally {
@@ -48,8 +53,24 @@ const Tabs = ({user,uid}:any) => {
       }
     };
 
+    const fetchUserProjects = async () => {
+        try{
+          const projectsRef = collection(firedb, "Users", uid as string, "projects");
+          const q = query(projectsRef, orderBy("createdAt", "asc"), limit(3)); // Order by updatedAt, newest first
+          const querySnapshot = await getDocs(q);
+          const projects = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          console.log(projects)
+
+          setProjects(projects)
+
+        }catch(error){
+          console.error("Error fetching projects: ", error);
+        }
+    }
+
+    fetchUserProjects();
     fetchProjects();
-  }, []); // Empty dependency array, runs only once on component mount
+  }, [uid]); // Empty dependency array, runs only once on component mount
 
  
   return (
@@ -88,13 +109,23 @@ const Tabs = ({user,uid}:any) => {
       </div>
 
       <div className="h-5/6 rounded-lg">
-        {activeTab === 0 && (
-          <div className="h-full flex flex-col md:flex-row md:space-y-0 md:space-x-3 space-x-0 space-y-4 justify-between">
-            <div className="md:w-1/3 w-full bg-violet-100  rounded-lg flex flex-col md:space-y-0 space-y-4 justify-between p-6">
+      {activeTab === 0 && (
+  loading ? (
+    <div>Loading projects...</div>
+  ) : (
+    <div className="grid grid-cols-1 h-full md:grid-cols-3 gap-6 p-4">
+      {projects.length > 0 ? (
+        projects.map((project, index) => (
+          <div key={index} className="h-full">
+            <div className="bg-violet-100 rounded-lg flex flex-col justify-between p-6 h-full">
               <div className="flex flex-col">
                 <div className="flex flex-row justify-between">
                   <div className="md:text-sm text-xs text-neutral-600">
-                    26th September 2024
+                    {new Date(project.createdAt).toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "long",
+                      year: "numeric",
+                    })}
                   </div>
                   <button className="rounded-lg bg-neutral-100 hover:bg-red-200 md:p-2 p-1">
                     <MdDelete className="hidden md:block" size={20} />
@@ -102,7 +133,7 @@ const Tabs = ({user,uid}:any) => {
                   </button>
                 </div>
                 <div className="md:text-4xl text-xl font-semibold">
-                  <h1 className={pops.className}>Math Engine</h1>
+                  <h1 className={pops.className}>{project.filename}</h1>
                 </div>
                 <button className="mt-2 border-2 rounded-full p-2 border-black md:h-6 h-4 w-1/6 text-sm text-center items-center flex justify-center">
                   <div>
@@ -111,86 +142,27 @@ const Tabs = ({user,uid}:any) => {
                   </div>
                 </button>
               </div>
-              <div className="">
-                <Link href="/Flow/self_rag">
-                  {" "}
-                  <button className="flex flex-row justify-between w-full bg-violet-300 md:p-3 p-1 rounded-full hover:bg-violet-200">
-                    <div className="md:text-md text-sm font-semibold pl-4">
-                      Edit
-                    </div>
-                    <div className="pr-4">
-                      <MdEdit size={20} />
-                    </div>
-                  </button>
-                </Link>
-              </div>
-            </div>
-            <div className="md:w-1/3 w-full bg-indigo-100  rounded-lg flex flex-col justify-between md:space-y-0 space-y-4  p-6">
-              <div className="flex flex-col">
-                <div className="flex flex-row justify-between">
-                  <div className="md:text-sm text-xs text-neutral-600">
-                    10th July 2024
-                  </div>
-                  <button className="rounded-lg bg-neutral-100 hover:bg-red-200  md:p-2 p-1">
-                    <MdDelete className="hidden md:block" size={20} />
-                    <MdDelete className="block md:hidden" size={14} />
-                  </button>
-                </div>
-                <div className="md:text-4xl text-xl font-semibold">
-                  <h1 className={pops.className}>Technical Writer</h1>
-                </div>
-                <button className="mt-2 border-2 rounded-full p-2 border-black md:h-6 h-4 w-1/6 text-sm text-center items-center flex justify-center">
-                  <div>
-                    <FaLock className="block md:hidden" size={10} />
-                    <FaLock className="hidden md:block" size={16} />
-                  </div>
-                </button>
-              </div>
-              <div className="">
+              
+              <Link href={`/Flow/${project.username}/${project.filename}`}>
                 <button className="flex flex-row justify-between w-full bg-violet-300 md:p-3 p-1 rounded-full hover:bg-violet-200">
-                  <div className="md:text-md text-sm  font-semibold pl-4">
+                  <div className="md:text-md text-sm font-semibold pl-4">
                     Edit
                   </div>
                   <div className="pr-4">
                     <MdEdit size={20} />
                   </div>
                 </button>
-              </div>
-            </div>
-            <div className="md:w-1/3 w-full bg-violet-100  rounded-lg md:space-y-0 space-y-4  flex flex-col justify-between p-6">
-              <div className="flex flex-col">
-                <div className="flex flex-row justify-between">
-                  <div className="md:text-sm text-xs text-neutral-600">
-                    30th June 2024
-                  </div>
-                  <button className="rounded-lg bg-neutral-100 hover:bg-red-200  md:p-2 p-1">
-                    <MdDelete className="hidden md:block" size={20} />
-                    <MdDelete className="block md:hidden" size={14} />
-                  </button>
-                </div>
-                <div className="md:text-4xl text-xl font-semibold">
-                  <h1 className={pops.className}>SQL Query Engine</h1>
-                </div>
-                <button className="mt-2 border-2 rounded-full p-2 border-black md:h-6 h-4 w-1/6 text-sm text-center items-center flex justify-center">
-                  <div>
-                    <FaLockOpen className="block md:hidden" size={10} />
-                    <FaLockOpen className="hidden md:block" size={16} />
-                  </div>
-                </button>
-              </div>
-              <div className="">
-                <button className="flex flex-row justify-between w-full bg-violet-300 md:p-3 p-1 rounded-full hover:bg-violet-200">
-                  <div className="md:text-md text-sm  font-semibold pl-4">
-                    Edit
-                  </div>
-                  <div className="pr-4">
-                    <MdEdit size={20} />
-                  </div>
-                </button>
-              </div>
+              </Link>
             </div>
           </div>
-        )}
+        ))
+      ) : (
+        <div>No projects found.</div>
+      )}
+    </div>
+  )
+)}
+
         {activeTab === 1 && (
           <div className="h-full flex flex-col md:flex-row md:space-y-0 md:space-x-3 space-x-0 space-y-4 justify-between">
             <div className="md:w-1/3 w-full bg-violet-100  rounded-lg flex flex-col md:space-y-0 space-y-4 justify-between p-6">
@@ -267,8 +239,8 @@ const Tabs = ({user,uid}:any) => {
             {loading ? (
               <div>Loading projects...</div>
             ) : (
-              projects.length > 0 ? (
-                projects.map((project, index) => (
+              publicprojects.length > 0 ? (
+                publicprojects.map((project, index) => (
                   <div
                     key={index}
                     className="w-1/4 h-full  bg-violet-100 rounded-lg flex flex-col justify-between space-y-0  p-6 mb-2 ml-2"

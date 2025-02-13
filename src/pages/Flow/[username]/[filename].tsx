@@ -363,42 +363,8 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
       eds.filter((edge) => !deletableEdges.map((e) => e.id).includes(edge.id))
     );
 
-    // Handle Group 1 deletion
-    if (typedGroup1.some((id) => deletableNodeIds.includes(id))) {
-      setNodes((nds) => nds.filter((node) => !typedGroup1.includes(node.id)));
-      setEdges((eds) =>
-        eds.filter(
-          (edge) =>
-            !typedGroup1.includes(edge.source) &&
-            !typedGroup1.includes(edge.target)
-        )
-      );
+    
 
-      // Avoid duplicate edges
-      setEdges((eds) =>
-        eds.some((e) => e.id === "2-5")
-          ? eds
-          : [...eds, { id: "2-5", source: "2", target: "5" }]
-      );
-    }
-
-    // Handle Group 2 deletion
-    if (typedGroup2.some((id) => deletableNodeIds.includes(id))) {
-      setNodes((nds) => nds.filter((node) => !typedGroup2.includes(node.id)));
-      setEdges((eds) =>
-        eds.filter(
-          (edge) =>
-            !typedGroup2.includes(edge.source) &&
-            !typedGroup2.includes(edge.target)
-        )
-      );
-
-      setEdges((eds) =>
-        eds.some((e) => e.id === "5-10")
-          ? eds
-          : [...eds, { id: "5-10", source: "5", target: "10" }]
-      );
-    }
 
     // Reset selection
     setSelectedElements({ nodes: [], edges: [] });

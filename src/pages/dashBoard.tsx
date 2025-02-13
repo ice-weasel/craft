@@ -24,7 +24,7 @@ const mont = Montserrat({
   subsets: ["latin"],
 });
 
-const Dashboard =({ user,projects }: { user: any,projects:any }) => {
+const Dashboard =({ user,uid,projects }: { user: any,uid:any,projects:any }) => {
   const [userName, setUserName] = useState(user?.Name || "User");
   const [showProf,setshowProf] = useState(false);
   const router = useRouter()
@@ -164,7 +164,7 @@ const Dashboard =({ user,projects }: { user: any,projects:any }) => {
         </div>
       </div>
       <div className="md:h-1/2 md:pb-0 pb-4">
-        <Tabs   />
+        <Tabs username = {user.username} user = {user} uid = {uid}  />
       </div>
     </div>
   );

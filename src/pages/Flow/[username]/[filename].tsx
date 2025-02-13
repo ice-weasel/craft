@@ -959,7 +959,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
               <MdOutlineDownloading size={26} className="" />
               <p className="text-xs">
                 To start processing deployment, the consistency of the workflow
-                has to be checked. We are using gemma-9b model to check for
+                has to be checked. We are using llama-3.3 model to check for
                 consistency in our local server,thus ensuring your data privacy.
                 Click on the CHECK button below to move forward with the
                 consistency check.

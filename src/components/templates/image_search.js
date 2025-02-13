@@ -8,30 +8,35 @@ const initialNodes = [
         type: "input",
         data: { label: "Start" },
         position: { x: 250, y: 25 },
+        className:'custom-node'
       },
       {
         id: "2",
         type:"conditional",
         data: { label: "process-images" },
         position: { x: 250, y: 100 },
+        className:'custom-node'
       },
       {
         id:"3",
         type:"default",
         data: { label: "search-images" },
-        position: { x: 50, y: 175 }
+        position: { x: 50, y: 175 },
+        className:'custom-node'
       },
       {
         id:"4",
         type:"default",
         data: { label: "describe-images" },
-        position: {x: 450, y: 175}
+        position: {x: 450, y: 175},
+        className:'custom-node'
       },
       {
         id:"5",
         type:"output",
         data: { label: "Stop" },
-        position: {x: 250,y: 250 }
+        position: {x: 250,y: 250 },
+        className:'custom-node'
       }
 
       

@@ -4,7 +4,7 @@ import { MdDelete } from "react-icons/md";
 import { MdEdit } from "react-icons/md";
 import { FaLock } from "react-icons/fa";
 import { FaLockOpen } from "react-icons/fa";
-import { collection, collectionGroup, getDocs, limit, orderBy, query, where } from "firebase/firestore";
+import { collection, collectionGroup, deleteDoc, doc, getDocs, limit, orderBy, query, where } from "firebase/firestore";
 import Link from "next/link";
 import { firedb } from "@/app/firebase";
 import { getUserData } from "@/utils/authUtils";
@@ -53,16 +53,13 @@ const Tabs = ({username,user,uid}:TabsProps) => {
         setLoading(false);
       }
     };
-
-    
-    
     const fetchUserProjects = async () => {
         try{
           const projectsRef = collection(firedb, "Users", uid as string, "projects");
           const q = query(projectsRef, orderBy("createdAt", "asc"), limit(3)); // Order by updatedAt, newest first
           const querySnapshot = await getDocs(q);
           const projects = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          console.log(projects)
+          
 
           setProjects(projects)
 
@@ -73,7 +70,17 @@ const Tabs = ({username,user,uid}:TabsProps) => {
 
     fetchUserProjects();
     fetchProjects();
-  }, [uid]); // Empty dependency array, runs only once on component mount
+  }, [uid,projects]); // Empty dependency array, runs only once on component mount
+
+
+    const deleteProjects = async (filename:any) => {
+      try {
+        const projectsRef = collection(firedb, "Users", uid as string, "projects");
+        await deleteDoc(doc(projectsRef,filename))
+      }catch(error) {
+
+      }
+    }
 
  
   return (
@@ -130,7 +137,7 @@ const Tabs = ({username,user,uid}:TabsProps) => {
                       year: "numeric",
                     })}
                   </div>
-                  <button className="rounded-lg bg-neutral-100 hover:bg-red-200 md:p-2 p-1">
+                  <button onClick={() => deleteProjects(project.filename)} className="rounded-lg bg-neutral-100 hover:bg-red-200 md:p-2 p-1">
                     <MdDelete className="hidden md:block" size={20} />
                     <MdDelete className="block md:hidden" size={14} />
                   </button>

@@ -69,7 +69,6 @@ import { SiStreamlit } from "react-icons/si";
 
 import "@/styles/styles.css";
 
-
 export async function getServerSideProps(context: any) {
   return getUserData(context, true);
 }
@@ -374,7 +373,6 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
       eds.filter((edge) => !deletableEdges.map((e) => e.id).includes(edge.id))
     );
 
-
     // Handle Group 1 deletion
     if (typedGroup1.some((id) => deletableNodeIds.includes(id))) {
       setNodes((nds) => nds.filter((node) => !typedGroup1.includes(node.id)));
@@ -412,7 +410,6 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
       );
     }
 
-
     // Reset selection
     setSelectedElements({ nodes: [], edges: [] });
   }, [
@@ -445,7 +442,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         id: getId(),
         type,
         position,
-        className: 'custom-node',
+        className: "custom-node",
         data, // Applying the custom data to the node
       };
 
@@ -526,7 +523,9 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
       llm: {
         llm_name: selectedLLM || "groq",
         config: {
-          apiKey: apiKey || "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",
+          apiKey:
+            apiKey ||
+            "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",
           temperature: temperature || "0.3",
           isVerbose: isVerbose || "false",
         },
@@ -621,7 +620,9 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         llm: {
           llm_name: selectedLLM || "Groq",
           config: {
-            apiKey: apiKey || "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",
+            apiKey:
+              apiKey ||
+              "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",
             temperature: temperature || "0.3",
             isVerbose: isVerbose || "false",
           },
@@ -743,6 +744,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   }
   //screenshot
   const screenShot = async () => {
+    console.log("clicked 1");
     const element = document.getElementById("main-area"); // ID of the component
     if (!element) return;
 
@@ -753,7 +755,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
     link.href = dataUrl;
     link.download = "screenshot.png";
     link.click();
-    console.log("clicked");
+    console.log("clicked 2");
   };
 
   //host modal
@@ -839,7 +841,9 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
 
   //check consistency
 
-  const checkConsistency = () => {};
+  const checkConsistency = () => {
+    console.log("check consistency");
+  };
 
   return (
     <div className="flex flex-row h-screen  ">
@@ -859,7 +863,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         </button>
       </div>
 
-      <div className="flex-1" ref={reactFlowWrapper}>
+      <div className="flex-1" ref={reactFlowWrapper} id="main-area">
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -932,7 +936,6 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
               <span className="invisible group-hover:visible absolute bg-gray-100 text-black p-2  text-xs mt-16 ml-6 rounded-md">
                 Screenshot
               </span>
-
             </button>
           </Panel>
           <Controls />

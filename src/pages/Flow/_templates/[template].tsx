@@ -694,11 +694,11 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   };
 
   return (
-    <div className="flex flex-row  ">
+    <div className="flex flex-row  h-screen">
       <div
         className={`
 
-          w-1/5  bg-zinc-900 flex flex-col shadow-xl border-2   border-black  transition-all duration-600 ease-in-out h-full overflow-y-auto custom-scrollbar
+          w-1/5  bg-zinc-900 flex flex-col shadow-xl border-2   border-black  transition-all duration-600 ease-in-out h-screen overflow-y-auto custom-scrollbar
 
           ${isExpanded1 ? "w-1/5" : "w-14 bg-slate-950"}
         `}

@@ -563,6 +563,9 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
     vstools,
   ]);
 
+
+  
+
   const downloadJson = () => {
     const blob = new Blob([jsonData], { type: "application/json" });
 
@@ -896,14 +899,13 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   };
 
   return (
-    <div className="flex flex-row h-screen  ">
-      <div
+    <div className="flex flex-row min-h-[100vh]  ">
+       <div
         className={`
-          w-1/5  bg-zinc-900  flex flex-col shadow-xl border-1 border-black  transition-all duration-600 ease-in-out h-full
+          w-1/5   bg-zinc-900 flex flex-col shadow-xl border-2 border-black max-h-[100vh] overflow-auto  transition-all duration-600 ease-in-out
           ${isExpanded1 ? "w-1/5" : "w-14 bg-indigo-100"}
         `}
       >
-        {/* I want to do freaky shit on template change so that when it loads up correct thingy on selftab */}
         {isExpanded1 && <SelfTab />}
         <button
           onClick={() => setIsExpanded1(!isExpanded1)}
@@ -912,6 +914,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
           {isExpanded1 ? <IoIosArrowBack /> : <IoIosArrowForward />}
         </button>
       </div>
+
 
       <div className="flex-1" ref={reactFlowWrapper} id="main-area">
         <ReactFlow
@@ -1138,7 +1141,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         }`}
       >
         {isExpanded2 && (
-          <div className="max-h-screen p-5">
+          <div className="min-h-screen p-5">
             {" "}
             <div className="">
               <h1 className="text-lg text-white font-semibold text-right">
@@ -1146,7 +1149,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
               </h1>
               <hr className="h-[1.5px] my-3 bg-indigo-500 border-0 " />
             </div>
-            <div className="p-5 flex flex-col bg-zinc-800 rounded-lg space-y-3 transition-transform duration-600 overflow-y-auto max-h-[90vh]">
+            <div className="p-5 flex flex-col bg-zinc-800 rounded-lg space-y-3 transition-transform duration-600 overflow-y-auto max-h-[85vh]">
               {compLoaded ? ( // Show loader while data is being fetched
                 <div className="flex justify-center items-center h-40">
                   <span className="text-gray-600">Loading components...</span>
@@ -1155,7 +1158,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
                 Object.entries(components).map(([type, component], index) => (
                   <div
                     key={type}
-                    className="border-1 border-indigo-300 rounded-md p-3 bg-indigo-300"
+                    className="border-1 border-indigo-400 rounded-md p-3 bg-indigo-400"
                   >
                     <button
                       onClick={() => toggleAccordion(index)}

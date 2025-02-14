@@ -459,10 +459,10 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   //
 
   return (
-    <div className="flex flex-row min-h-screen  ">
+    <div className="flex flex-row min-h-[100vh]  ">
       <div
         className={`
-          w-1/5   bg-zinc-900 flex flex-col shadow-xl border-1 border-black  transition-all duration-600 ease-in-out
+          w-1/5   bg-zinc-900 flex flex-col shadow-xl border-2 border-black max-h-[100vh] overflow-auto  transition-all duration-600 ease-in-out
           ${isExpanded1 ? "w-1/5" : "w-14 bg-indigo-100"}
         `}
       >
@@ -649,7 +649,25 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
                     <div>
                       <IoIosArrowDown />
                     </div>
+
+                    <div className="p-5 flex flex-col bg-zinc-800 rounded-lg space-y-3 transition-transform duration-600 overflow-y-auto max-h-[80vh]">
+                      {Object.entries(components).map(([type, component], index) => (
+                        <div
+                          key={type}
+                          className="border-1 border-indigo-400 rounded-md p-3 bg-indigo-400 "
+                        >
+                          <button
+                            onClick={() => toggleAccordion(index)}
+                            className="w-full flex justify-between flex-row transition-transform duration-60 font-semibold text-black"
+                          >
+                            <div>{type}</div>
+                            <div>
+                              <IoIosArrowDown />
+                            </div>
+                            {/* <span
+
                     {/* <span
+
                           id={`icon-${index}`}
                           className="transition-transform duration-300"
                           dangerouslySetInnerHTML={{

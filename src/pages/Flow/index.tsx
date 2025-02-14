@@ -293,7 +293,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
       },
       doc_type: option || "pdf_type",
       embeddings: embeddings || "hugging_face",
-      retriever_tools: rtools || "multi_query",
+      retriever_tools: rtools || "basic",
       vector_stores: vstools || "chroma_store",
       prompts: prompts || "default",
       customtext: customtext || null,
@@ -374,7 +374,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         },
         doc_type: option || "PDF",
         embeddings: embeddings || "hugging_face",
-        retriever_tools: rtools || "Multi_Query",
+        retriever_tools: rtools || "basic",
         vector_stores: vstools || "Chroma_store",
         prompts: prompts || "default",
         customtext: customtext || null,
@@ -517,8 +517,9 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
             },
           },
       doc_type: option || "pdf_type",
-      embeddings: embeddings || "hugging_face_type_embeddings",
-      retriever_tools: rtools || "multi-query",
+      embeddings: embeddings || "hugging_face",
+      retriever_tools: rtools || "basic",
+
       vector_stores: vstools || "chroma_store",
       prompts: prompts || "default",
       customtext: customtext || null,
@@ -609,10 +610,11 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   }, [extractPaths]);
 
   return (
-    <div className="flex flex-row ">
+    <div className="flex flex-row h-screen">
       <div
-        className={`
-          w-1/5   bg-zinc-900 flex flex-col shadow-xl border-1  border-black  transition-all duration-600 ease-in-out
+        className={`h-full 
+          w-1/5   bg-zinc-900 flex flex-col shadow-xl border-1 border-black  transition-all duration-600 ease-in-out overflow-y-auto custom-scrollbar
+
           ${isExpanded1 ? "w-1/5" : "w-14 bg-indigo-100"}
         `}
       >

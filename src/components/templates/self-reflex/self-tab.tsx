@@ -86,7 +86,7 @@ const SelfTab = () => {
   }, [router.query]);
 
   return (
-    <div className="p-5  overflow-auto  ">
+    <div className="p-5   ">
       <div className="">
         <h1 className="text-lg  text-white font-semibold">Tool Box</h1>
         <hr className="h-[1.5px] my-3 bg-indigo-500 border-0 " />
@@ -114,9 +114,17 @@ const SelfTab = () => {
           Advanced
         </button>
       </div>
-      <Suspense  fallback={<div>Loading...</div>}>
-        {activeTab === 0 && <div className="flex flex-col  gap-5 h-full justify-center  ">{basicComponents}</div>}
-        {activeTab === 1 && <div className="flex flex-col  gap-5 h-full justify-center  ">{advancedComponents}</div>}
+      <Suspense fallback={<div>Loading...</div>}>
+        {activeTab === 0 && (
+          <div className="flex flex-col  gap-5 h-full justify-center  ">
+            {basicComponents}
+          </div>
+        )}
+        {activeTab === 1 && (
+          <div className="flex flex-col  gap-5 h-full justify-center  ">
+            {advancedComponents}
+          </div>
+        )}
       </Suspense>
     </div>
   );

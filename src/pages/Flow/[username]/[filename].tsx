@@ -523,8 +523,57 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
     return paths;
   }, [nodes, edges]);
 
+  //check consistency
+  const checkConsistency = useCallback(async () => {
+    /*if (!nodes || nodes.length === 0 || !edges || edges.length === 0) {
+      console.error("Nodes or edges are not available yet!");
+      return;
+    }*/
+    const pathData = extractPaths();
+    console.log("check consistency");
+    console.log("json data - check - ", pathData);
+    const llm = new ChatGroq({
+      model: "llama-3.1-8b-instant",
+      apiKey: "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",
+      temperature: 0,
+    });
+    const stringJson = JSON.stringify(pathData);
+    console.log("string json - ", stringJson);
+
+    const aiMsg = await llm.invoke([
+      {
+        role: "system",
+        content:
+          "You are a assistant that checks for consistency and usability of the LLM based workflow, which is given to you in a json like format. If the workflow makes sense and is logical, then its consistent. Else, it is not. Note- the workflow is consistent in most cases, only very apparent illogical workflows should be flagged as false. If the output is consistent, then te response should be true. else, false. the response should strictly only contain the words 'true' or 'false'.",
+      },
+      { role: "user", content: stringJson },
+    ]);
+    //console.log("aimsg : ", aiMsg.content);
+
+    console.log("response - ", aiMsg.content);
+    const responseText =
+      typeof aiMsg.content === "string"
+        ? aiMsg.content.trim()
+        : JSON.stringify(aiMsg.content);
+    console.log("response - ", responseText);
+    const result = responseText === "true";
+    setConsistencyResult(result);
+    console.log("result - ", result);
+    if (result) {
+      sendBackend();
+    }
+  }, [extractPaths]);
+
+  const handleHost = () => {
+    // Navigate to the specified link (localhost:8501)
+    window.location.href = "http://localhost:8501";
+  };
+
+  //export as json
+
   const exportPathsAsJson = useCallback(async () => {
     const pathData = extractPaths();
+    console.log("pathdata- ", extractPaths);
     const { template } = router.query;
     // Include other relevant fields
     const exportData = {
@@ -540,7 +589,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
       },
       doc_type: option || "PDF",
       embeddings: embeddings || "hugging_face",
-      retriever_tools: rtools || "Multi_Query",
+      retriever_tools: rtools || "basic",
       vector_stores: vstools || "Chroma_store",
       prompts: prompts || "default",
       template: template || "custom-template",
@@ -647,7 +696,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         },
         doc_type: option || "PDF",
         embeddings: embeddings || "hugging_face",
-        retriever_tools: rtools || "Multi_Query",
+        retriever_tools: rtools || "basic",
         vector_stores: vstools || "Chroma_store",
         prompts: prompts || "default",
         customtext: customtext || null,
@@ -808,7 +857,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
           },
       doc_type: option || "pdf_type",
       embeddings: embeddings || "hugging_face_type_embeddings",
-      retriever_tools: rtools || "multi-query",
+      retriever_tools: rtools || "basic",
       vector_stores: vstools || "chroma_store",
       prompts: prompts || "default",
       customtext: customtext || null,
@@ -863,56 +912,11 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
     consistent: "whether the json is consistent or not - true or false value",
   });
 
-  const checkConsistency = async () => {
-    console.log("check consistency");
-    console.log("json data - check - ", jsonData);
-    const llm = new ChatGroq({
-      model: "llama-3.1-8b-instant",
-      apiKey: "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",
-      temperature: 0,
-    });
-    const stringJson = JSON.stringify(jsonData);
-    console.log("string json - ", stringJson);
-
-    /*const chain = RunnableSequence.from([
-      PromptTemplate.fromTemplate(
-        "Check the consistency of the given data.\n{format_instructions}\n{question}"
-      ),
-      llm,
-      parser,
-    ]);
-
-    const response = await chain.invoke({
-      question: stringJson,
-      format_instructions: parser.getFormatInstructions(),
-    });*/
-
-    const aiMsg = await llm.invoke([
-      {
-        role: "system",
-        content:
-          "You are a assistant that checks for consistency and usability of workflows. If the workflow makes sense and is logical, then its consistent. Else, it is not. If the output is consistent, then te response should be true. else, false. the response should strictly only contain the words 'true' or 'false'.",
-      },
-      { role: "user", content: stringJson },
-    ]);
-    //console.log("aimsg : ", aiMsg.content);
-
-    console.log("response - ", aiMsg.content);
-    const responseText =
-      typeof aiMsg.content === "string"
-        ? aiMsg.content.trim()
-        : JSON.stringify(aiMsg.content);
-    console.log("response - ", responseText);
-    const result = responseText === "true";
-    setConsistencyResult(result); // Update state
-    console.log("result - ", result);
-  };
-
   return (
     <div className="flex flex-row h-screen  ">
       <div
         className={`
-          w-1/5  bg-zinc-900  flex flex-col shadow-xl border-1 border-black  transition-all duration-600 ease-in-out h-full
+          w-1/5  bg-zinc-900  flex flex-col shadow-xl border-1 border-black  transition-all duration-600 ease-in-out h-full overflow-y-auto custom-scrollbar
           ${isExpanded1 ? "w-1/5" : "w-14 bg-indigo-100"}
         `}
       >
@@ -982,7 +986,6 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
             <button
               onClick={() => {
                 handleClick();
-                sendBackend();
               }}
               className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-green-600 transition-colors group"
             >
@@ -1049,7 +1052,10 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
             )}
             {consistencyResult === true && (
               <div className="flex justify-center mt-4">
-                <button className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded">
+                <button
+                  onClick={handleHost}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded"
+                >
                   Host
                 </button>
               </div>

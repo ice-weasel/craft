@@ -1161,7 +1161,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
                 Object.entries(components).map(([type, component], index) => (
                   <div
                     key={type}
-                    className="border-1 border-indigo-300 rounded-md p-3 bg-indigo-300"
+                    className="border-1 border-indigo-400 rounded-md p-3 bg-indigo-400"
                   >
                     <button
                       onClick={() => toggleAccordion(index)}

@@ -519,6 +519,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
       doc_type: option || "pdf_type",
       embeddings: embeddings || "hugging_face",
       retriever_tools: rtools || "basic",
+
       vector_stores: vstools || "chroma_store",
       prompts: prompts || "default",
       customtext: customtext || null,
@@ -609,10 +610,11 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   }, [extractPaths]);
 
   return (
-    <div className="flex flex-row min-h-screen  ">
+    <div className="flex flex-row ">
       <div
         className={`
           w-1/5   bg-zinc-900 flex flex-col shadow-xl border-1 border-black  transition-all duration-600 ease-in-out overflow-y-auto custom-scrollbar
+
           ${isExpanded1 ? "w-1/5" : "w-14 bg-indigo-100"}
         `}
       >
@@ -853,7 +855,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
               {Object.entries(components).map(([type, component], index) => (
                 <div
                   key={type}
-                  className="border-1 border-indigo-300 rounded-md p-3 bg-indigo-300 "
+                  className="border-1 border-indigo-400 rounded-md p-3 bg-indigo-400 "
                 >
                   <button
                     onClick={() => toggleAccordion(index)}

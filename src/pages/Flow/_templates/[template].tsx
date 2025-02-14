@@ -377,14 +377,16 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
       llm: {
         llm_name: selectedLLM || "groq",
         config: {
-          apiKey: apiKey || "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",
+          apiKey:
+            apiKey ||
+            "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",
           temperature: temperature || "0.3",
           isVerbose: isVerbose || "false",
         },
       },
       doc_type: option || "pdf_type",
-      embeddings: embeddings || "hugging_face_type_embeddings",
-      retriever_tools: rtools || "multi-query",
+      embeddings: embeddings || "hugging_face",
+      retriever_tools: rtools || "basic",
       vector_stores: vstools || "chroma_store",
       prompts: prompts || "default",
       customtext: customtext || null,
@@ -398,7 +400,6 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
     setJsonData(exportData);
 
     //this is the thingy we win lesgo
-    
 
     // Create and trigger download
   }, [
@@ -461,14 +462,16 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         llm: {
           llm_name: selectedLLM || "Groq",
           config: {
-            apiKey: apiKey || "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",
+            apiKey:
+              apiKey ||
+              "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",
             temperature: temperature || "0.3",
             isVerbose: isVerbose || "false",
           },
         },
         doc_type: option || "PDF",
         embeddings: embeddings || "hugging_face",
-        retriever_tools: rtools || "Multi_Query",
+        retriever_tools: rtools || "basic",
         vector_stores: vstools || "Chroma_store",
         prompts: prompts || "default",
         customtext: customtext || null,
@@ -597,14 +600,16 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
       llm: {
         llm_name: selectedLLM || "groq",
         config: {
-          apiKey: apiKey || "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",
+          apiKey:
+            apiKey ||
+            "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",
           temperature: temperature || "0.3",
           isVerbose: isVerbose || "false",
         },
       },
       doc_type: option || "pdf_type",
       embeddings: embeddings || "hugging_face",
-      retriever_tools: rtools || "multi_query",
+      retriever_tools: rtools || "basic",
       vector_stores: vstools || "chroma_store",
       prompts: prompts || "default",
       customtext: customtext || null,
@@ -750,7 +755,6 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
               onClick={() => {
                 openSaveModal();
                 exportPathsAsJson();
-                
               }}
               className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-indigo-400 transition-colors"
             >

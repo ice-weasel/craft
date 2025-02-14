@@ -270,6 +270,11 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
     return paths;
   }, [nodes, edges]);
 
+  const handleHost = () => {
+    // Navigate to the specified link (localhost:8501)
+    window.location.href = "http://localhost:8501";
+  };
+
   const exportPathsAsJson = useCallback(() => {
     // Only export at specific tab
     const pathData = extractPaths();
@@ -288,7 +293,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
       },
       doc_type: option || "pdf_type",
       embeddings: embeddings || "hugging_face",
-      retriever_tools: rtools || "multi_query",
+      retriever_tools: rtools || "basic",
       vector_stores: vstools || "chroma_store",
       prompts: prompts || "default",
       customtext: customtext || null,
@@ -369,7 +374,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         },
         doc_type: option || "PDF",
         embeddings: embeddings || "hugging_face",
-        retriever_tools: rtools || "Multi_Query",
+        retriever_tools: rtools || "basic",
         vector_stores: vstools || "Chroma_store",
         prompts: prompts || "default",
         customtext: customtext || null,
@@ -513,7 +518,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
           },
       doc_type: option || "pdf_type",
       embeddings: embeddings || "hugging_face_type_embeddings",
-      retriever_tools: rtools || "multi-query",
+      retriever_tools: rtools || "basic",
       vector_stores: vstools || "chroma_store",
       prompts: prompts || "default",
       customtext: customtext || null,
@@ -583,7 +588,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
       {
         role: "system",
         content:
-          "You are a assistant that checks for consistency and usability of the LLM based workflow, which is given to you in a json like format. If the workflow makes sense and is logical, then its consistent. Else, it is not. Act as a critic to find whether the flow of the llm workflow or rag approach is reversed or scrambled. If it is, then its inconsistent. The response should strictly only contain the words 'true' or 'false'.",
+          "You are a assistant that checks for consistency and usability of the LLM based workflow, which is given to you in a json like format. If the workflow makes sense and is logical, then its consistent. Else, it is not. Note these 2 strict conditions - 1 ) If retrieve comes first, it is inconsistent.2) If generate, it is consistent (true).These 2 conditions should be strictly adhered accurately. The response should strictly only contain the words 'true' or 'false'.",
       },
       { role: "user", content: stringJson },
     ]);
@@ -598,6 +603,9 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
     const result = responseText === "true";
     setConsistencyResult(result);
     console.log("result - ", result);
+    if (result) {
+      sendBackend();
+    }
   }, [extractPaths]);
 
   return (
@@ -730,7 +738,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
               <div className="flex justify-center mt-4 flex-col items-center text-center">
                 <p>Consistency verified!</p>
                 <button
-                  onClick={sendBackend}
+                  onClick={handleHost}
                   className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded flex justify-end"
                 >
                   <SiStreamlit size={20} />

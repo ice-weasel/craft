@@ -556,7 +556,15 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
     const result = responseText === "true";
     setConsistencyResult(result);
     console.log("result - ", result);
+    if (result) {
+      sendBackend();
+    }
   }, [extractPaths]);
+
+  const handleHost = () => {
+    // Navigate to the specified link (localhost:8501)
+    window.location.href = "http://localhost:8501";
+  };
 
   //export as json
 
@@ -578,7 +586,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
       },
       doc_type: option || "PDF",
       embeddings: embeddings || "hugging_face",
-      retriever_tools: rtools || "Multi_Query",
+      retriever_tools: rtools || "basic",
       vector_stores: vstools || "Chroma_store",
       prompts: prompts || "default",
       template: template || "custom-template",
@@ -675,7 +683,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         },
         doc_type: option || "PDF",
         embeddings: embeddings || "hugging_face",
-        retriever_tools: rtools || "Multi_Query",
+        retriever_tools: rtools || "basic",
         vector_stores: vstools || "Chroma_store",
         prompts: prompts || "default",
         customtext: customtext || null,
@@ -836,7 +844,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
           },
       doc_type: option || "pdf_type",
       embeddings: embeddings || "hugging_face_type_embeddings",
-      retriever_tools: rtools || "multi-query",
+      retriever_tools: rtools || "basic",
       vector_stores: vstools || "chroma_store",
       prompts: prompts || "default",
       customtext: customtext || null,
@@ -1032,7 +1040,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
             {consistencyResult === true && (
               <div className="flex justify-center mt-4">
                 <button
-                  onClick={sendBackend}
+                  onClick={handleHost}
                   className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded"
                 >
                   Host

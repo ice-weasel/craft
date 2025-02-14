@@ -689,10 +689,10 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   };
 
   return (
-    <div className="flex flex-row min-h-[100vh] ">
+    <div className="flex flex-row h-screen  ">
       <div
         className={`
-          w-1/5  bg-zinc-900 flex flex-col shadow-xl border-2  border-black  transition-all duration-600 ease-in-out h-full
+          w-1/5  bg-zinc-900 flex flex-col shadow-xl border-2   border-black  transition-all duration-600 ease-in-out h-full
           ${isExpanded1 ? "w-1/5" : "w-14 bg-slate-950"}
         `}
       >
@@ -918,12 +918,12 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
           <div className="p-5">
             {" "}
             <div className=" bg-zinc-900 p-5">
-              <h1 className="text-lg  text-white font-semibold ">
+              <h1 className="text-lg  text-white font-semibold text-right">
                 Components
               </h1>
               <hr className="h-[1.5px] my-3 bg-indigo-500 border-0 " />
             </div>
-            <div className="p-5 flex flex-col bg-zinc-800 rounded-lg space-y-3 transition-transform duration-600 overflow-y-auto max-h-[80vh]">
+            <div className="p-5 flex flex-col bg-zinc-800 rounded-lg space-y-3 transition-transform duration-600 overflow-y-auto max-h-[90vh]">
               {Object.entries(components).map(([type, component], index) => (
                 <div
                   key={type}

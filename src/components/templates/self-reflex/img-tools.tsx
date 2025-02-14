@@ -17,7 +17,7 @@ export default function IMGTools() {
           <div
             className="p-2  text-center flex gap-3 items-center text-blue  font-semibold hover:text-black bg-indigo-100 hover:bg-indigo-200 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
             onDragStart={(e) =>
-              onDragStart(e, "conditional", {
+              onDragStart(e, "default", {
                 label: "visualize-tool",
                 action: "visualize",
               })
@@ -32,7 +32,7 @@ export default function IMGTools() {
           <div
             className="p-2  text-center flex gap-3 items-center text-blue  font-semibold hover:text-black bg-indigo-100 hover:bg-indigo-200 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
             onDragStart={(e) =>
-              onDragStart(e, "conditional", {
+              onDragStart(e, "default", {
                 label: "adv-search-tool",
                 action: "adv-search",
               })

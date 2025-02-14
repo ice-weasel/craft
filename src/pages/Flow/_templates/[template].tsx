@@ -689,10 +689,10 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   };
 
   return (
-    <div className="flex flex-row h-screen  ">
+    <div className="flex flex-row  ">
       <div
         className={`
-          w-1/5  bg-zinc-900 flex flex-col shadow-xl border-2   border-black  transition-all duration-600 ease-in-out h-full
+          w-1/5  bg-zinc-900 flex flex-col shadow-xl border-2 min-h-screen  border-black  transition-all duration-600 ease-in-out 
           ${isExpanded1 ? "w-1/5" : "w-14 bg-slate-950"}
         `}
       >
@@ -927,7 +927,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
               {Object.entries(components).map(([type, component], index) => (
                 <div
                   key={type}
-                  className="border-1 border-indigo-300 rounded-md p-3 bg-indigo-400 "
+                  className="border-1 border-indigo-400 rounded-md p-3 bg-indigo-400 "
                 >
                   <button
                     onClick={() => toggleAccordion(index)}

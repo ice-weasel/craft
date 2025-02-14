@@ -38,7 +38,13 @@ import { ReactFlowInstance } from "reactflow";
 import { getUserData } from "@/utils/authUtils";
 import { RiShareForwardLine } from "react-icons/ri";
 import { ChatGroq } from "@langchain/groq";
+import { TbCameraDown } from "react-icons/tb";
+import html2canvas from "html2canvas";
+import { MdOutlineDownloading } from "react-icons/md";
+import { RiRobot3Line } from "react-icons/ri";
 import "@/styles/styles.css";
+import { SiStreamlit } from "react-icons/si";
+
 //Cookie verification
 export async function getServerSideProps(context: any) {
   return getUserData(context);
@@ -79,16 +85,16 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
     nodes: Node[];
     edges: Edge[];
   }>({ nodes: [], edges: [] });
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [saveModalOpen, setSaveModalOpen] = useState(false);
   const [filename, setFileName] = useState("");
   const [ispublic, setIsPublic] = useState(true);
-
+  const [successMessage, setSuccessMessage] = useState<string>("");
   const openSaveModal = () => setSaveModalOpen(true);
   const closeSaveModal = () => setSaveModalOpen(false);
-
+  const [isLoading, setIsLoading] = useState(true);
   const [option, setOption] = useState<string | null>(null);
   const [prompts, setPrompts] = useState<string | null>(null);
   const [isVerbose, setIsVerbose] = useState(false);
@@ -104,6 +110,9 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   const [showModal, setShowModal] = useState(false);
   const [pendingEdges, setPendingEdges] = useState<Edge[]>([]);
   const [customtext, setCustomtext] = useState<string | null | undefined>(null);
+  const [consistencyResult, setConsistencyResult] = useState<null | boolean>(
+    null
+  );
 
   const onConnect = useCallback(
     (params: Connection) => {
@@ -260,6 +269,11 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
     console.log("Extracted paths:", paths);
     return paths;
   }, [nodes, edges]);
+
+  const handleHost = () => {
+    // Navigate to the specified link (localhost:8501)
+    window.location.href = "http://localhost:8501";
+  };
 
   const exportPathsAsJson = useCallback(() => {
     // Only export at specific tab
@@ -451,18 +465,154 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
       />
     ),
   };
+  //host modal
+  //host modal
+  const handleClick = () => {
+    setIsModalOpen(true);
+  };
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
 
   //sidebar
   const [isExpanded1, setIsExpanded1] = useState(true);
   const [isExpanded2, setIsExpanded2] = useState(true);
 
-  //
+  //screenshot
+  const screenShot = async () => {
+    console.log("clicked 1");
+    const element = document.getElementById("main-area"); // ID of the component
+    if (!element) return;
+
+    const canvas = await html2canvas(element);
+    const dataUrl = canvas.toDataURL("image/png");
+
+    const link = document.createElement("a");
+    link.href = dataUrl;
+    link.download = "screenshot.png";
+    link.click();
+    console.log("clicked 2");
+  };
+
+  //sendbackend
+  const sendBackend = async () => {
+    //exportPathsAsJson();
+    const pathData = extractPaths();
+    const { template } = router.query;
+    // Include other relevant fields
+    const exportData = {
+      llm: selectedLLM
+        ? {
+            [selectedLLM]: {
+              apiKey: apiKey || "23423452342",
+              temperature: temperature || "0.3",
+              isVerbose: isVerbose || "false",
+            },
+          }
+        : {
+            groq_model: {
+              apiKey: apiKey || "23423452342",
+              temperature: temperature || "0.3",
+              isVerbose: isVerbose || "false",
+            },
+          },
+      doc_type: option || "pdf_type",
+      embeddings: embeddings || "hugging_face_type_embeddings",
+      retriever_tools: rtools || "multi-query",
+      vector_stores: vstools || "chroma_store",
+      prompts: prompts || "default",
+      customtext: customtext || null,
+      template: template || "custom-template",
+      flowPaths: pathData, // Inject extracted paths here
+    };
+    const jsonString = JSON.stringify(exportData, null, 2);
+    console.log("Export data : ", exportData);
+    // const response = await fetch("/api/sendjson", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body:jsonString,
+    // });
+
+    setJsonData(exportData);
+
+    //export end
+    console.log("json data after: ", jsonData);
+    if (!exportData) {
+      setError("No data to send");
+      return;
+    }
+    setIsLoading(true);
+    setError("");
+    setSuccessMessage("");
+    console.log("typeof : ", exportData);
+    try {
+      // Send JSON data to the backend
+      const response = await fetch("http://localhost:8000/receive-data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(exportData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to send data to backend");
+      }
+    } catch (error) {
+      console.error("Download failed:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  //consistency check
+  const checkConsistency = useCallback(async () => {
+    /*if (!nodes || nodes.length === 0 || !edges || edges.length === 0) {
+        console.error("Nodes or edges are not available yet!");
+        return;
+      }*/
+    const pathData = extractPaths();
+    console.log("check consistency");
+    console.log("json data - check - ", pathData);
+    const llm = new ChatGroq({
+      model: "llama-3.1-8b-instant",
+      apiKey: "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",
+      temperature: 0,
+    });
+    const stringJson = JSON.stringify(pathData);
+    console.log("string json - ", stringJson);
+
+    const aiMsg = await llm.invoke([
+      {
+        role: "system",
+        content:
+          "You are a assistant that checks for consistency and usability of the LLM based workflow, which is given to you in a json like format. If the workflow makes sense and is logical, then its consistent. Else, it is not. Note these 2 strict conditions - 1 ) If retrieve comes first, it is inconsistent.2) If generate, it is consistent (true).These 2 conditions should be strictly adhered accurately. The response should strictly only contain the words 'true' or 'false'.",
+      },
+      { role: "user", content: stringJson },
+    ]);
+    //console.log("aimsg : ", aiMsg.content);
+
+    console.log("response - ", aiMsg.content);
+    const responseText =
+      typeof aiMsg.content === "string"
+        ? aiMsg.content.trim()
+        : JSON.stringify(aiMsg.content);
+    console.log("response - ", responseText);
+    const result = responseText === "true";
+    setConsistencyResult(result);
+    console.log("result - ", result);
+    if (result) {
+      sendBackend();
+    }
+  }, [extractPaths]);
 
   return (
-    <div className="flex flex-row min-h-screen  ">
+    <div className="flex flex-row ">
       <div
         className={`
-          w-1/5   bg-zinc-900 flex flex-col shadow-xl border-1 border-black  transition-all duration-600 ease-in-out
+          w-1/5   bg-zinc-900 flex flex-col shadow-xl border-1  border-black  transition-all duration-600 ease-in-out
           ${isExpanded1 ? "w-1/5" : "w-14 bg-indigo-100"}
         `}
       >
@@ -475,7 +625,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         </button>
       </div>
 
-      <div className="flex-1" ref={reactFlowWrapper}>
+      <div className="flex-1" ref={reactFlowWrapper} id="main-area">
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -517,10 +667,24 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
             >
               <FiUploadCloud size={20} />
             </button>
-            <button className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-green-600 transition-colors group">
+            <button
+              onClick={() => {
+                handleClick();
+              }}
+              className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-green-600 transition-colors group"
+            >
               <RiShareForwardLine size={20} />
               <span className="invisible group-hover:visible absolute bg-gray-100 text-black p-2  text-xs mt-16 ml-6 rounded-md">
                 Host
+              </span>
+            </button>
+            <button
+              onClick={screenShot}
+              className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-green-600 transition-colors group"
+            >
+              <TbCameraDown size={22} />
+              <span className="invisible group-hover:visible absolute bg-gray-100 text-black p-2  text-xs mt-16 ml-6 rounded-md">
+                Screenshot
               </span>
             </button>
           </Panel>
@@ -535,6 +699,56 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
           onSave={handleEdgeLabels}
         />
       </div>
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-4 rounded-lg w-1/3">
+            <h1 className="text-3xl font-semibold flex justify-center">
+              Hosting in Streamlit
+            </h1>
+            <div className="flex justify-center align-baseline space-x-2 p-2">
+              <MdOutlineDownloading size={26} className="" />
+              <p className="text-xs">
+                To start processing deployment, the consistency of the workflow
+                has to be checked. We are using the llama-3.1-8b-instant model
+                to check for consistency,thus ensuring efficiency. Click on the
+                CHECK button below to move forward with the consistency check.
+              </p>
+            </div>
+            <div className="flex justify-between">
+              <button
+                className="mt-4 px-4 py-2 bg-red-500 hover:bg-red-400 text-white rounded"
+                onClick={handleCloseModal}
+              >
+                Close
+              </button>
+              <button
+                onClick={checkConsistency}
+                className="mt-4 px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded flex flex-row space-x-2"
+              >
+                <RiRobot3Line className="mt-1" size={20} />
+                <p>Check</p>
+              </button>
+            </div>
+            {consistencyResult === false && (
+              <p className=" text-center text-red-400 text-sm mt-2">
+                The workflow cannot be deployed as it is inconsistent
+              </p>
+            )}
+            {consistencyResult === true && (
+              <div className="flex justify-center mt-4 flex-col items-center text-center">
+                <p>Consistency verified!</p>
+                <button
+                  onClick={handleHost}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded flex justify-end"
+                >
+                  <SiStreamlit size={20} />
+                  Host
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
       {isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white rounded-lg p-6 w-full max-w-md relative">
@@ -639,7 +853,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
               {Object.entries(components).map(([type, component], index) => (
                 <div
                   key={type}
-                  className="border-1 border-indigo-300 rounded-md p-3 bg-indigo-300 "
+                  className="border-1 border-indigo-400 rounded-md p-3 bg-indigo-400 "
                 >
                   <button
                     onClick={() => toggleAccordion(index)}

@@ -422,10 +422,10 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   const [isExpanded1, setIsExpanded1] = useState(true);
   const [isExpanded2, setIsExpanded2] = useState(true);
   return (
-    <div className="flex flex-row min-h-screen  ">
+    <div className="flex flex-row min-h-[100vh]  ">
       <div
         className={`
-          w-1/5   bg-zinc-900 flex flex-col shadow-xl border-1 border-black  transition-all duration-600 ease-in-out
+          w-1/5   bg-zinc-900 flex flex-col shadow-xl border-2 border-black max-h-[100vh] overflow-auto  transition-all duration-600 ease-in-out
           ${isExpanded1 ? "w-1/5" : "w-14 bg-indigo-100"}
         `}
       >
@@ -596,11 +596,11 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
                       <h1 className="text-lg  text-white font-semibold text-right">Components</h1>
                       <hr className="h-[1.5px] my-3 bg-indigo-500 border-0 " />
                     </div>
-                    <div className="p-5 flex flex-col bg-zinc-800 rounded-lg space-y-3 transition-transform duration-600 overflow-y-auto max-h-[90vh]">
+                    <div className="p-5 flex flex-col bg-zinc-800 rounded-lg space-y-3 transition-transform duration-600 overflow-y-auto max-h-[80vh]">
                       {Object.entries(components).map(([type, component], index) => (
                         <div
                           key={type}
-                          className="border-1 border-indigo-300 rounded-md p-3 bg-indigo-300 "
+                          className="border-1 border-indigo-400 rounded-md p-3 bg-indigo-400 "
                         >
                           <button
                             onClick={() => toggleAccordion(index)}

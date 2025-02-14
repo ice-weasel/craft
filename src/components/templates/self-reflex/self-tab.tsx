@@ -86,7 +86,7 @@ const SelfTab = () => {
   }, [router.query]);
 
   return (
-    <div className="p-5">
+    <div className="p-5  ">
       <div className="">
         <h1 className="text-lg  text-white font-semibold">Tool Box</h1>
         <hr className="h-[1.5px] my-3 bg-indigo-500 border-0 " />

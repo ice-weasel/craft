@@ -67,6 +67,7 @@ import { RiRobot3Line } from "react-icons/ri";
 import { RiShareForwardLine } from "react-icons/ri";
 import { MdOutlineDownloading } from "react-icons/md";
 import { SiStreamlit } from "react-icons/si";
+import { nanoid } from 'nanoid';
 
 import "@/styles/styles.css";
 
@@ -79,10 +80,7 @@ const nodeTypes = {
   custom: CustomNode,
 };
 
-const getId = (() => {
-  let id = 0;
-  return () => `dndnode_${id++}`;
-})();
+const getId = () => nanoid();
 
 const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   const [flowRestored, setFlowRestored] = useState(false);
@@ -175,8 +173,11 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
                   className: "custom-node", // Add the custom class here
                 }));
 
-                setNodes(restoredNodes || []);
-                setEdges(flow.edges || []);
+                const nodes = restoredNodes.map((node: { id: any; }) => ({ ...node, id: node.id || nanoid() }))
+                const edges = flow.edges.map((edge: { id: any; }) => ({ ...edge, id: edge.id || nanoid() }))
+
+                setNodes(nodes || []);
+                setEdges(edges || []);
                 setViewport({ x, y, zoom });
               }
               setOption(project.doc_type);
@@ -426,35 +427,37 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
     setNodes,
     setEdges,
   ]);
-
   const onDrop = useCallback(
     (event: React.DragEvent) => {
       event.preventDefault();
       const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
-
+  
       const rawData = event.dataTransfer.getData("application/reactflow");
-
       if (!rawData || !reactFlowBounds || !reactFlowInstance) return;
-
+  
       const { type, data } = JSON.parse(rawData);
-
+      
       const position = reactFlowInstance.project({
         x: event.clientX - reactFlowBounds.left,
         y: event.clientY - reactFlowBounds.top,
       });
-
+  
       const newNode = {
-        id: getId(),
+        id: getId(), // Ensure a unique ID
         type,
         position,
         className: "custom-node",
-        data, // Applying the custom data to the node
+        data,
       };
-
-      setNodes((nds) => nds.concat(newNode));
+  
+      setNodes((nds) => [...nds, newNode]);
+      
+      console.log("New node added:", newNode);
     },
     [reactFlowInstance, setNodes]
   );
+  
+  
 
   const extractPaths = useCallback(() => {
     const paths: any = {};
@@ -636,7 +639,17 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
       // Get the current date and format it as "dd-month-yyyy"
 
       const flow = reactFlowInstance.toObject();
-      console.log("This is toFlow", flow);
+      const uniqueEdges = Array.from(
+        new Map(flow.edges.map((edge: any) => [edge.id, edge])).values()
+      );
+
+      const uniqueNodes = Array.from(
+        new Map(flow.nodes.map((node:any) => [node.id,node])).values()  
+      )
+
+      const updatedFlow = { ...flow, nodes:uniqueNodes, edges: uniqueEdges };
+
+
 
       const today = new Date();
       const formattedDate = today.toLocaleString("default", {
@@ -687,7 +700,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         vector_stores: vstools || "Chroma_store",
         prompts: prompts || "default",
         customtext: customtext || null,
-        flow: flow, // Save flow as stringified JSON
+        flow: updatedFlow, // Save flow as stringified JSON
       };
 
       // Save the document to Firestore

@@ -3,7 +3,19 @@ import { FaRegTrashAlt } from "react-icons/fa";
 import { useCallback, useRef, useState } from "react";
 import { X } from "lucide-react";
 import "tailwindcss/tailwind.css";
-import ReactFlow, {useNodesState,useEdgesState,addEdge,Background,Controls,MiniMap,Connection,Edge,ReactFlowProvider,Node,OnSelectionChangeParams,} from "reactflow";
+import ReactFlow, {
+  useNodesState,
+  useEdgesState,
+  addEdge,
+  Background,
+  Controls,
+  MiniMap,
+  Connection,
+  Edge,
+  ReactFlowProvider,
+  Node,
+  OnSelectionChangeParams,
+} from "reactflow";
 import "reactflow/dist/style.css";
 import RTools from "@/components/flowtabs/rtools";
 import Prompts from "@/components/flowtabs/prompts";
@@ -25,11 +37,11 @@ import { firedb } from "@/app/firebase";
 import { ReactFlowInstance } from "reactflow";
 import { getUserData } from "@/utils/authUtils";
 import { RiShareForwardLine } from "react-icons/ri";
-import "@/styles/styles.css"
-
+import { ChatGroq } from "@langchain/groq";
+import "@/styles/styles.css";
 //Cookie verification
 export async function getServerSideProps(context: any) {
- return getUserData(context);
+  return getUserData(context);
 }
 
 const getId = (() => {
@@ -43,15 +55,14 @@ const initialNodes = [
     type: "input",
     data: { label: "Start" },
     position: { x: 250, y: 25 },
-    className:'custom-node'
+    className: "custom-node",
   },
   {
     id: "10",
     type: "output",
     data: { label: "Stop" },
     position: { x: 250, y: 175 },
-    className:'custom-node'
-    
+    className: "custom-node",
   },
 ];
 
@@ -175,7 +186,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         id: getId(),
         type,
         position,
-        className:'custom-node',
+        className: "custom-node",
         data, // Applying the custom data to the node
       };
 
@@ -259,7 +270,9 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
       llm: {
         llm_name: selectedLLM || "groq",
         config: {
-          apiKey: apiKey || "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",
+          apiKey:
+            apiKey ||
+            "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",
           temperature: temperature || "0.3",
           isVerbose: isVerbose || "false",
         },
@@ -338,7 +351,9 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         llm: {
           llm_name: selectedLLM || "Groq",
           config: {
-            apiKey: apiKey || "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",
+            apiKey:
+              apiKey ||
+              "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",
             temperature: temperature || "0.3",
             isVerbose: isVerbose || "false",
           },
@@ -352,12 +367,11 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         flow: flow, // Save flow as stringified JSON
       };
 
-
       // Save the document to Firestore
       await setDoc(fileDocRef, projectData);
 
       console.log("File saved successfully!");
-      closeModal()
+      closeModal();
       closeSaveModal();
     } catch (error) {
       console.error("Error saving file to Firestore:", error);
@@ -410,17 +424,40 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   };
 
   const components = {
-    "Document Type": <DocuType onDocTypeChange={handleDocTypeChange} currentValue={option} />,
-    Prompts: <Prompts onpromptsChange={handlePromptsChange} currentprompts={prompts} />,
-    Embeddings: <Embeddings onEmbeddingsChange={embeddingsChange} currentembeddings={embeddings} />,
-    "Retriever Techniques": <RTools onRToolsChange={rtoolsChange} currentrtools={rtools} />,
-    "Vector Store": <VSTools onVSToolsChange={vsToolsChange} currentvstools={vstools} />,
-    LLMs: <LLMs onLLMSelected={handleLLMSelected} currentllm={selectedLLM} currenttemp={temperature} currentVerbose={isVerbose}/>,
+    "Document Type": (
+      <DocuType onDocTypeChange={handleDocTypeChange} currentValue={option} />
+    ),
+    Prompts: (
+      <Prompts onpromptsChange={handlePromptsChange} currentprompts={prompts} />
+    ),
+    Embeddings: (
+      <Embeddings
+        onEmbeddingsChange={embeddingsChange}
+        currentembeddings={embeddings}
+      />
+    ),
+    "Retriever Techniques": (
+      <RTools onRToolsChange={rtoolsChange} currentrtools={rtools} />
+    ),
+    "Vector Store": (
+      <VSTools onVSToolsChange={vsToolsChange} currentvstools={vstools} />
+    ),
+    LLMs: (
+      <LLMs
+        onLLMSelected={handleLLMSelected}
+        currentllm={selectedLLM}
+        currenttemp={temperature}
+        currentVerbose={isVerbose}
+      />
+    ),
   };
 
   //sidebar
   const [isExpanded1, setIsExpanded1] = useState(true);
   const [isExpanded2, setIsExpanded2] = useState(true);
+
+  //
+
   return (
     <div className="flex flex-row min-h-[100vh]  ">
       <div
@@ -453,46 +490,43 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         >
           <Panel
             position="top-center"
-           className="bg-zinc-900 shadow-md rounded-lg p-1.5 m-2 flex gap-3"
+            className="bg-zinc-900 shadow-md rounded-lg p-1.5 m-2 flex gap-3"
           >
             <button
-                         onClick={handleDelete}
-                         disabled={
-                           !selectedElements.nodes.length && !selectedElements.edges.length
-                         }
-                         className="p-2 rounded-lg bg-red-500 text-white disabled:bg-gray-300 hover:bg-red-600 transition-colors"
-                       >
-                         <FaRegTrashAlt />
-                       </button>
-                       <button
-                         onClick={exportPathsAsJson}
-                         //onClick={openModal}
-                         className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-indigo-400 transition-colors"
-                       >
-                         <MdOutlineSaveAlt size={20} />
-                       </button>
-                         <button
-                          onClick={() => {
-                           openSaveModal();
-                           exportPathsAsJson();
-                           }}
-                           className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-indigo-400 transition-colors"
-                           >
-                           <FiUploadCloud size={20} />
-                           </button>
-                       <button
-                        
-                         className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-green-600 transition-colors group"
-                       >
-                         <RiShareForwardLine size={20} />
-                         <span className="invisible group-hover:visible absolute bg-gray-100 text-black p-2  text-xs mt-16 ml-6 rounded-md">
-                           Host
-                         </span>
-                       </button>
+              onClick={handleDelete}
+              disabled={
+                !selectedElements.nodes.length && !selectedElements.edges.length
+              }
+              className="p-2 rounded-lg bg-red-500 text-white disabled:bg-gray-300 hover:bg-red-600 transition-colors"
+            >
+              <FaRegTrashAlt />
+            </button>
+            <button
+              onClick={exportPathsAsJson}
+              //onClick={openModal}
+              className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-indigo-400 transition-colors"
+            >
+              <MdOutlineSaveAlt size={20} />
+            </button>
+            <button
+              onClick={() => {
+                openSaveModal();
+                exportPathsAsJson();
+              }}
+              className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-indigo-400 transition-colors"
+            >
+              <FiUploadCloud size={20} />
+            </button>
+            <button className="flex items-center gap-2 px-2 py-1 bg-zinc-800 text-white rounded-lg hover:bg-green-600 transition-colors group">
+              <RiShareForwardLine size={20} />
+              <span className="invisible group-hover:visible absolute bg-gray-100 text-black p-2  text-xs mt-16 ml-6 rounded-md">
+                Host
+              </span>
+            </button>
           </Panel>
           <Controls />
-        
-          <Background className="bg-zinc-800"/>
+
+          <Background className="bg-zinc-800" />
         </ReactFlow>
         <Conditionals
           isOpen={showModal}
@@ -534,7 +568,10 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white rounded-lg p-6 w-full max-w-md relative">
             <button
-              onClick={() => {closeModal();closeSaveModal()}}
+              onClick={() => {
+                closeModal();
+                closeSaveModal();
+              }}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
             >
               <X size={24} />
@@ -590,12 +627,29 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
         }`}
       >
         {isExpanded2 && (
-                  <div className="p-5">
-                    {" "}
-                    <div className=" bg-zinc-900 p-5">
-                      <h1 className="text-lg  text-white font-semibold text-right">Components</h1>
-                      <hr className="h-[1.5px] my-3 bg-indigo-500 border-0 " />
+          <div className="p-5">
+            {" "}
+            <div className=" bg-zinc-900 p-5">
+              <h1 className="text-lg  text-white font-semibold text-right">
+                Components
+              </h1>
+              <hr className="h-[1.5px] my-3 bg-indigo-500 border-0 " />
+            </div>
+            <div className="p-5 flex flex-col bg-zinc-800 rounded-lg space-y-3 transition-transform duration-600 overflow-y-auto max-h-[90vh]">
+              {Object.entries(components).map(([type, component], index) => (
+                <div
+                  key={type}
+                  className="border-1 border-indigo-300 rounded-md p-3 bg-indigo-300 "
+                >
+                  <button
+                    onClick={() => toggleAccordion(index)}
+                    className="w-full flex justify-between flex-row transition-transform duration-60 font-semibold text-black"
+                  >
+                    <div>{type}</div>
+                    <div>
+                      <IoIosArrowDown />
                     </div>
+
                     <div className="p-5 flex flex-col bg-zinc-800 rounded-lg space-y-3 transition-transform duration-600 overflow-y-auto max-h-[80vh]">
                       {Object.entries(components).map(([type, component], index) => (
                         <div
@@ -611,29 +665,32 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
                               <IoIosArrowDown />
                             </div>
                             {/* <span
+
+                    {/* <span
+
                           id={`icon-${index}`}
                           className="transition-transform duration-300"
                           dangerouslySetInnerHTML={{
                             __html: openIndices.includes(index) ? minusSVG : plusSVG,
                           }}
                         />*/}
-                          </button>
-                          <div
-                            ref={(el: any) => (contentRefs.current[index] = el)}
-                            style={{
-                              height: openIndices.includes(index)
-                                ? contentRefs.current[index]?.scrollHeight
-                                : 0,
-                            }}
-                            className="overflow-y-auto transition-[height] bg-indigo-300 rounded-md duration-300 ease-in-out"
-                          >
-                            <div className="py-3">{component}</div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                  </button>
+                  <div
+                    ref={(el: any) => (contentRefs.current[index] = el)}
+                    style={{
+                      height: openIndices.includes(index)
+                        ? contentRefs.current[index]?.scrollHeight
+                        : 0,
+                    }}
+                    className="overflow-y-auto transition-[height] bg-indigo-300 rounded-md duration-300 ease-in-out"
+                  >
+                    <div className="py-3">{component}</div>
                   </div>
-                )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         <button
           onClick={() => setIsExpanded2(!isExpanded2)}
           className="absolute bottom-5 right-2 p-2 rounded-full bg-indigo-500 hover:bg-gray-200 transition-transform duration-300 ease-in-out"

@@ -23,9 +23,9 @@ import ReactFlow, {
   useReactFlow,
   Panel,
 } from "reactflow";
-
+import { StructuredOutputParser } from "@langchain/core/output_parsers";
 import { TbCameraDown } from "react-icons/tb";
-
+import { ChatGroq } from "@langchain/groq";
 import { ColorMode } from "@xyflow/react";
 import "reactflow/dist/style.css";
 import html2canvas from "html2canvas";
@@ -61,7 +61,8 @@ import { FiUploadCloud } from "react-icons/fi";
 import { X } from "lucide-react";
 import Toast from "@/components/toast";
 import CustomNode from "@/components/darkreactflow";
-
+import { RunnableSequence } from "@langchain/core/runnables";
+import { PromptTemplate } from "@langchain/core/prompts";
 import { RiRobot3Line } from "react-icons/ri";
 import { RiShareForwardLine } from "react-icons/ri";
 import { MdOutlineDownloading } from "react-icons/md";
@@ -69,6 +70,7 @@ import { SiStreamlit } from "react-icons/si";
 
 import "@/styles/styles.css";
 
+//export GROQ_API_KEY="65432";
 export async function getServerSideProps(context: any) {
   return getUserData(context, true);
 }
@@ -131,6 +133,9 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
   const [vstools, setVSTools] = useState<string | null>(null);
   const [error, setError] = useState<string>("");
   const { setViewport } = useReactFlow();
+  const [consistencyResult, setConsistencyResult] = useState<null | boolean>(
+    null
+  );
 
   const router = useRouter();
 
@@ -844,8 +849,53 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
 
   //check consistency
 
-  const checkConsistency = () => {
+  const parser = StructuredOutputParser.fromNamesAndDescriptions({
+    consistent: "whether the json is consistent or not - true or false value",
+  });
+
+  const checkConsistency = async () => {
     console.log("check consistency");
+    console.log("json data - check - ", jsonData);
+    const llm = new ChatGroq({
+      model: "llama-3.1-8b-instant",
+      apiKey: "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",
+      temperature: 0,
+    });
+    const stringJson = JSON.stringify(jsonData);
+    console.log("string json - ", stringJson);
+
+    /*const chain = RunnableSequence.from([
+      PromptTemplate.fromTemplate(
+        "Check the consistency of the given data.\n{format_instructions}\n{question}"
+      ),
+      llm,
+      parser,
+    ]);
+
+    const response = await chain.invoke({
+      question: stringJson,
+      format_instructions: parser.getFormatInstructions(),
+    });*/
+
+    const aiMsg = await llm.invoke([
+      {
+        role: "system",
+        content:
+          "You are a assistant that checks for consistency and usability of workflows. If the workflow makes sense and is logical, then its consistent. Else, it is not. If the output is consistent, then te response should be true. else, false. the response should strictly only contain the words 'true' or 'false'.",
+      },
+      { role: "user", content: stringJson },
+    ]);
+    //console.log("aimsg : ", aiMsg.content);
+
+    console.log("response - ", aiMsg.content);
+    const responseText =
+      typeof aiMsg.content === "string"
+        ? aiMsg.content.trim()
+        : JSON.stringify(aiMsg.content);
+    console.log("response - ", responseText);
+    const result = responseText === "true";
+    setConsistencyResult(result); // Update state
+    console.log("result - ", result);
   };
 
   return (
@@ -962,10 +1012,9 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
               <MdOutlineDownloading size={26} className="" />
               <p className="text-xs">
                 To start processing deployment, the consistency of the workflow
-                has to be checked. We are using gemma-9b model to check for
-                consistency in our local server,thus ensuring your data privacy.
-                Click on the CHECK button below to move forward with the
-                consistency check.
+                has to be checked. We are using the llama-3.1-8b-instant model
+                to check for consistency,thus ensuring efficiency. Click on the
+                CHECK button below to move forward with the consistency check.
               </p>
             </div>
             <div className="flex justify-between">
@@ -983,6 +1032,18 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
                 <p>Check</p>
               </button>
             </div>
+            {consistencyResult === false && (
+              <p className=" text-center text-red-400 text-sm mt-2">
+                The workflow cannot be deployed as it is inconsistent
+              </p>
+            )}
+            {consistencyResult === true && (
+              <div className="flex justify-center mt-4">
+                <button className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded">
+                  Host
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

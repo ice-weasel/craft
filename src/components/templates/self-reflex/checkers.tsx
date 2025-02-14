@@ -18,7 +18,7 @@ export default function Checkers() {
           <div
             className="p-2 flex gap-3 items-center text-blue  font-semibold hover:text-black bg-indigo-400 hover:bg-indigo-500 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
             onDragStart={(e) =>
-              onDragStart(e, "default", {
+              onDragStart(e, "conditional", {
                 label: "relevancy-checker",
                 action: "relevancy",
               })
@@ -33,7 +33,7 @@ export default function Checkers() {
           <div
             className="p-2 flex gap-3 items-center text-blue  font-semibold hover:text-black bg-indigo-400 hover:bg-indigo-500 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
             onDragStart={(e) =>
-              onDragStart(e, "default", {
+              onDragStart(e, "conditional", {
                 label: "hallucination-checker",
                 action: "hallucinate",
               })
@@ -48,7 +48,7 @@ export default function Checkers() {
           <div
             className="p-2  flex gap-3 items-center text-blue  font-semibold hover:text-black bg-indigo-400 hover:bg-indigo-500 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
             onDragStart={(e) =>
-              onDragStart(e, "default", {
+              onDragStart(e, "conditional", {
                 label: "grounded-answer-checker",
                 action: "grounded-check",
               })

@@ -19,7 +19,7 @@ export default function Nodes() {
           <div
             className="p-2  text-center flex gap-3 items-center text-blue  font-semibold hover:text-black bg-indigo-400 hover:bg-indigo-500 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
             onDragStart={(e) =>
-              onDragStart(e, "default", {
+              onDragStart(e, "conditional", {
                 label: "grade-documents",
                 action: "grade",
               })
@@ -34,7 +34,7 @@ export default function Nodes() {
           <div
             className="p-2  text-center flex gap-3 items-center text-blue  font-semibold hover:text-black bg-indigo-400 hover:bg-indigo-500 transition-colors hover:shadow-lg rounded mb-2 cursor-move"
             onDragStart={(e) =>
-              onDragStart(e, "default", {
+              onDragStart(e, "conditional", {
                 label: "rewrite-node",
                 action: "rewrite",
               })

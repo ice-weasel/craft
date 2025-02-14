@@ -517,7 +517,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
             },
           },
       doc_type: option || "pdf_type",
-      embeddings: embeddings || "hugging_face_type_embeddings",
+      embeddings: embeddings || "hugging_face",
       retriever_tools: rtools || "basic",
       vector_stores: vstools || "chroma_store",
       prompts: prompts || "default",

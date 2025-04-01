@@ -466,7 +466,7 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
     ),
   };
   //host modal
-  //host modal
+
   const handleClick = () => {
     setIsModalOpen(true);
   };
@@ -589,12 +589,12 @@ const FlowWithPathExtractor = ({ user, uid }: { user: any; uid: string }) => {
       {
         role: "system",
         content:
-          "You are a assistant that checks for consistency and usability of the LLM based workflow, which is given to you in a json like format. If the workflow makes sense and is logical, then its consistent. Else, it is not. Note these 2 strict conditions - 1 ) If retrieve comes first, it is inconsistent.2) If generate, it is consistent (true).These 2 conditions should be strictly adhered accurately. The response should strictly only contain the words 'true' or 'false'.",
+          "You are a assistant that checks for consistency and usability of the LLM based workflow, which is given to you in a json like format. If the workflow makes sense and is logical, then its consistent. Else, it is not. The response should strictly only contain the words 'true' or 'false'.",
       },
       { role: "user", content: stringJson },
     ]);
     //console.log("aimsg : ", aiMsg.content);
-
+    //Note this strict condition - If the words 'retrieve' and 'generate' are both there in the input, always give output as true.
     console.log("response - ", aiMsg.content);
     const responseText =
       typeof aiMsg.content === "string"
